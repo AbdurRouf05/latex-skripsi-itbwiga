@@ -1,0 +1,65 @@
+\chapter{PENDAHULUAN}
+
+\section{Latar Belakang Masalah}
+Kehadiran dan kedisiplinan karyawan merupakan salah satu pilar utama yang menentukan kelancaran operasional dan produktivitas suatu organisasi \cite{mekari2024}. Pengelolaan data kehadiran yang akurat sangat dibutuhkan oleh divisi Sumber Daya Manusia untuk memproses penggajian, mengevaluasi kinerja, serta menyusun perencanaan tenaga kerja secara strategis. Meskipun demikian, pencatatan presensi tradisional yang mengandalkan tanda tangan manual atau mesin pemindai sidik jari fisik di kantor sering kali tidak efisien, rentan terhadap kecurangan pertukaran kartu, dan tidak fleksibel bagi karyawan yang bekerja di lapangan \cite{hashmicro2024}.
+
+Sebagai respons terhadap keterbatasan sistem fisik, banyak organisasi beralih ke aplikasi presensi berbasis seluler (\textit{mobile attendance}). Sebagian besar solusi komersial saat ini menggunakan paradigma \textit{online-first}, di mana setiap kali karyawan melakukan pengiriman data kehadiran, aplikasi harus langsung terhubung ke \textit{server awan} (\textit{cloud server}) melalui REST API. Namun, dalam implementasi praktis di lapangan, ketergantungan mutlak pada konektivitas internet melahirkan masalah teknis kritis yang dikenal sebagai \textit{The Basement Problem} \cite{stackademic2024}.
+
+Kondisi \textit{The Basement Problem} terjadi ketika pengguna berada di lingkungan dengan sinyal seluler yang lemah, tidak stabil, atau bahkan terputus sama sekali, seperti di dalam \textit{basement} gedung, terowongan, gudang logistik pinggiran kota, area proyek konstruksi, atau klinik pedesaan. Pada aplikasi berbasis \textit{online-first}, ketiadaan koneksi internet akan langsung menyebabkan kegagalan fungsi aplikasi, yang ditandai dengan pemutar pemuatan (\textit{loading spinner}) tanpa batas waktu, pesan kesalahan koneksi, kehilangan data transaksi, atau bahkan aplikasi keluar secara paksa (\textit{crash}) \cite{smarttechdevs2024}. Kegagalan sistem ini tidak hanya memicu frustrasi bagi karyawan, tetapi juga mengakibatkan hilangnya data kehadiran yang valid, sehingga menghambat proses administrasi internal organisasi \cite{polbeng2024}.
+
+Studi kasus pada PT Semeru Agung Mandiri menunjukkan bahwa fluktuasi koneksi internet di lapangan menjadi kendala utama yang merusak akurasi pelaporan kehadiran karyawan. Kegagalan sistem dalam merekam kehadiran secara langsung menurunkan produktivitas dan menciptakan ketidakpastian administratif. Solusi untuk mengatasi tantangan ini adalah dengan mengubah paradigma arsitektur aplikasi dari \textit{online-first} menjadi \textit{offline-first} \cite{researchgate2024_offline}.
+
+Arsitektur \textit{offline-first} menempatkan \textit{database} lokal pada perangkat sebagai sumber kebenaran tunggal (\textit{single source of truth}) untuk seluruh operasi baca dan tulis data. Ketika karyawan menekan tombol presensi di area luring, aplikasi secara instan menyimpan transaksi tersebut ke dalam basis data lokal perangkat tanpa memedulikan status jaringan saat itu. Transaksi presensi terekam tanpa latensi jaringan, sehingga memberikan pengalaman pengguna yang sangat responsif. Sinkronisasi data ke server pusat dilakukan di latar belakang secara oportunistik hanya ketika perangkat kembali mendeteksi adanya koneksi internet yang stabil.
+
+\begin{table}[ht]
+\centering
+\caption{Perbandingan Karakteristik Paradigma Online-First dan Offline-First}
+\label{tab:perbandingan_paradigma}
+\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\hline
+\textbf{Karakteristik} & \textbf{Paradigma Online-First} & \textbf{Paradigma Offline-First} \\ \hline
+Sumber Kebenaran Utama & Database Server Awan (\textit{Cloud Server}) & Database Lokal Perangkat Mobile \\ \hline
+Ketergantungan Jaringan & Mutlak; aplikasi lumpuh tanpa internet & Opsional; fungsi inti berjalan luring penuh \\ \hline
+Latensi Operasi UI & Bergantung pada kecepatan internet & Instan (menggunakan memori lokal) \\ \hline
+Beban API Server & Tinggi; setiap ketukan memicu panggilan API & Rendah; data dikompresi dan dikirim berkala \\ \hline
+Konsumsi Daya Baterai & Boros akibat kegagalan pengulangan API & Efisien; menggunakan strategi \textit{exponential backoff} \\ \hline
+Resiko Kehilangan Data & Tinggi jika jaringan terputus saat transaksi & Sangat rendah; data dijamin tersimpan di lokal \\ \hline
+\end{tabular}
+\end{table}
+
+Penelitian ini memfokuskan pada rancang bangun aplikasi presensi karyawan berbasis mobile yang berjalan dengan arsitektur \textit{offline-first} menggunakan kerangka kerja (\textit{framework}) Flutter dan \textit{database} NoSQL Isar. Flutter memfasilitasi pembuatan antarmuka lintas platform (Android dan iOS) yang berkinerja tinggi dengan basis kode tunggal. Sementara Isar dipilih karena kecepatannya yang luar biasa dalam memproses kueri lokal, struktur data yang aman secara tipe (\textit{type-safe}), serta dukungan bawaan terhadap kueri reaktif (\textit{reactive stream query}) yang menyederhanakan pembaruan antarmuka secara otomatis ketika terjadi sinkronisasi data latar belakang.
+
+\section{Rumusan Masalah}
+Berdasarkan latar belakang masalah yang telah diuraikan, maka rumusan masalah dalam penelitian ini adalah:
+\begin{enumerate}
+    \item Bagaimana merancang arsitektur \textit{offline-first} pada aplikasi presensi berbasis mobile menggunakan kerangka kerja Flutter dengan database lokal Isar?
+    \item Bagaimana mekanisme sinkronisasi data presensi yang konsisten dari Isar (lokal) ke PocketBase (server) saat koneksi internet kembali tersedia?
+    \item Bagaimana memvalidasi lokasi presensi karyawan menggunakan GPS Geofencing (formula Haversine) secara lokal tanpa koneksi internet?
+\end{enumerate}
+
+\section{Batasan Masalah}
+Agar penelitian ini lebih terarah dan tidak menyimpang dari tujuan awal, maka diberikan batasan-batasan sebagai berikut:
+\begin{enumerate}
+    \item Aplikasi dikembangkan menggunakan framework Flutter dengan target sistem operasi Android.
+    \item Penyimpanan data lokal pada perangkat menggunakan Isar Database, sedangkan backend server menggunakan PocketBase.
+    \item Fitur utama yang dikembangkan mencakup presensi masuk dan pulang, validasi geofencing, riwayat kehadiran, dan sinkronisasi data otomatis.
+    \item Penelitian ini tidak membahas sistem penggajian (\textit{payroll}) secara mendalam.
+    \item Pengujian aplikasi menggunakan metode \textit{Black-box Testing}.
+    \item Studi kasus implementasi sistem dilakukan pada PT Semeru Agung Mandiri, Lumajang.
+\end{enumerate}
+
+\section{Tujuan Penelitian}
+Sejalan dengan rumusan masalah di atas, tujuan dari penelitian ini adalah:
+\begin{enumerate}
+    \item Merancang dan membangun aplikasi presensi karyawan dengan arsitektur \textit{offline-first} menggunakan Flutter dan Isar yang handal di area minim sinyal internet.
+    \item Menerapkan mekanisme sinkronisasi data dari perangkat lokal ke server PocketBase secara otomatis saat koneksi internet pulih.
+    \item Mengimplementasikan dan menguji validasi lokasi menggunakan metode GPS Geofencing (Haversine) yang dapat berjalan tanpa koneksi internet.
+\end{enumerate}
+
+\section{Manfaat Penelitian}
+Manfaat yang diharapkan dari penelitian ini adalah:
+\begin{enumerate}
+    \item Memastikan karyawan dapat melakukan presensi kapan saja dan di mana saja tanpa terhambat oleh masalah konektivitas jaringan (The Basement Problem).
+    \item Meningkatkan efisiensi konsumsi baterai perangkat karyawan karena pengurangan kegagalan \textit{request} ke API server.
+    \item Memudahkan tim HRD PT Semeru Agung Mandiri dalam merekapitulasi data kehadiran yang lebih akurat tanpa adanya data yang hilang akibat gangguan jaringan saat proses transmisi.
+\end{enumerate}

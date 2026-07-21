@@ -1,0 +1,87 @@
+\documentclass{pengaturan/skripsi}
+
+\usepackage{blindtext}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{xcolor}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!70!black},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  tabsize=2
+}
+
+%===========================================================
+% Definisi Data Peneliti, Judul, Pembimbing dan Penguji
+%-----------------------------------------------------------
+\titleskripsi{RANCANG BANGUN APLIKASI PRESENSI KARYAWAN BERBASIS MOBILE MENGGUNAKAN ARSITEKTUR OFFLINE-FIRST DENGAN FLUTTER PADA PT SEMERU AGUNG MANDIRI}
+
+\fullname{ABDUR ROUF}
+\idnum{223140118}
+
+\yearsubmit{2026}
+\program{S1 Teknik Informatika}
+\dept{Teknik Informatika}
+\faculty{Fakultas Teknik}
+\university{Institut Teknologi dan Bisnis Widya Gama}
+\city{Lumajang}
+
+\firstsupervisor{Nama Dosen Pembimbing 1, S.Kom., M.Kom.}
+\secondsupervisor{Nama Dosen Pembimbing 2, S.Kom., M.Kom.}
+\firstexaminer{Nama Dosen Penguji 1, S.Kom., M.Kom.}
+\secondexaminer{Nama Dosen Penguji 2, S.Kom., M.Kom.}
+%-----------------------------------------------------------
+% End Definisi Data Peneliti, Judul, Pembimbing dan Penguji
+%===========================================================
+
+\begin{document}
+    \noindent
+    \textit{Seminar I}
+    \coverproposal
+    \pagenumbering{roman}
+    
+    %===========================================================
+    % Daftar isi, daftar gambar, daftar tabel
+    %-----------------------------------------------------------
+    \addcontentsline{toc}{chapter}{DAFTAR ISI}
+    \tableofcontents
+    \pagebreak
+
+    \addcontentsline{toc}{chapter}{DAFTAR TABEL}
+    \listoftables
+    \pagebreak
+
+    \addcontentsline{toc}{chapter}{DAFTAR GAMBAR}
+    \listoffigures
+    \pagebreak
+
+    \pagenumbering{arabic}
+    %-----------------------------------------------------------
+    % End Daftar isi, daftar gambar, daftar tabel
+    %===========================================================
+
+    %===========================================================
+    % Daftar masukan untuk Bab
+    %-----------------------------------------------------------
+    \input{isi-bab/bab1.tex}
+    \input{isi-bab/bab2.tex}
+    \input{isi-bab/bab3.tex}
+    %-----------------------------------------------------------
+    % End Daftar masukan untuk Bab
+    %===========================================================
+
+    %===========================================================
+    % Daftar Pustaka
+    %-----------------------------------------------------------
+    \addcontentsline{toc}{chapter}{DAFTAR PUSTAKA}
+    \printbibliography[title={DAFTAR PUSTAKA}]
+    %-----------------------------------------------------------
+    % End Daftar Pustaka
+    %===========================================================
+
+\end{document}

@@ -1,0 +1,122 @@
+\chapter{TINJAUAN PUSTAKA}
+
+\section{Tinjauan Teoretis Arsitektur Offline-First}
+Arsitektur \textit{offline-first} merupakan sebuah paradigma perancangan perangkat lunak di mana konektivitas jaringan tidak lagi diperlakukan sebagai prasyarat utama, melainkan sebagai mekanisme sinkronisasi data sekunder \cite{researchgate2024_offline}. Berdasarkan Teorema CAP (\textit{Consistency, Availability, Partition Tolerance}), sebuah sistem penyimpanan data terdistribusi hanya dapat menjamin maksimal dua dari tiga properti tersebut secara bersamaan. Pada perangkat seluler yang sering mengalami gangguan sinyal (toleransi partisi), arsitektur \textit{offline-first} memilih untuk mengorbankan konsistensi seketika (\textit{immediate consistency}) demi mempertahankan ketersediaan tinggi, yang mengarah pada model konsistensi akhir (\textit{eventual consistency}) \cite{nair2020offline}.
+
+Dalam model konsistensi akhir, data pada \textit{client} dan \textit{server} akan mengalami perbedaan (\textit{drift}) selama masa luring, namun dijamin akan mencapai keadaan yang sama setelah proses sinkronisasi berhasil diselesaikan. Penyelarasan keadaan ini membutuhkan struktur data khusus seperti \textit{Conflict-Free Replicated Data Types} (CRDTs) atau algoritma penyelarasan semantik guna menghindari benturan data. CRDT yang umum digunakan meliputi G-Counter untuk akumulasi peristiwa monotonik, \textit{Observed-Remove Set} (OR-Set) untuk koleksi data dinamis, dan \textit{Last-Writer-Wins Register} (LWW-Register) untuk memperbarui variabel keadaan berdasarkan tanda waktu (\textit{timestamp}) terbaru \cite{nair2020offline}.
+
+Keunggulan komparatif strategi sinkronisasi dianalisis secara empiris oleh Nair et al. (2020) yang membandingkan efisiensi konsumsi \textit{bandwidth} dan tingkat benturan data antara tiga metode utama, yaitu pengiriman \textit{snapshot} penuh (\textit{full-snapshot sync}), pencatatan log operasi (\textit{operation-log sync}), dan sinkronisasi delta (\textit{delta synchronization}). Hasil penelitian tersebut menunjukkan bahwa sinkronisasi delta, yang hanya mengirimkan bagian data yang mengalami modifikasi sejak waktu sinkronisasi terakhir, menghasilkan efisiensi \textit{bandwidth} yang paling optimal dan meminimalkan beban komputasi pada server \cite{nair2020offline}. 
+
+\section{Analisis Infrastruktur Penyimpanan Data: On-Premise vs Cloud Storage}
+Perusahaan yang mengimplementasikan sistem absensi harus menentukan jenis arsitektur penyimpanan data di sisi server. Keputusan ini berdampak langsung pada biaya investasi, tingkat keamanan informasi, tingkat kesulitan pemeliharaan, serta skalabilitas sistem.
+
+\begin{table}[ht]
+\centering
+\caption{Perbandingan Infrastruktur On-Premise dan Cloud Storage}
+\label{tab:perbandingan_infrastruktur}
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Dimensi Evaluasi} & \textbf{Arsitektur On-Premise} & \textbf{Arsitektur Cloud Storage} \\ \hline
+Investasi Biaya & Biaya awal sangat tinggi untuk pembelian server fisik. & Biaya operasional rendah, berbasis sewa bulanan. \\ \hline
+Aksesibilitas Data & Terbatas pada jaringan lokal, butuh konfigurasi VPN rumit. & Praktis, dapat diakses dari mana saja secara global. \\ \hline
+Resiko Kehilangan Data & Tinggi jika terjadi kerusakan perangkat keras tanpa cadangan. & Rendah karena dilengkapi fitur replikasi otomatis. \\ \hline
+Kebutuhan Tenaga Ahli & Memerlukan insinyur khusus (\textit{maintenance engineer}). & Pemeliharaan infrastruktur diurus oleh penyedia layanan awan. \\ \hline
+Keamanan Informasi & Sangat tinggi; kendali penuh atas data sensitif perusahaan. & Terjamin melalui protokol enkripsi standar industri. \\ \hline
+\end{tabular}
+\end{table}
+
+Penyimpanan berbasis \textit{cloud storage} menawarkan efisiensi operasional bagi perusahaan berskala menengah ke bawah karena tidak memerlukan biaya perawatan perangkat keras fisik. Namun, sistem presensi yang dibangun harus tetap mengintegrasikan penyimpanan lokal pada perangkat seluler untuk menopang kebutuhan operasional luring.
+
+\section{Kajian Komparatif Solusi Penyimpanan Lokal Perangkat Seluler}
+Penyimpanan lokal pada perangkat seluler bertindak sebagai penampung sementara bagi seluruh transaksi presensi sebelum dikirim ke database pusat. Pemilihan teknologi \textit{database} lokal sangat memengaruhi kecepatan penulisan, kemudahan pemodelan data, serta konsumsi memori perangkat.
+
+\begin{table}[ht]
+\centering
+\caption{Perbandingan Solusi Database Lokal}
+\label{tab:perbandingan_db}
+\begin{tabular}{|l|l|p{3.5cm}|p{3.5cm}|}
+\hline
+\textbf{Nama Solusi} & \textbf{Tipe Basis Data} & \textbf{Keunggulan Utama} & \textbf{Kelemahan Utama} \\ \hline
+SharedPreferences & Key-Value & Ringan, tanpa dependensi. & Tidak mendukung kueri kompleks. \\ \hline
+Hive & NoSQL & Eksekusi cepat, performa tinggi. & Kueri terbatas, kurang cocok relasi. \\ \hline
+SQLite & Relasional (SQL) & Mendukung kueri kompleks, ACID. & Memerlukan SQL manual. \\ \hline
+Isar Database & NoSQL (Object) & Sangat cepat, tipe aman. & Ekosistem relatif baru. \\ \hline
+\end{tabular}
+\end{table}
+
+Isar Database dirancang secara khusus untuk ekosistem Flutter dan Dart. Karakteristik kinerjanya yang berada di tingkat sub-milidetik memastikan bahwa perekaman data kehadiran, pengambilan koordinat lokasi, hingga pencarian log riwayat dapat berjalan secara instan tanpa mengganggu kelancaran animasi antarmuka pengguna (\textit{UI jank}).
+
+\section{Penerapan Clean Architecture pada Framework Flutter}
+\textit{Clean Architecture} yang dipopulerkan oleh Robert C. Martin merupakan sebuah pola perancangan perangkat lunak yang membagi sistem ke dalam beberapa lapisan konsentris dengan aturan ketergantungan yang ketat ke arah dalam. Implementasi pola ini dalam pengembangan aplikasi Flutter bertujuan untuk menciptakan basis kode yang modular, mudah diuji secara independen, dan adaptif terhadap perubahan teknologi. Terdapat tiga lapisan utama dalam arsitektur ini:
+\begin{enumerate}
+    \item \textbf{Presentation Layer}: Lapisan terluar yang berurusan langsung dengan elemen antarmuka pengguna (\textit{UI Widgets}) dan penangan logika tampilan (\textit{State Management}) seperti BLoC, GetX, atau Provider.
+    \item \textbf{Domain Layer}: Merupakan jantung dari aplikasi yang menyimpan seluruh aturan bisnis inti. Lapisan ini bersifat independen dari kerangka kerja Flutter. Komponen di dalamnya meliputi Kasus Penggunaan (\textit{Use Cases}), Entitas (\textit{Entities}), dan Kontrak Repositori.
+    \item \textbf{Data Layer}: Bertanggung jawab atas penyediaan data ke lapisan domain. Lapisan ini mengimplementasikan kontrak repositori dan mengelola interaksi dengan sumber data eksternal (API) maupun internal (Local DB).
+\end{enumerate}
+
+Melalui pemisahan tanggung jawab yang jelas ini, pengujian unit (\textit{unit testing}) dapat dilakukan secara optimal karena setiap lapisan dapat diuji secara terisolasi menggunakan teknik simulasi objek (\textit{mocking}).
+
+\section{Flutter dan Dart}
+Flutter merupakan kerangka kerja (\textit{framework}) lintas platform yang dikembangkan oleh Google, dirilis secara stabil pada tahun 2018. Flutter memungkinkan pengembang untuk membuat aplikasi Android, iOS, web, dan desktop berkinerja tinggi hanya dengan satu basis kode tunggal \cite{flutter_docs}. Berbeda dengan kerangka kerja lainnya, Flutter tidak menggunakan komponen bawaan sistem operasi (\textit{OEM widgets}), melainkan me-render seluruh elemen antarmuka secara mandiri (\textit{widget tree}) menggunakan mesin grafis Skia, sehingga menghasilkan konsistensi tampilan di berbagai platform dan mendukung kompilasi \textit{Ahead-of-Time} (AOT) untuk kecepatan eksekusi. Bahasa pemrograman yang mendasari Flutter adalah Dart, sebuah bahasa berorientasi objek yang mendukung \textit{null-safety}, pemrograman asinkron (\textit{async/await}), dan pengetikan yang kuat (\textit{strong typing}), menjadikannya sangat relevan untuk membangun logika sinkronisasi data yang kompleks \cite{flutter_docs}.
+
+\section{PocketBase sebagai Backend-as-a-Service}
+Dalam ekosistem aplikasi \textit{mobile}, ketersediaan layanan \textit{backend} yang tangguh dan ringan sangat krusial. PocketBase merupakan solusi \textit{Backend-as-a-Service} (BaaS) sumber terbuka yang dibangun menggunakan bahasa Go, didesain untuk didistribusikan sebagai satu file biner tunggal tanpa memerlukan dependensi yang rumit \cite{pocketbase_docs}. PocketBase menyediakan fitur \textit{REST API} secara otomatis berdasarkan skema basis data, sistem autentikasi bawaan yang aman, pengelolaan penyimpanan berkas (\textit{file storage}) yang terintegrasi, dan kapabilitas \textit{real-time subscriptions}. Alasan utama pemilihan PocketBase dibandingkan layanan \textit{cloud} komersial seperti Firebase adalah kebebasannya untuk di-\textit{host} secara mandiri (\textit{self-hosted}), yang memberikan kontrol penuh atas privasi data perusahaan dan memungkinkan konfigurasi penyimpanan objek tambahan melalui S3 Minio \cite{pocketbase_docs}.
+
+\section{GetX sebagai State Management}
+Pengelolaan status (\textit{state management}) merupakan aspek vital dalam aplikasi yang interaktif, terutama untuk menangani pembaruan status sinkronisasi luring dan daring. GetX adalah pustaka Flutter yang sangat ringan dan kuat untuk manajemen status, injeksi ketergantungan (\textit{dependency injection}), dan manajemen rute secara reaktif \cite{getx_docs}. Berbeda dengan pola Provider atau BLoC yang membutuhkan banyak kode berulang (\textit{boilerplate}), GetX menawarkan paradigma reaktif berbasis variabel \texttt{Rx} (misalnya \texttt{RxBool}, \texttt{RxString}) yang secara otomatis akan memperbarui elemen antarmuka ketika nilai variabel tersebut berubah. Pendekatan ini meningkatkan performa secara signifikan karena hanya komponen \textit{widget} yang relevan yang akan dimuat ulang.
+
+\section{Sistem Presensi dan Validasi Geofencing}
+Presensi digital merupakan evolusi dari pencatatan kehadiran tradisional, di mana validasi fisik digantikan oleh parameter lokasi (\textit{geolocation}) dan bukti foto (\textit{biometrik/visual}). Untuk mencegah manipulasi kehadiran (seperti penggunaan lokasi palsu atau absen di luar area kerja), aplikasi melakukan validasi koordinat GPS menggunakan \textit{geofencing}, sebuah batas virtual berdasarkan koordinat geografis. Perhitungan jarak antara posisi pengguna saat menekan tombol presensi dan koordinat pusat wilayah kantor dihitung secara luring menggunakan formula Haversine \cite{ismail2023presensihaversine}:
+
+\begin{equation}
+d = 2r \arcsin \left( \sqrt{\sin^2\left(\frac{\phi_2 - \phi_1}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\lambda_2 - \lambda_1}{2}\right)} \right)
+\end{equation}
+
+Di mana:
+\begin{itemize}
+    \item $d$ menyatakan jarak aktual antara kedua titik koordinat dalam satuan meter.
+    \item $r$ menyatakan jari-jari bumi rata-rata.
+    \item $\phi$ melambangkan garis lintang (\textit{latitude}).
+    \item $\lambda$ melambangkan garis bujur (\textit{longitude}).
+\end{itemize}
+
+\section{Metode Pengembangan Agile Scrum}
+Penelitian ini menggunakan kerangka kerja \textit{Agile Scrum}, sebuah metodologi pengembangan perangkat lunak adaptif yang mengedepankan kolaborasi tim dan iterasi berkesinambungan. Siklus pengembangan dibagi menjadi fase-fase pendek yang disebut \textit{sprint}, biasanya berdurasi dua hingga empat minggu \cite{sinatria2023cleanarchitecture}. Pendekatan ini sangat cocok untuk pengembangan aplikasi \textit{offline-first} yang kompleks karena memungkinkan tim pengembang untuk memprioritaskan fitur inti (seperti basis data lokal dan antarmuka presensi) di awal iterasi, dan kemudian menyempurnakan fitur pendukung (seperti algoritma sinkronisasi) di iterasi berikutnya berdasarkan evaluasi secara berkala.
+
+\section{Penelitian Terdahulu}
+Sebagai landasan untuk menemukan kebaruan (novelty) dan mencegah duplikasi, kajian terhadap beberapa penelitian sebelumnya yang relevan telah dilakukan. Beberapa studi terdahulu membahas mengenai arsitektur perangkat lunak, mode luring, serta metode presensi berbasis lokasi.
+
+Devina et al. (2026) mengembangkan sistem informasi arisan berbasis Flutter dengan arsitektur \textit{offline-first} menggunakan \textit{database} awan Firebase Firestore \cite{devina2026offlinefirst}. Penelitian tersebut menunjukkan keberhasilan penerapan sinkronisasi otomatis, namun memiliki perbedaan mendasar dengan penelitian ini yang tidak menggunakan layanan \textit{cloud} berbayar, melainkan PocketBase yang di-\textit{host} secara mandiri.
+
+Nadya dan Lidya (2025) merancang aplikasi absensi berbasis QR Code dengan mode \textit{offline} dan sinkronisasi data menggunakan metode \textit{Rapid Application Development} (RAD) \cite{nadya2025offlineabsensi}. Meskipun berhasil memecahkan masalah koneksi internet saat presensi, validasi yang digunakan hanyalah pindai kode QR tanpa adanya pembatasan lokasi geografis yang kuat. Penelitian ini memperbaiki celah tersebut dengan mengintegrasikan GPS Geofencing.
+
+Pada aspek struktural, Sinatria et al. (2023) \cite{sinatria2023cleanarchitecture} dan William et al. (2024) \cite{william2024cleanarchitecture} sama-sama mengimplementasikan \textit{Clean Architecture} pada framework Flutter untuk meningkatkan \textit{maintainability} aplikasi. William et al. menggunakan pola BLoC sebagai pengelola status, sedangkan penelitian ini mengadopsi GetX yang lebih ringan. Keduanya juga tidak membahas permasalahan transmisi data asinkron pada arsitektur \textit{offline-first}. Serupa dengan itu, Azziqra dan Nuryasin (2024) mengukur tingkat rawatan arsitektur bersih pada aplikasi Al-Quran, dan memperoleh skor pemeliharaan sebesar 79\% yang membuktikan keandalan arsitektur ini untuk sistem berjangka panjang \cite{azziqra2024cleanarchitecture}.
+
+Dari sisi teknologi spasial, Ismail dan Zakaria (2023) merancang aplikasi presensi seluler menggunakan algoritma Haversine untuk memvalidasi jarak presensi karyawan terhadap titik kantor \cite{ismail2023presensihaversine}. Namun, sistem yang dibangun sangat bergantung pada ketersediaan koneksi internet (\textit{online-first}) sehingga rentan gagal di area dengan sinyal lemah.
+
+\begin{longtable}{|c|p{3.5cm}|p{3.5cm}|p{1.5cm}|p{1.5cm}|c|c|}
+\caption{Matriks Perbandingan Penelitian Terdahulu} \\
+\hline
+\textbf{No} & \textbf{Penulis (Tahun)} & \textbf{Judul} & \textbf{Framework} & \textbf{Database} & \textbf{Offline} & \textbf{Geofence} \\
+\hline
+\endfirsthead
+\multicolumn{7}{c}%
+{\tablename\ \thetable\ -- \textit{Lanjutan dari halaman sebelumnya}} \\
+\hline
+\textbf{No} & \textbf{Penulis (Tahun)} & \textbf{Judul} & \textbf{Framework} & \textbf{Database} & \textbf{Offline} & \textbf{Geofence} \\
+\hline
+\endhead
+\hline \multicolumn{7}{r}{\textit{Berlanjut ke halaman berikutnya}} \\
+\endfoot
+\hline
+\endlastfoot
+1 & Devina et al. (2026) & Offline-First Mobile Grocery Arisan... & Flutter & Firebase & \checkmark & $\times$ \\
+2 & Nadya \& Lidya (2025) & Pengembangan Mode Offline... Absensi & - & Local DB & \checkmark & $\times$ \\
+3 & Sinatria et al. (2023) & Penerapan Clean Architecture... Flutter & Flutter & - & $\times$ & $\times$ \\
+4 & William et al. (2024) & Implementasi Clean Architecture... Flutter & Flutter & Local DB & $\times$ & $\times$ \\
+5 & Azziqra \& Nuryasin (2024) & Clean Architecture Aplikasi Al-Quran & Flutter & - & $\times$ & $\times$ \\
+6 & Ismail \& Zakaria (2023) & Presensi Mobile Haversine & Mobile & - & $\times$ & \checkmark \\
+\textbf{7} & \textbf{Penelitian ini (2026)} & \textbf{Presensi Karyawan Offline-First} & \textbf{Flutter} & \textbf{Isar} & \textbf{\checkmark} & \textbf{\checkmark} \\
+\end{longtable}
+
+Berdasarkan perbandingan di atas, celah penelitian (\textit{research gap}) yang diisi oleh studi ini adalah belum adanya penelitian yang menggabungkan Flutter, Isar Database, arsitektur \textit{offline-first}, dan validasi GPS Geofencing dalam satu sistem presensi karyawan yang mandiri. Selain itu, mekanisme sinkronisasi pada penelitian ini menggunakan \textit{SyncQueue} dengan \textit{Cascade Sync} dan \textit{Exponential Backoff} yang lebih canggih daripada pengiriman data tertunda konvensional.

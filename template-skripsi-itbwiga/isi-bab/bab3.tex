@@ -1,0 +1,105 @@
+\chapter{METODOLOGI PENELITIAN DAN PERANCANGAN SISTEM}
+
+\section{Teknik Pengumpulan Data}
+Pengumpulan data untuk mendukung perancangan sistem dilakukan melalui beberapa pendekatan:
+\begin{enumerate}
+    \item \textbf{Observasi}: Mengamati secara langsung kondisi jaringan dan proses presensi di lingkungan kerja PT Semeru Agung Mandiri untuk mengidentifikasi area yang minim sinyal (\textit{blank spot}).
+    \item \textbf{Wawancara}: Melakukan tanya jawab terstruktur dengan tim HRD mengenai alur kerja presensi, kendala pada sistem sebelumnya, serta fitur yang dibutuhkan untuk pengelolaan absensi yang lebih baik.
+    \item \textbf{Studi Pustaka}: Mengumpulkan referensi dari jurnal penelitian terdahulu, buku akademis, serta dokumentasi resmi teknologi yang digunakan seperti Flutter, Isar Database, dan PocketBase.
+\end{enumerate}
+
+\section{Spesifikasi Kebutuhan Sistem}
+Tahap analisis kebutuhan fungsional mendefinisikan fungsionalitas spesifik yang harus diimplementasikan ke dalam aplikasi presensi seluler. Kebutuhan fungsional dikelompokkan berdasarkan hak akses pengguna aplikasi, yaitu Karyawan (Pengguna Lapangan) dan Admin HRD (Pengelola Data).
+
+\begin{table}[ht]
+\centering
+\caption{Kebutuhan Fungsional Sistem}
+\label{tab:kebutuhan_sistem}
+\begin{tabular}{|l|l|p{8cm}|}
+\hline
+\textbf{Aktor Pengguna} & \textbf{Kode} & \textbf{Deskripsi Kebutuhan Fungsional} \\ \hline
+Karyawan & F-01 & Pengguna dapat melakukan login menggunakan akun yang diberikan oleh admin. \\ \hline
+ & F-02 & Pengguna dapat melakukan transaksi presensi \textit{Check-In} (Masuk). \\ \hline
+ & F-03 & Pengguna dapat melakukan transaksi presensi \textit{Check-Out} (Pulang). \\ \hline
+ & F-04 & Pengguna dapat melakukan presensi dalam kondisi luring (tanpa internet). \\ \hline
+ & F-05 & Aplikasi memvalidasi lokasi presensi pengguna menggunakan teknologi GPS Geofencing. \\ \hline
+ & F-06 & Pengguna dapat melihat riwayat kehadiran pribadi secara \textit{real-time}. \\ \hline
+Admin HRD & F-07 & Admin dapat mengelola akun karyawan. \\ \hline
+ & F-08 & Admin dapat memantau lokasi kehadiran karyawan melalui \textit{dashboard}. \\ \hline
+ & F-09 & Admin dapat mengekspor laporan rekapitulasi presensi bulanan ke dalam format Excel. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Kebutuhan Non-Fungsional}
+Kebutuhan non-fungsional menjelaskan kriteria kualitas operasi sistem. Berikut adalah spesifikasi kebutuhan non-fungsional pada sistem ini:
+\begin{enumerate}
+    \item \textbf{NF-01 (Kinerja)}: Aplikasi harus responsif, dengan waktu muat antarmuka kurang dari 2 detik.
+    \item \textbf{NF-02 (Keandalan)}: Data presensi harus dijamin tersimpan secara aman di database lokal ketika tidak ada koneksi internet.
+    \item \textbf{NF-03 (Otomatisasi)}: Sistem harus dapat melakukan sinkronisasi data secara otomatis di latar belakang saat koneksi internet pulih tanpa perlu intervensi manual dari pengguna.
+    \item \textbf{NF-04 (Portabilitas)}: Aplikasi minimal mendukung sistem operasi Android versi 5.0 (API level 21) atau yang lebih baru.
+    \item \textbf{NF-05 (Keamanan)}: Komunikasi data antara aplikasi seluler dan server diamankan menggunakan token otorisasi \textit{JSON Web Token} (JWT).
+\end{enumerate}
+
+\section{Metodologi Pengembangan Scrum dan Perencanaan Sprint}
+Sistem presensi dikembangkan menggunakan metodologi rekayasa perangkat lunak \textit{Agile} dengan kerangka kerja \textit{Scrum}. Metodologi ini membagi proses pengembangan ke dalam iterasi jangka pendek yang disebut \textit{sprint}. Peran utama dalam tim Scrum meliputi \textit{Product Owner} (memiliki visi produk dan mengelola prioritas \textit{backlog}), \textit{Scrum Master} (memandu proses dan menghilangkan hambatan teknis), dan \textit{Development Team} (tim pengembang perangkat lunak).
+
+Seluruh siklus pengembangan dipetakan ke dalam 5 \textit{sprint} berturut-turut, di mana durasi masing-masing \textit{sprint} ditetapkan selama 2 minggu. Manajemen \textit{backlog} dan visualisasi kemajuan tugas dikelola secara digital menggunakan platform Jira Board.
+
+\begin{table}[ht]
+\centering
+\caption{Perencanaan Sprint}
+\label{tab:perencanaan_sprint}
+\begin{tabular}{|l|p{3.5cm}|p{6cm}|}
+\hline
+\textbf{Sprint} & \textbf{Fokus Utama} & \textbf{Detail Item Pekerjaan (Backlog)} \\ \hline
+Sprint 1 & Arsitektur \& Database & Inisialisasi proyek Flutter, penerapan Clean Architecture, pembuatan skema Isar. \\ \hline
+Sprint 2 & Autentikasi \& Core UI & Pembuatan antarmuka login, integrasi API, penyimpanan token. \\ \hline
+Sprint 3 & Fitur Presensi Luring & Pembuatan antarmuka presensi, GPS, pembatas Geofencing. \\ \hline
+Sprint 4 & Sinkronisasi Latar Belakang & Implementasi pendeteksi jaringan, konfigurasi WorkManager. \\ \hline
+Sprint 5 & Pelaporan \& Pengujian & Pembuatan antarmuka admin, fungsi ekspor Excel, pelaksanaan UAT. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Perancangan Skema Database Isar}
+Dalam arsitektur \textit{offline-first}, rancangan tabel data lokal harus mampu menampung seluruh detail transaksi presensi serta menyediakan bendera penanda status sinkronisasi. Berikut adalah representasi model data \texttt{AttendanceLocal} dalam bentuk struktur koleksi Isar:
+
+\begin{lstlisting}
+@collection
+class AttendanceLocal {
+  Id id = Isar.autoIncrement;
+  
+  // ID dari server (PocketBase). Bernilai null jika data belum disinkronkan.
+  String? odId;           
+  
+  late String userId;
+  late DateTime checkInTime;
+  DateTime? checkOutTime;
+  
+  // Koordinat lokasi presensi
+  double? lat, lng;       
+  
+  // Bendera penanda sinkronisasi offline-first
+  bool isSynced = false;  
+  bool isOfflineEntry = false;
+  late String deviceId;
+}
+\end{lstlisting}
+
+Anotasi unik pada atribut menjamin bahwa setiap transaksi presensi memiliki pengidentifikasi unik universal (UUID). Flag \texttt{isSynced} memegang peran sentral dalam menentukan apakah data tersebut sudah berhasil dikirim ke \textit{server} atau masih perlu dimasukkan ke dalam antrean sinkronisasi (\textit{SyncQueue}). Hal ini mencegah terjadinya duplikasi pencatatan kehadiran di sisi server apabila proses sinkronisasi mengalami kegagalan transmisi jaringan di tengah jalan.
+
+\section{Algoritma Validasi Geofencing dan Sinkronisasi Data}
+Keandalan sistem presensi luring ditopang oleh dua mekanisme utama: validasi batas geofencing tanpa koneksi internet dan sinkronisasi data asinkron latar belakang.
+
+\subsection{Validasi Jarak Geofencing Lokal}
+Untuk mencegah manipulasi kehadiran (seperti penggunaan lokasi palsu atau absen di luar area kerja), aplikasi melakukan validasi koordinat GPS langsung di dalam perangkat luring. Perhitungan jarak antara posisi pengguna saat menekan tombol presensi dan koordinat pusat wilayah kantor dihitung menggunakan formula Haversine, sebagaimana telah diuraikan pada Bab 2 Tinjauan Pustaka.
+
+\subsection{Mekanisme Sinkronisasi Asinkron}
+Proses sinkronisasi data presensi bekerja secara asinkron menggunakan pustaka WorkManager dan pengamat status koneksi internet (\textit{Connectivity Observer}). Ketika koneksi terdeteksi terputus, transaksi presensi tetap disimpan di Isar dengan atribut \texttt{isSynced = false}. Saat perangkat mendeteksi kembalinya jaringan internet, WorkManager akan diaktifkan untuk mengekstrak seluruh baris data dari Isar dengan filter \texttt{isSynced == false}, mengompresinya menjadi \textit{payload} JSON, dan mengirimkannya ke API server menggunakan skema retri \textit{exponential backoff}.
+
+\section{Arsitektur Infrastruktur Sistem}
+Secara konseptual, sistem yang akan dikembangkan menggunakan arsitektur tiga tingkat (\textit{three-tier architecture}) modern. Lapis pertama adalah perangkat seluler (klien) yang menjalankan kerangka kerja Flutter dan menampung data menggunakan Isar. Lapis kedua adalah jaringan transmisi (internet), yang menjembatani klien dengan lapis ketiga, yaitu server \textit{backend}.
+Pada lapis server, sistem dikelola oleh PocketBase yang diimplementasikan pada peladen virtual (\textit{Virtual Private Server/VPS}). Khusus untuk berkas multimedia seperti foto bukti kehadiran, infrastruktur server diintegrasikan dengan S3 Minio, yang bertindak sebagai objek penyimpanan persisten berskala besar (\textit{object storage backend}). Aliran data transaksi dimulai dari perekaman foto dan lokasi pengguna, diteruskan ke \textit{SyncQueue} lokal, dan akhirnya diproses oleh antarmuka REST API PocketBase.
+
+\section{Perancangan Antarmuka (Wireframe)}
+Perancangan antarmuka aplikasi difokuskan pada fungsionalitas intuitif yang memungkinkan perekaman kehadiran secara luring. 
+\textit{(Gambar wireframe untuk halaman login, dasbor karyawan, halaman presensi, riwayat, dan dasbor admin akan dilampirkan oleh peneliti pada laporan akhir)}
