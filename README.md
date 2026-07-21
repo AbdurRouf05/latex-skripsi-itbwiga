@@ -25,27 +25,50 @@ Penelitian ini bertujuan untuk mengatasi masalah gagal absensi akibat _blank spo
 - `PANDUAN_SKRIPSI_ITB_WIGA.md` : Panduan format penulisan skripsi ITB WiGa.
 - `implementation_plan.md` : Rencana implementasi teknis.
 
-## Cara Kompilasi (LaTeX)
-Dokumen skripsi ini disusun menggunakan LaTeX. Untuk menghasilkan file PDF:
+## Panduan Setup dan Penggunaan LaTeX
+Dokumen skripsi ini disusun menggunakan LaTeX untuk memastikan format dokumen yang rapi dan standar. Berikut adalah panduan setup dan cara penggunaannya:
 
-### Opsi 1: Menggunakan Overleaf (Cloud - Direkomendasikan)
+### 1. Setup Lingkungan Kerja (Lokal)
+Jika Anda ingin mengedit dan mengkompilasi dokumen di komputer Anda sendiri (seperti menggunakan VS Code):
+- **Langkah 1: Instal TeX Distribution**
+  - Untuk pengguna Windows, unduh dan instal [MiKTeX](https://miktex.org/download) atau [TeX Live](https://tug.org/texlive/).
+  - Pastikan Anda memilih opsi instalasi _"Install missing packages on the fly = Yes"_ agar MiKTeX mengunduh package yang kurang secara otomatis.
+- **Langkah 2: Instal Text Editor (VS Code)**
+  - Unduh dan instal [Visual Studio Code](https://code.visualstudio.com/).
+- **Langkah 3: Instal Ekstensi LaTeX Workshop**
+  - Di VS Code, buka menu Extensions, cari **LaTeX Workshop** (oleh James Yu), lalu instal.
+- **Langkah 4: Konfigurasi Biber (Untuk Daftar Pustaka)**
+  - Karena template ini menggunakan Biber untuk manajemen pustaka (bukan BibTeX lama), pastikan `biber` sudah terinstal (biasanya sudah otomatis disertakan di instalasi MiKTeX/TeX Live).
+
+### 2. Cara Penulisan dan Pengeditan Dokumen
+- **Data Diri dan Judul**: Semua pengaturan nama, judul skripsi, nama dosen pembimbing, penguji, fakultas, dsb., diatur di dalam file utama, yaitu `seminar-proposal.tex` atau `skripsi.tex`. Silakan buka file tersebut dan ubah variabel seperti `\fullname{}`, `\titleskripsi{}`, dll.
+- **Isi Bab (Bab 1, 2, 3, dst)**: Teks utama skripsi Anda ditulis di dalam folder `isi-bab/` (misalnya `isi-bab/bab1.tex`, `isi-bab/bab2.tex`). Template utama akan memanggil file-file ini secara otomatis menggunakan sintaks `\input{isi-bab/bab1.tex}`.
+- **Daftar Pustaka**: Tambahkan referensi jurnal/buku Anda ke dalam file `referensi/daftar-pustaka.bib` dengan format BibTeX. Untuk memanggil sitasi di dalam teks, gunakan sintaks `\textcite{id-referensi}` atau `\parencite{id-referensi}`.
+- **Logo dan Gambar**: Masukkan semua gambar ke folder `gambar/`. Template sampul akan otomatis mencari logo di lokasi ini (contoh: `gambar/logo wiga.png`). Jika ukuran logo perlu diubah, Anda bisa mengaturnya di file `pengaturan/skripsi.cls`.
+
+### 3. Cara Kompilasi (Build) Dokumen menjadi PDF
+Setelah Anda selesai mengedit teks, Anda harus mengkompilasinya menjadi file `.pdf`.
+
+#### Opsi A: Menggunakan VS Code (Lokal - Disarankan)
+1. Buka file `seminar-proposal.tex` (atau `skripsi.tex`) di VS Code.
+2. Simpan file (`Ctrl+S`). LaTeX Workshop biasanya akan otomatis mulai mengkompilasi file tersebut.
+3. Jika daftar pustaka tidak muncul, Anda perlu menjalankan _Recipe_ secara penuh: Klik ikon *LaTeX Workshop* di bilah samping kiri -> Pilih **Build LaTeX project** -> Klik **Recipe: pdflatex -> biber -> pdflatex -> pdflatex**.
+4. Untuk melihat hasil PDF di sebelah kanan teks editor, klik tombol *View LaTeX PDF* (ikon kaca pembesar) di pojok kanan atas.
+
+#### Opsi B: Melalui Terminal (Lokal - Manual)
+Buka terminal (Command Prompt / PowerShell), arahkan ke folder `template-skripsi-itbwiga`, lalu jalankan urutan perintah ini:
+```bash
+pdflatex seminar-proposal.tex
+biber seminar-proposal
+pdflatex seminar-proposal.tex
+pdflatex seminar-proposal.tex
+```
+
+#### Opsi C: Menggunakan Overleaf (Cloud - Tanpa Instalasi)
+Jika Anda tidak ingin repot menginstal aplikasi dan plugin LaTeX di komputer:
 1. Kompres seluruh isi folder `template-skripsi-itbwiga/` menjadi file `.zip`.
-2. Buat proyek baru di [Overleaf](https://www.overleaf.com) lalu unggah file zip tersebut (Upload Project).
-3. Buka file `seminar-proposal.tex` (untuk proposal) atau `skripsi.tex` (untuk hasil akhir) dan klik tombol **Recompile**.
-4. *(Pastikan compiler diatur ke pdfLaTeX pada menu Menu > Compiler)*
-
-### Opsi 2: Menggunakan VS Code (Lokal)
-1. Pastikan Anda telah menginstal distribusi LaTeX (seperti **MiKTeX** atau **TeX Live**) di OS Windows Anda.
-2. Instal ekstensi **LaTeX Workshop** di Visual Studio Code.
-3. Buka file `template-skripsi-itbwiga/seminar-proposal.tex`.
-4. Kompilasi dapat dilakukan dengan resep standar (biasanya `pdflatex -> biber -> pdflatex -> pdflatex`).
-5. Atau kompilasi secara manual lewat terminal:
-   ```bash
-   cd template-skripsi-itbwiga
-   pdflatex seminar-proposal.tex
-   biber seminar-proposal
-   pdflatex seminar-proposal.tex
-   ```
+2. Buat proyek baru di [Overleaf](https://www.overleaf.com) dan unggah file `.zip` tersebut.
+3. Buka file `seminar-proposal.tex`, lalu tekan tombol hijau **Recompile** di atas layar. Hasil PDF akan langsung muncul. Pastikan pengaturan *Compiler* diatur ke **pdfLaTeX** (lewat menu kiri atas).
 
 ## Catatan
 Repository ini difokuskan pada manajemen dokumen penulisan akademik (draf skripsi). _Source code_ dari aplikasi Flutter dikelola secara terpisah atau pada folder utama aplikasi.
