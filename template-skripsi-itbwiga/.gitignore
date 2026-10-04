@@ -1,0 +1,41 @@
+# ==========================
+# LaTeX auxiliary files
+# ==========================
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*.apc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# ==========================
+# Test / Preview files
+# ==========================
+# Jangan simpan file testing di folder utama!
+# Gunakan folder tests/ untuk testing.
+*_preview*.png
+*_test.*
+scratch_*
+
+# ==========================
+# Folder testing
+# ==========================
+# Folder tests/ hanya untuk eksperimen lokal
+tests/
+
+# ==========================
+# OS / Editor files
+# ==========================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

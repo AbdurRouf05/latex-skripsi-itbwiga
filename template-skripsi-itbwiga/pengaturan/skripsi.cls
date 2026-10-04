@@ -75,6 +75,9 @@
 % use Watermark
 \RequirePackage[pages=some]{background}
 
+% use eso-pic for all-page background watermark
+\RequirePackage{eso-pic}
+
 % use listings for code script
 \RequirePackage{listings}
 \RequirePackage{color}
@@ -233,16 +236,17 @@
 
 
 %===========================================================
-% Set Watermark
+% Set Watermark on ALL pages using eso-pic + TikZ
 %-----------------------------------------------------------
-\backgroundsetup{
-  scale=1,       
-  angle=0,       
-  opacity=.2,
-  hshift=3mm,
-  contents={\includegraphics[width=16cm]{"gambar/logo wiga.png"}}
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[opacity=0.2] at (current page.center) {%
+      \includegraphics[width=14cm]{gambar/logo wiga}%
+    };
+  \end{tikzpicture}%
 }
-\newcommand\addwatermark{\BgThispage}
+% Keep \addwatermark for backward compatibility (now a no-op since all pages have watermark)
+\newcommand\addwatermark{}
 %-----------------------------------------------------------
 % End Set Watermark
 %===========================================================
