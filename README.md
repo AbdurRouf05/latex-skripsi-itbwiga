@@ -1,12 +1,9 @@
-# Skripsi: Aplikasi Presensi Karyawan Mobile (Offline-First)
+# Skripsi Abdur Rouf: Dokumen dan Template LaTeX ITB Widya Gama Lumajang
 
-Repositori ini berisi draf dokumen dan _source code_ LaTeX untuk penyusunan Proposal Skripsi (dan nantinya Skripsi akhir) Program Studi S1 Teknik Informatika di **Institut Teknologi dan Bisnis Widya Gama Lumajang**.
+Repositori ini berisi seluruh dokumen penyusunan skripsi Program Studi S1 Teknik Informatika di **Institut Teknologi dan Bisnis Widya Gama Lumajang**: template LaTeX skripsi, draf seminar proposal, anatomi penelitian, catatan presentasi, serta referensi pendukung.
 
 ## Pemberitahuan Penggunaan
-Template dan repositori ini adalah milik pribadi Abdur Rouf dan dibuat secara spesifik untuk kebutuhan penulisan skripsi aplikasi presensi PT Semeru Agung Mandiri. Jika Anda ingin menggunakan atau mengadopsi template dan isi repositori ini, ada banyak bagian (termasuk identitas, nama instansi, data aplikasi, dan konfigurasi) yang perlu Anda ubah dan sesuaikan dengan kebutuhan Anda sendiri.
-
-## Judul Penelitian
-**"RANCANG BANGUN APLIKASI PRESENSI KARYAWAN BERBASIS MOBILE MENGGUNAKAN ARSITEKTUR OFFLINE-FIRST DENGAN FLUTTER PADA PT SEMERU AGUNG MANDIRI"**
+Template dan repositori ini adalah milik pribadi Abdur Rouf dan dibuat secara spesifik untuk penelitian pada PT Semeru Agung Mandiri. Jika Anda ingin menggunakan atau mengadopsi template ini, ada banyak bagian (identitas, nama instansi, judul, data penelitian, dan konfigurasi) yang perlu Anda ubah dan sesuaikan dengan kebutuhan Anda sendiri.
 
 ## Identitas Penulis
 - **Nama:** Abdur Rouf
@@ -14,64 +11,66 @@ Template dan repositori ini adalah milik pribadi Abdur Rouf dan dibuat secara sp
 - **Program Studi:** S1 Teknik Informatika
 - **Fakultas:** Teknik
 - **Institusi:** Institut Teknologi dan Bisnis Widya Gama Lumajang
-- **Tahun:** 2025/2026
 
-## Latar Belakang dan Tujuan
-Penelitian ini bertujuan untuk mengatasi masalah gagal absensi akibat _blank spot_ jaringan internet di lapangan atau gudang PT Semeru Agung Mandiri. Aplikasi dibangun menggunakan framework **Flutter** dengan pendekatan arsitektur **Offline-First**, memanfaatkan database lokal (Isar) untuk menyimpan data presensi secara luring, lalu melakukan sinkronisasi otomatis ke server (PocketBase) saat koneksi internet kembali stabil.
+## Topik Penelitian
+
+### Rancangan terbaru (Anatomi Penelitian)
+**"Analisis *Quality of Service* Jaringan Berbasis *Crowdsourcing* pada Aplikasi Presensi *Mobile* Menggunakan *Clustering* K-Means di PT Semeru Agung Mandiri"**
+
+Karyawan PT Semeru Agung Mandiri melakukan presensi dari kantor, posko, dan gudang dengan kualitas jaringan yang berbeda-beda, tetapi perusahaan belum memiliki data objektif tentang kualitas jaringan di tiap lokasi kerja. Penelitian ini menggunakan metode *Research and Development* (R&D) dengan menambahkan modul telemetri pasif pada aplikasi presensi. Modul tersebut mencatat *delay*, *jitter*, tingkat kegagalan pengiriman, *throughput*, dan lama putus koneksi secara anonim setiap kali aplikasi berkomunikasi dengan server. Data dikategorikan menurut standar **TIPHON**, lalu lokasi kerja dikelompokkan dengan **K-Means** (jumlah klaster ditentukan dengan metode *elbow* dan *silhouette*).
+
+**Kata kunci:** *Quality of Service*; *Crowdsourcing*; K-Means; TIPHON; Presensi Mobile
+
+### Draf seminar proposal sebelumnya
+**"Rancang Bangun Aplikasi Presensi Karyawan Berbasis Mobile Menggunakan Arsitektur Offline-First dengan Flutter pada PT Semeru Agung Mandiri"**
+
+Draf ini masih tersimpan di `template-skripsi-itbwiga/seminar-proposal.tex` dan menjadi dasar aplikasi presensi (Flutter, penyimpanan lokal, dan sinkronisasi ke server) yang kini digunakan sebagai alat ukur pada rancangan penelitian terbaru.
 
 ## Struktur Repositori
-- `template-skripsi-itbwiga/` : Berisi template LaTeX resmi dan seluruh file `.tex` untuk Bab 1, 2, 3, dan daftar pustaka.
-- `BLUEPRINT_SKRIPSI.md` : Rencana dan cetak biru pengembangan aplikasi skripsi.
-- `PANDUAN_SKRIPSI_ITB_WIGA.md` : Panduan format penulisan skripsi ITB WiGa.
-- `implementation_plan.md` : Rencana implementasi teknis.
+| Lokasi | Isi |
+| --- | --- |
+| `anatomi-penelitian/` | Anatomi penelitian (`anatomi-penelitian.tex`), catatan presentasi, daftar pertanyaan kritis, pedoman Tugas Akhir FTI 2026-2027, dan arsip versi lama (`_arsip/`). |
+| `anatomi-penelitian/referensi/` | Jurnal dan standar acuan (QoS TIPHON, K-Means, *crowdsourced measurement*, R&D Borg & Gall, presensi *offline*). |
+| `template-skripsi-itbwiga/` | Template LaTeX skripsi ITB WiGa: `seminar-proposal.tex`, `skripsi.tex`, isi bab (`isi-bab/`), daftar pustaka (`referensi/`), gambar, dan kelas dokumen (`pengaturan/skripsi.cls`). |
+| `PANDUAN.md` | Panduan lengkap penggunaan dan kustomisasi template LaTeX. |
+| `PANDUAN_SKRIPSI_ITB_WIGA.md`, `panduan skripsi.md` | Ringkasan aturan format penulisan skripsi ITB WiGa. |
+| `BLUEPRINT_SKRIPSI.md`, `implementation_plan.md` | Cetak biru dan rencana implementasi aplikasi presensi. |
+| `*.docx` | Format anatomi penelitian dan panduan skripsi dalam bentuk Word. |
 
-## Panduan Setup dan Penggunaan LaTeX
-Dokumen skripsi ini disusun menggunakan LaTeX untuk memastikan format dokumen yang rapi dan standar. Berikut adalah panduan setup dan cara penggunaannya:
+## Cara Kompilasi Dokumen
 
-### 1. Setup Lingkungan Kerja (Lokal)
-Jika Anda ingin mengedit dan mengkompilasi dokumen di komputer Anda sendiri (seperti menggunakan VS Code):
-- **Langkah 1: Instal TeX Distribution**
-  - Untuk pengguna Windows, unduh dan instal [MiKTeX](https://miktex.org/download) atau [TeX Live](https://tug.org/texlive/).
-  - Pastikan Anda memilih opsi instalasi _"Install missing packages on the fly = Yes"_ agar MiKTeX mengunduh package yang kurang secara otomatis.
-- **Langkah 2: Instal Text Editor (VS Code)**
-  - Unduh dan instal [Visual Studio Code](https://code.visualstudio.com/).
-- **Langkah 3: Instal Ekstensi LaTeX Workshop**
-  - Di VS Code, buka menu Extensions, cari **LaTeX Workshop** (oleh James Yu), lalu instal.
-- **Langkah 4: Konfigurasi Biber (Untuk Daftar Pustaka)**
-  - Karena template ini menggunakan Biber untuk manajemen pustaka (bukan BibTeX lama), pastikan `biber` sudah terinstal (biasanya sudah otomatis disertakan di instalasi MiKTeX/TeX Live).
+### Prasyarat
+- Distribusi TeX: [MiKTeX](https://miktex.org/download) atau [TeX Live](https://tug.org/texlive/) (aktifkan *install missing packages on the fly*).
+- Editor: [Visual Studio Code](https://code.visualstudio.com/) dengan ekstensi **LaTeX Workshop**.
+- `biber` untuk daftar pustaka (biasanya sudah ikut terinstal).
 
-### 2. Cara Penulisan dan Pengeditan Dokumen
-- **Data Diri dan Judul**: Semua pengaturan nama, judul skripsi, nama dosen pembimbing, penguji, fakultas, dsb., diatur di dalam file utama, yaitu `seminar-proposal.tex` atau `skripsi.tex`. Silakan buka file tersebut dan ubah variabel seperti `\fullname{}`, `\titleskripsi{}`, dll.
-- **Isi Bab (Bab 1, 2, 3, dst)**: Teks utama skripsi Anda ditulis di dalam folder `isi-bab/` (misalnya `isi-bab/bab1.tex`, `isi-bab/bab2.tex`). Template utama akan memanggil file-file ini secara otomatis menggunakan sintaks `\input{isi-bab/bab1.tex}`.
-- **Daftar Pustaka**: Tambahkan referensi jurnal/buku Anda ke dalam file `referensi/daftar-pustaka.bib` dengan format BibTeX. Untuk memanggil sitasi di dalam teks, gunakan sintaks `\textcite{id-referensi}` atau `\parencite{id-referensi}`.
-- **Logo dan Gambar**: Masukkan semua gambar ke folder `gambar/`. Template sampul akan otomatis mencari logo di lokasi ini (contoh: `gambar/logo wiga.png`). Jika ukuran logo perlu diubah, Anda bisa mengaturnya di file `pengaturan/skripsi.cls`.
-
-### 3. Cara Kompilasi (Build) Dokumen menjadi PDF
-Setelah Anda selesai mengedit teks, Anda harus mengkompilasinya menjadi file `.pdf`.
-
-#### Opsi A: Menggunakan VS Code (Lokal - Disarankan)
-1. Buka file `seminar-proposal.tex` (atau `skripsi.tex`) di VS Code.
-2. Simpan file (`Ctrl+S`). LaTeX Workshop biasanya akan otomatis mulai mengkompilasi file tersebut.
-3. Jika daftar pustaka tidak muncul, Anda perlu menjalankan _Recipe_ secara penuh: Klik ikon *LaTeX Workshop* di bilah samping kiri -> Pilih **Build LaTeX project** -> Klik **Recipe: pdflatex -> biber -> pdflatex -> pdflatex**.
-4. Untuk melihat hasil PDF di sebelah kanan teks editor, klik tombol *View LaTeX PDF* (ikon kaca pembesar) di pojok kanan atas.
-
-#### Opsi B: Melalui Terminal (Lokal - Manual)
-Buka terminal (Command Prompt / PowerShell), arahkan ke folder `template-skripsi-itbwiga`, lalu jalankan urutan perintah ini:
+### Template skripsi / seminar proposal (pdfLaTeX + Biber)
+Dari folder `template-skripsi-itbwiga/`:
 ```bash
 pdflatex seminar-proposal.tex
 biber seminar-proposal
 pdflatex seminar-proposal.tex
 pdflatex seminar-proposal.tex
 ```
+Di VS Code, gunakan *Recipe* **pdflatex -> biber -> pdflatex -> pdflatex**. Di Overleaf, unggah isi folder sebagai `.zip` dan atur *Compiler* ke **pdfLaTeX**.
 
-#### Opsi C: Menggunakan Overleaf (Cloud - Tanpa Instalasi)
-Jika Anda tidak ingin repot menginstal aplikasi dan plugin LaTeX di komputer:
-1. Kompres seluruh isi folder `template-skripsi-itbwiga/` menjadi file `.zip`.
-2. Buat proyek baru di [Overleaf](https://www.overleaf.com) dan unggah file `.zip` tersebut.
-3. Buka file `seminar-proposal.tex`, lalu tekan tombol hijau **Recompile** di atas layar. Hasil PDF akan langsung muncul. Pastikan pengaturan *Compiler* diatur ke **pdfLaTeX** (lewat menu kiri atas).
+### Anatomi penelitian dan catatan presentasi (XeLaTeX)
+Dokumen di `anatomi-penelitian/` memakai font Calibri melalui `fontspec`, sehingga harus dikompilasi dengan **XeLaTeX** (jalankan dua kali):
+```bash
+xelatex anatomi-penelitian.tex
+xelatex anatomi-penelitian.tex
+```
+
+### Cara mengedit
+- **Data diri dan judul:** ubah `\fullname{}`, `\idnum{}`, `\titleskripsi{}`, dan data dosen di `seminar-proposal.tex` atau `skripsi.tex`.
+- **Isi bab:** tulis di `isi-bab/bab1.tex` sampai `bab5.tex`.
+- **Daftar pustaka:** tambahkan entri ke `referensi/daftar-pustaka.bib`, lalu sitasi dengan `\textcite{}` atau `\parencite{}`.
+- **Gambar dan logo:** simpan di `gambar/`; ukuran logo sampul diatur di `pengaturan/skripsi.cls`.
+
+Panduan yang lebih rinci tersedia di [PANDUAN.md](PANDUAN.md).
 
 ## Catatan
-Repository ini difokuskan pada manajemen dokumen penulisan akademik (draf skripsi). _Source code_ dari aplikasi Flutter dikelola secara terpisah atau pada folder utama aplikasi.
+Repositori ini hanya berisi dokumen akademik. *Source code* aplikasi presensi Flutter dikelola di repositori terpisah. File hasil kompilasi LaTeX (`.aux`, `.log`, `.bbl`, dan sejenisnya) sengaja tidak disimpan.
 
 ---
-*Disusun sebagai syarat memperoleh gelar Sarjana Komputer (S.Kom) pada Tahun Ajaran 2025/2026.*
+*Disusun sebagai syarat memperoleh gelar Sarjana Komputer (S.Kom).*
