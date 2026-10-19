@@ -1,0 +1,154 @@
+% =====================================================================
+%  Pertanyaan Kritis & Jawaban - Abdur Rouf
+%  Render: xelatex pertanyaan-kritis.tex   (jalankan 2x)
+% =====================================================================
+% !TEX program = xelatex
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Calibri}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{head}{HTML}{1F3A5F}
+\definecolor{band}{HTML}{E8EEF5}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\titleformat{\section}{\large\bfseries\color{head}}{\thesection.}{6pt}{}
+\pagestyle{plain}
+\setlist{nosep,leftmargin=*,topsep=2pt}
+
+% \tanya{pertanyaan}{jawaban}
+\newcounter{q}
+\newcommand{\tanya}[2]{\stepcounter{q}%
+\par\vspace{6pt}\noindent\colorbox{band}{\parbox{\dimexpr\linewidth-2\fboxsep}{\textbf{Q\arabic{q}. #1}}}\par\vspace{2pt}#2\par}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries\color{head} PERTANYAAN KRITIS \& JAWABAN}\\[4pt]
+{\bfseries Analisis \textit{Quality of Service} Jaringan Berbasis \textit{Crowdsourcing} pada Aplikasi Presensi \textit{Mobile} Menggunakan \textit{Clustering} K-Means di PT Semeru Agung Mandiri}\\[4pt]
+Abdur Rouf \quad|\quad NIM 223140118
+\end{center}
+
+\textbf{Cara memakai:} pertanyaan diurutkan mengikuti anatomi dari atas ke bawah. Jangan menghafal kalimatnya. Pahami \textbf{inti jawaban} (yang dicetak tebal), lalu jelaskan dengan bahasamu sendiri. Kalau tidak tahu, jawab jujur: \textit{``Itu belum saya uji/kaji, akan saya tambahkan di Bab 2/3.''} Itu lebih baik daripada mengarang.
+
+% ==================================================================
+\section{Judul dan Konsep Dasar}
+
+\tanya{Coba jelaskan penelitianmu dalam satu kalimat.}{Saya \textbf{memakai aplikasi presensi perusahaan sebagai alat ukur kualitas jaringan}: aplikasi mencatat kualitas koneksi secara otomatis dan anonim setiap kali menghubungi server, lalu hasilnya dinilai dengan standar TIPHON dan dikelompokkan dengan K-Means per lokasi dan waktu.}
+
+\tanya{Ini penelitian jaringan atau penelitian aplikasi?}{\textbf{Jaringan.} Yang diukur dan dianalisis adalah kualitas jaringan (\textit{delay}, \textit{jitter}, tingkat gagal, \textit{throughput}). Aplikasi presensi hanya \textbf{alat ukurnya}, sama seperti Wireshark menjadi alat ukur di penelitian QoS lain.}
+
+\tanya{Apa produk R\&D-mu? Bukankah aplikasinya sudah jadi?}{Aplikasi presensinya memang sudah ada. \textbf{Produk yang dikembangkan adalah modul telemetri} (alat ukur QoS) yang ditambahkan ke aplikasi, lalu divalidasi dan dipakai. Tahap R\&D-nya: analisis kebutuhan $\rightarrow$ rancang $\rightarrow$ implementasi $\rightarrow$ validasi $\rightarrow$ pemakaian dan analisis.}
+
+\tanya{Apa itu crowdsourcing? Kenapa disebut crowdsourcing kalau karyawan tidak sadar?}{\textit{Crowdsourcing} artinya \textbf{data berasal dari banyak pengguna}, bukan dari satu alat ukur. Dalam pengukuran jaringan ada dua jenis: aktif (pengguna menjalankan tes, seperti Speedtest) dan \textbf{pasif} (data diambil dari aktivitas yang memang terjadi). Penelitian ini memakai jenis pasif (Wu dkk., 2017). Karyawan tetap diberi tahu lewat izin perusahaan dan pemberitahuan di aplikasi, hanya saja mereka tidak perlu melakukan apa pun.}
+
+\tanya{Kenapa tidak memakai Speedtest atau Ookla saja?}{Speedtest mengukur ke server terdekat milik Ookla, bukan ke \textbf{server perusahaan} yang benar-benar dipakai presensi. Speedtest juga harus dijalankan manual dan memakai banyak kuota. Telemetri mengukur jalur yang sebenarnya dipakai karyawan, otomatis, dan hemat data.}
+
+% ==================================================================
+\section{Latar Belakang dan GAP}
+
+\tanya{Apa buktinya jaringan di lokasi kerja bermasalah?}{Bukti awal: (1) aplikasi sengaja dibuat \textit{offline-first} karena keluhan presensi gagal terkirim, (2) antrean sinkronisasi aplikasi mencatat percobaan kirim yang gagal, dan (3) keterangan HRD. \textbf{Justru karena buktinya belum terukur, penelitian ini dibuat.}}
+
+\tanya{Apa bedanya dengan penelitian QoS yang sudah banyak?}{Penelitian QoS lain mengukur \textbf{manual, di satu titik, pada waktu tertentu} dengan Wireshark (Fiqria 2024, Rosid 2023). Penelitian ini mengukur \textbf{otomatis, dari banyak HP, banyak lokasi, sepanjang jam kerja selama 4 minggu}.}
+
+\tanya{Apa bedanya dengan Irwansyah (2025) yang juga memakai K-Means?}{Irwansyah memakai \textbf{data pihak ketiga} (Ookla Open Data) per kabupaten. Penelitian ini memakai \textbf{data sendiri dari aplikasi operasional} per lokasi kerja, sehingga hasilnya langsung bisa ditindaklanjuti perusahaan.}
+
+\tanya{Yakin belum ada yang meneliti ini?}{Jawab hati-hati: \textit{``Sepanjang penelusuran saya, belum ditemukan penelitian yang memakai aplikasi presensi sebagai alat ukur QoS crowdsourcing lalu mengelompokkannya dengan K-Means.''} Jangan bilang ``pasti belum ada''.}
+
+% ==================================================================
+\section{QoS dan TIPHON}
+
+\tanya{Apa itu QoS dan parameter apa saja yang kamu ukur?}{QoS adalah ukuran kualitas layanan jaringan. Yang diukur: \textbf{delay} (waktu tunggu balasan), \textbf{jitter} (ketidakstabilan delay), \textbf{tingkat gagal} (pengganti \textit{packet loss}), dan \textbf{throughput} (kecepatan nyata kirim data).}
+
+\tanya{Kenapa packet loss diganti tingkat gagal? Apa bedanya?}{\textit{Packet loss} dihitung per paket di tingkat jaringan, dan aplikasi biasa \textbf{tidak bisa melihat paket} tanpa akses khusus (root/VPN). Tingkat gagal dihitung per \textbf{permintaan aplikasi} (berapa persen pengiriman gagal). Keduanya sama-sama menggambarkan ``data yang tidak sampai'', tetapi tingkat gagal lebih kasar. Ini dicatat sebagai \textbf{keterbatasan} dan disebut sebagai \textit{proxy}.}
+
+\tanya{Bagaimana delay diukur? Jam HP kan bisa salah.}{Delay diukur dengan \textbf{stopwatch di HP} (jam monoton): waktu mulai dan selesai sama-sama dari HP, jadi selisih jam HP dengan server tidak berpengaruh. Pengukurannya memakai ``\textit{probe}'', yaitu 3 permintaan kecil ke alamat \texttt{/api/health} server.}
+
+\tanya{Delay yang kamu ukur itu delay jaringan atau delay server?}{Pertanyaan bagus. Hasilnya adalah \textbf{RTT tingkat aplikasi} = waktu jaringan pergi-pulang + waktu server memproses. Karena \texttt{/api/health} sangat ringan (tidak membuka database), waktu proses server sangat kecil sehingga angkanya didominasi jaringan. Itu sebabnya dilakukan \textbf{validasi dengan PCAPdroid}, yang mengukur RTT di tingkat TCP.}
+
+\tanya{Apa itu TIPHON? Kenapa pakai standar tahun 1999?}{TIPHON adalah standar ETSI yang membagi kualitas jaringan menjadi kategori (sangat bagus, bagus, sedang, buruk) berdasarkan nilai delay, jitter, packet loss, dan throughput. Tahun 1999 karena ini \textbf{dokumen standar}, bukan jurnal, dan masih menjadi acuan jurnal QoS terbaru di Indonesia (Ramayanti 2024, Fiqria 2024, Basmar 2026).}
+
+\tanya{TIPHON itu untuk VoIP, apakah cocok untuk aplikasi presensi?}{Benar, TIPHON awalnya untuk layanan real-time seperti VoIP, sehingga ambangnya ketat. Di penelitian ini TIPHON dipakai sebagai \textbf{tolok ukur umum yang lazim dipakai} agar hasil bisa dibandingkan dengan penelitian lain, bukan untuk menyatakan presensi butuh kualitas setara VoIP. Ini juga ditulis di keterbatasan. Karena itu hasilnya juga \textbf{dikelompokkan dengan K-Means} yang tidak bergantung ambang TIPHON.}
+
+% ==================================================================
+\section{K-Means}
+
+\tanya{Apa itu K-Means? Jelaskan cara kerjanya.}{K-Means adalah algoritma \textit{clustering} yang mengelompokkan data mirip ke dalam K kelompok. Langkahnya: (1) tentukan K, (2) pilih K titik pusat awal, (3) masukkan setiap data ke pusat \textbf{terdekat} (jarak Euclidean), (4) hitung ulang pusat sebagai \textbf{rata-rata} anggotanya, (5) ulangi langkah 3--4 sampai pusat tidak berubah.}
+
+\tanya{Kenapa memakai K-Means, bukan algoritma lain?}{(1) Data QoS berupa \textbf{angka kontinu} (ms, \%, kbps), cocok dengan K-Means yang berbasis jarak. (2) \textbf{Tidak butuh label}: kita belum tahu lokasi mana yang ``buruk'', jadi butuh metode tanpa label (\textit{unsupervised}). (3) Hasilnya \textbf{mudah dijelaskan}: pusat klaster langsung bisa dibaca ``delay rata-rata sekian, gagal sekian''. (4) Ringan dan banyak dipakai di penelitian serupa (Irwansyah 2025, Mubarak 2023), jadi hasilnya bisa dibandingkan.}
+
+\tanya{Kenapa tidak pakai DBSCAN, Hierarchical, atau GMM?}{\textbf{DBSCAN} cocok untuk data berbentuk tidak beraturan dan mencari \textit{outlier}, tetapi parameternya (eps) sulit ditentukan dan tidak menghasilkan kategori jelas seperti baik/sedang/buruk. \textbf{Hierarchical} bagus untuk data kecil, tetapi berat untuk ribuan sampel dan hasilnya berupa pohon yang harus dipotong. \textbf{GMM} lebih fleksibel, tetapi lebih rumit dijelaskan. Tujuan penelitian ini adalah \textbf{kategori yang mudah ditindaklanjuti perusahaan}, sehingga K-Means paling sesuai. Perbandingan dengan metode lain bisa menjadi saran penelitian lanjutan.}
+
+\tanya{Kenapa tidak pakai klasifikasi seperti Naive Bayes, SVM, atau Decision Tree?}{Klasifikasi butuh \textbf{data berlabel} (contoh lokasi yang sudah diketahui baik/buruk) untuk dilatih. Data seperti itu belum ada. \textit{Clustering} justru dipakai untuk \textbf{menemukan} kelompok tanpa label. Hasil K-Means nanti bisa menjadi label untuk penelitian klasifikasi berikutnya.}
+
+\tanya{Kenapa tidak cukup tabel TIPHON saja, untuk apa K-Means?}{TIPHON menilai \textbf{satu metrik satu per satu}, sehingga satu lokasi bisa ``bagus'' di delay tetapi ``buruk'' di tingkat gagal, dan sulit disimpulkan. K-Means melihat \textbf{semua metrik sekaligus} dan menemukan pola gabungan, misalnya ``posko X pada pagi hari dengan 4G''. Hasil keduanya lalu \textbf{dibandingkan} untuk saling menguatkan.}
+
+\tanya{Berapa nilai K dan bagaimana menentukannya?}{K \textbf{tidak ditentukan sembarangan}. Diuji K = 2 sampai 6, lalu dipilih dengan: (1) \textbf{metode elbow}, yaitu titik ``siku'' pada grafik jumlah kuadrat jarak (inersia), dan (2) \textbf{nilai silhouette} tertinggi. Dugaan awal K = 3 (baik, sedang, buruk), tetapi data yang menentukan.}
+
+\tanya{Apa itu silhouette? Berapa nilai yang dianggap bagus?}{Silhouette mengukur seberapa dekat data dengan kelompoknya sendiri dibanding kelompok lain, nilainya $-1$ sampai $1$. Patokan umum: \textbf{> 0,5 baik}, 0,25--0,5 cukup, < 0,25 lemah. Kalau hasilnya lemah, itu tetap temuan dan dibahas jujur.}
+
+\tanya{Kenapa data harus dinormalisasi sebelum K-Means?}{Karena satuannya berbeda: delay dalam ratusan ms, tingkat gagal 0--100\%, throughput ribuan kbps. Tanpa normalisasi, \textbf{metrik dengan angka besar mendominasi jarak} dan K-Means hanya ``melihat'' throughput. Normalisasi (StandardScaler/RobustScaler) menyamakan skala.}
+
+\tanya{Apa yang dikelompokkan: tiap sampel atau tiap lokasi?}{Yang dikelompokkan adalah \textbf{agregat}: gabungan lokasi $\times$ jenis jaringan $\times$ slot jam (misalnya Posko A, 4G, pagi), dengan nilai median tiap metrik. Kalau tiap sampel mentah dikelompokkan, hasilnya terlalu dipengaruhi gangguan sesaat.}
+
+\tanya{K-Means kan sensitif terhadap titik awal dan outlier. Bagaimana mengatasinya?}{(1) Titik awal memakai \textbf{k-means++} dan dijalankan berkali-kali (\texttt{n\_init}), lalu diambil hasil terbaik. (2) Outlier dikurangi dengan \textbf{membersihkan data} (RTT $\le$ 0 atau > 60 detik dibuang), memakai \textbf{median} saat agregasi, dan RobustScaler.}
+
+% ==================================================================
+\section{Metode, Sampel, dan Validitas}
+
+\tanya{Kenapa metodenya R\&D, bukan eksperimen atau deskriptif?}{Sesuai arahan dosen, R\&D adalah cara kerja penelitian di Informatika: \textbf{membuat produk lalu menguji keefektifannya} (Jamaludin dkk., 2024, model Borg dan Gall). Produknya modul telemetri, keefektifannya diuji lewat validasi dan pemakaian nyata. Analisis datanya sendiri bersifat kuantitatif.}
+
+\tanya{Model Borg dan Gall ada 10 tahap, kenapa kamu hanya 5?}{Tahapannya \textbf{diadaptasi dan diringkas} sesuai skala skripsi. Beberapa tahap digabung: uji coba awal dan revisi masuk ke tahap validasi, uji lapangan dan revisi masuk ke rilis bertahap, dan diseminasi diganti penulisan laporan. Ini lazim dilakukan di penelitian R\&D.}
+
+\tanya{Berapa sampelnya dan kenapa angka itu?}{Target minimal 3.000 sampel \textit{probe}, 2.000 sampel pengiriman, dan \textbf{minimal 30 sampel per lokasi}. Angka 30 adalah patokan umum agar rata-rata cukup stabil secara statistik. Total sampel didapat dari perkiraan sekitar 90 karyawan $\times$ 2 presensi $\times$ 20 hari kerja. Wamser dkk. (2021) membahas bahwa jumlah sampel menentukan validitas pengukuran \textit{crowdsourcing}.}
+
+\tanya{Kenapa 4 minggu?}{Agar mencakup \textbf{semua hari kerja dan variasi jam} (pagi, siang, sore), termasuk hari sibuk, dan setiap lokasi mendapat sampel yang cukup. Pengukuran sesaat tidak mewakili karena kualitas jaringan berubah menurut waktu (Basmar 2026).}
+
+\tanya{Bagaimana membuktikan alat ukurmu akurat?}{Dengan \textbf{validasi instrumen} di meja: pada kondisi jaringan yang sama (Wi-Fi, 4G, mode pesawat, putus-sambung), angka telemetri dibandingkan dengan \textbf{PCAPdroid/Wireshark} yang sudah diakui. Target selisih median paling banyak 20\%.}
+
+\tanya{Kenapa targetnya 20\%, tidak 0\%?}{Keduanya mengukur di lapisan berbeda: telemetri di tingkat aplikasi (termasuk waktu proses HTTP), PCAPdroid di tingkat TCP. Selisih kecil \textbf{pasti ada}. Yang dibuktikan adalah keduanya \textbf{bergerak searah dan tidak jauh berbeda}. Angka 20\% adalah batas yang ditetapkan sendiri dan ditulis sebagai kriteria validasi.}
+
+\tanya{Data hanya ada saat orang presensi. Bukankah itu bias?}{Benar, sampel terkumpul terutama di \textbf{jam presensi} (pagi dan sore). Ini dicatat sebagai keterbatasan. Namun jam itulah yang paling penting bagi perusahaan, karena presensi terjadi di jam tersebut. \textit{Probe} juga berjalan berkala selama aplikasi terbuka sehingga sebagian jam lain ikut terekam.}
+
+\tanya{Bagaimana kalau merek HP memengaruhi hasil?}{Merek dan kelas HP memang bisa memengaruhi (misalnya modem dan penghemat baterai). Model HP dan versi Android \textbf{ikut dicatat} sehingga bisa dicek di analisis. Sebarannya tidak dikendalikan, dan ini ditulis sebagai keterbatasan.}
+
+% ==================================================================
+\section{Etika, Privasi, dan Keamanan}
+
+\tanya{Mengambil data dari HP karyawan, apakah melanggar privasi?}{Tidak, karena: (1) ada \textbf{izin tertulis perusahaan}, (2) ada \textbf{pemberitahuan} di menu Tentang Aplikasi, (3) data \textbf{anonim} (ID diubah menjadi kode hash, tanpa nama, GPS, atau foto), dan (4) yang dicatat hanya data teknis jaringan. Ini sesuai prinsip UU Pelindungan Data Pribadi No. 27/2022.}
+
+\tanya{Apa itu hash? Bisakah dikembalikan ke nama?}{Hash (SHA-256) mengubah ID menjadi kode acak satu arah dan \textbf{tidak bisa dibalik}. Ditambah ``salt'' (teks rahasia) agar orang lain tidak bisa mencocokkan dengan menebak ID. Gunanya hanya membedakan perangkat tanpa mengetahui pemiliknya.}
+
+\tanya{Kalau modul telemetrimu error, apakah presensi karyawan ikut rusak?}{Tidak. Modul dirancang (1) \textbf{hanya mengamati}, tidak mengubah alur presensi, (2) setiap fungsinya dibungkus \textbf{try/catch} sehingga error tidak menjalar, (3) upload hanya berjalan setelah data presensi terkirim semua, dan (4) bisa \textbf{dimatikan dari server} tanpa update aplikasi. Sebelum dirilis, modul diuji di server uji yang terpisah.}
+
+\tanya{Apakah telemetri membebani kuota dan baterai karyawan?}{Sangat kecil: \textit{probe} paling sering tiap 15 menit, satu sampel < 300 byte, upload berkala. Target < 1 MB per hari per HP. Beban kuota dan baterai \textbf{diukur} saat validasi dan dilaporkan di Bab 4.}
+
+% ==================================================================
+\section{Hasil, Manfaat, dan Keterbatasan}
+
+\tanya{Kalau hasil K-Means tidak sesuai TIPHON atau keterangan HRD, bagaimana?}{Itu \textbf{tetap hasil penelitian} dan dibahas: bisa jadi ambang TIPHON terlalu ketat untuk aplikasi non-real-time, atau persepsi HRD berbeda dengan data. Penelitian tidak harus membuktikan hipotesis benar, tetapi harus menjelaskan hasilnya dengan jujur.}
+
+\tanya{Apa manfaat nyata untuk perusahaan?}{\textbf{Peta kualitas jaringan per lokasi} tanpa mengirim orang mengukur, dasar keputusan memasang Wi-Fi/\textit{repeater} di lokasi yang tepat, bukti saat ada keluhan presensi, dan bisa terus dipakai untuk memantau setelah penelitian selesai.}
+
+\tanya{Apa hubungannya dengan offline-first?}{\textit{Offline-first} adalah \textbf{konteks}: aplikasi dibuat \textit{offline-first} karena jaringannya buruk, dan penelitian ini mengukur seberapa buruk. Data lama putus koneksi juga menunjukkan seberapa sering mode \textit{offline} benar-benar dibutuhkan. Karena bukan fokus, kata \textit{offline-first} tidak masuk judul.}
+
+\tanya{Apa kelemahan terbesar penelitianmu?}{Jawab jujur, tunjukkan kamu sadar: (1) ukuran hanya ke server perusahaan, (2) tingkat gagal adalah pengganti \textit{packet loss}, (3) sampel terkumpul terutama di jam presensi, (4) merek HP tidak dikendalikan, dan (5) TIPHON dirancang untuk layanan real-time. \textbf{Setiap kelemahan sudah ada penanganan atau ditulis sebagai keterbatasan.}}
+
+\tanya{Apa saran untuk penelitian selanjutnya?}{(1) Membandingkan K-Means dengan DBSCAN atau GMM, (2) memprediksi kualitas jaringan dengan \textit{machine learning} memakai label hasil K-Means, (3) mengukur di iOS dan lebih banyak operator, dan (4) memakai hasil pengukuran untuk mengatur sinkronisasi aplikasi secara otomatis.}
+
+% ==================================================================
+\section{Pertanyaan Jebakan (Siapkan Mental)}
+
+\tanya{``Ini kan cuma menambah log ke aplikasi, apa susahnya?''}{Bagian sulitnya: \textbf{merancang alat ukur yang valid} (dibuktikan dengan PCAPdroid), \textbf{aman untuk produksi} (tidak mengganggu presensi, bisa dimatikan), \textbf{menjaga privasi} (anonim), lalu \textbf{menganalisis} ribuan sampel dengan TIPHON dan K-Means. Log biasa tidak memenuhi syarat-syarat itu.}
+
+\tanya{``Kalau datanya ternyata sedikit, bagaimana?''}{Periode pengumpulan diperpanjang, dan ada data validasi dari meja sebagai pendukung. Target minimal per lokasi (30 sampel) dipantau setiap minggu agar kekurangan cepat ketahuan.}
+
+\tanya{``Kenapa K = 3? Itu kan karanganmu.''}{K = 3 hanya \textbf{dugaan awal}. Nilai akhir ditentukan dari \textbf{elbow dan silhouette} pada data nyata (K = 2--6 diuji). Kalau data menunjukkan K = 4, yang dipakai K = 4.}
+
+\tanya{``Bisa jelaskan rumus jarak Euclidean?''}{Jarak antara dua titik data $a$ dan $b$ dengan $n$ metrik: $d(a,b) = \sqrt{\sum_{i=1}^{n}(a_i - b_i)^2}$. Contoh: dua lokasi dengan (delay, gagal) = (100, 2) dan (400, 10) setelah dinormalisasi; jaraknya dihitung dari selisih tiap metrik dikuadratkan, dijumlah, lalu diakarkan.}
+
+\end{document}

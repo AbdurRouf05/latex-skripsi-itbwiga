@@ -1,0 +1,218 @@
+% =====================================================================
+%  Anatomi Penelitian - Abdur Rouf
+%  Render: xelatex anatomi-penelitian.tex   (jalankan 2x)
+% =====================================================================
+% !TEX program = xelatex
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Calibri}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{array,longtable}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\pagestyle{plain}
+\setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{1.25}
+\setlist{nosep,leftmargin=*,topsep=0pt}
+
+% Lebar kolom: kiri (Component) dan kanan (Content)
+\newcolumntype{L}{>{\raggedright\arraybackslash}p{5.6cm}}
+\newcolumntype{R}{>{\raggedright\arraybackslash}p{9.6cm}}
+\newcommand{\judul}[1]{\begin{center}\textbf{\large #1}\end{center}}
+\newcommand{\kepala}{\multicolumn{1}{|c|}{\textbf{Component}} & \multicolumn{1}{c|}{\textbf{Content}}\\ \hline}
+
+% Catatan: satu sel tabel tidak bisa terpotong ke halaman berikutnya.
+% Karena itu isi yang panjang dipecah menjadi beberapa baris tabel
+% (baris berikutnya diawali "&" dan tanpa \hline) agar tetap tampak satu sel.
+
+\begin{document}
+
+\judul{\Large Draf Anatomy Research}
+\judul{Abstract (100-250 kata)}
+
+\begin{longtable}{|L|R|}
+\hline
+\kepala
+\endhead
+The background of the research &
+Karyawan PT Semeru Agung Mandiri melakukan presensi melalui aplikasi \textit{mobile} dari kantor, posko, dan gudang dengan kualitas jaringan yang berbeda-beda, tetapi perusahaan belum memiliki data objektif tentang kualitas jaringan di setiap lokasi kerja. \\ \hline
+\textbf{Purpose/ Tujuan} &
+Penelitian ini bertujuan menganalisis \textit{Quality of Service} (QoS) jaringan pada aplikasi presensi berdasarkan data \textit{crowdsourcing} dari perangkat karyawan dan mengelompokkan lokasi kerja menurut kualitas jaringannya menggunakan algoritma K-Means. \\ \hline
+\textbf{Method /} &
+Penelitian menggunakan metode \textit{Research and Development} (R\&D) dengan mengembangkan modul telemetri pasif pada aplikasi presensi. Modul ini mencatat \textit{delay}, \textit{jitter}, tingkat kegagalan pengiriman, \textit{throughput}, dan lama putus koneksi secara anonim setiap kali aplikasi berkomunikasi dengan server, tanpa mengubah alur presensi. Data dikumpulkan selama empat minggu, dikategorikan menurut standar TIPHON, lalu dikelompokkan dengan K-Means yang jumlah klasternya ditentukan dengan metode \textit{elbow} dan \textit{silhouette}. \\ \hline
+\textbf{Principal results} &
+Dari berapa sampel pengukuran, kualitas jaringan terbagi menjadi berapa klaster, dengan berapa lokasi kerja termasuk kategori buruk menurut TIPHON. \\ \hline
+\textbf{Major conclusions} &
+Telemetri pasif pada aplikasi presensi terbukti/tidak terbukti mampu memetakan kualitas jaringan di seluruh lokasi kerja tanpa pengukuran manual dan tanpa mengganggu pengguna. \\ \hline
+Its contributions to the field. &
+Penelitian ini memberikan metode pengukuran QoS jaringan berbasis \textit{crowdsourcing} yang memanfaatkan aplikasi operasional perusahaan sebagai alat ukur, sebagai alternatif dari pengukuran manual di satu titik. \\ \hline
+\end{longtable}
+
+\judul{Body of Research}
+
+\textbf{Title:} Analisis \textit{Quality of Service} Jaringan Berbasis \textit{Crowdsourcing} pada Aplikasi Presensi \textit{Mobile} Menggunakan \textit{Clustering} K-Means di PT Semeru Agung Mandiri\\
+\textbf{Keywords:} \textit{Quality of Service}; \textit{Crowdsourcing}; K-Means; TIPHON; Presensi Mobile
+
+\vspace{6pt}
+\begin{longtable}{|L|R|}
+\hline
+\kepala
+\endhead
+
+% ---------------------------------------------------------------- 1
+\textbf{Introduction}
+\begin{enumerate}[label=\arabic*.]
+\item What is Known? (Our understanding of the world) \textbf{4-5 kalimat}\newline Pernyataan umum yang positif
+\end{enumerate}
+&
+\begin{enumerate}[label=\arabic*.]
+\item Aplikasi presensi \textit{mobile} kini banyak digunakan perusahaan dan bergantung pada jaringan Wi-Fi atau seluler untuk mengirim data ke server (Rokhman dkk., 2026; Indah \& Wati, 2025).
+\item Kualitas jaringan dapat diukur secara objektif melalui parameter QoS seperti \textit{delay}, \textit{jitter}, \textit{packet loss}, dan \textit{throughput} yang dikategorikan dengan standar TIPHON (ETSI, 1999; Ramayanti \& Syarifudin, 2024).
+\item Pengukuran jaringan berbasis \textit{crowdsourcing} memanfaatkan perangkat banyak pengguna sebagai alat ukur sehingga mencerminkan pengalaman pengguna yang sebenarnya (Wamser dkk., 2021).
+\item Pengukuran dapat dilakukan secara pasif dari lalu lintas aplikasi yang sudah berjalan, tanpa membebani pengguna dengan pengujian aktif (Wu dkk., 2017).
+\item Algoritma K-Means telah digunakan untuk mengelompokkan kualitas internet seluler dan pemakaian \textit{bandwidth} ke dalam kategori yang mudah ditindaklanjuti (Irwansyah dkk., 2025; Mubarak dkk., 2023).
+\end{enumerate}
+\\ \hline
+
+% ---------------------------------------------------------------- 2
+\begin{enumerate}[label=\arabic*.,start=2]
+\item What is Unknown? (What is the \textbf{gap} we want to fill?) \textbf{4-5 kalimat}\newline Masalah-masalah yang ditemukan
+\end{enumerate}
+&
+\begin{enumerate}[label=\arabic*.]
+\item Kualitas jaringan di lokasi kerja PT Semeru Agung Mandiri tidak merata, tetapi perusahaan belum memiliki data lokasi mana yang paling bermasalah.
+\item Penelitian QoS di Indonesia umumnya mengukur satu jaringan di satu titik secara manual menggunakan Wireshark, sehingga tidak mencerminkan banyak lokasi dan waktu sekaligus (Fiqria \& Purnama, 2024; Rosid dkk., 2023).
+\item Kualitas jaringan berubah menurut waktu, misalnya menurun pada jam sibuk, sehingga pengukuran sesaat kurang mewakili (Basmar \& Yusuf, 2026).
+\item Penelitian K-Means kualitas jaringan sebelumnya memakai data dari pihak ketiga atau data perangkat jaringan, bukan data dari aplikasi yang dipakai karyawan sehari-hari (Irwansyah dkk., 2025; Mubarak dkk., 2023).
+\item Belum ada penelitian yang memanfaatkan aplikasi presensi perusahaan sebagai alat ukur QoS berbasis \textit{crowdsourcing}.
+\end{enumerate}
+\\ \hline
+
+% ---------------------------------------------------------------- 3
+\begin{enumerate}[label=\arabic*.,start=3]
+\item How and why? should we fill the gap?\newline (Your rationale and purpose/hypothesis)\newline \textbf{2-3 kalimat}
+\end{enumerate}
+&
+Aplikasi presensi sudah dipakai karyawan setiap hari di semua lokasi kerja, sehingga dapat dijadikan alat ukur kualitas jaringan yang murah dan berkelanjutan. Dengan mengelompokkan hasil pengukuran menggunakan K-Means, perusahaan dapat mengetahui lokasi dan waktu dengan kualitas jaringan buruk secara objektif. Hipotesis: data telemetri pasif membentuk klaster kualitas jaringan yang sesuai dengan kategori TIPHON dan dengan keterangan HRD tentang lokasi yang sulit sinyal.
+\begin{enumerate}[label=\arabic*.]
+\item \textbf{Urgensi Research}\newline
+Penelitian ini penting karena presensi yang gagal terkirim memengaruhi rekap kehadiran dan gaji, sementara perbaikan jaringan memerlukan biaya sehingga harus diarahkan ke lokasi yang benar-benar membutuhkan.
+\end{enumerate}
+\\
+&
+\begin{enumerate}[label=\arabic*.,start=2]
+\item \textbf{Solusi yang diberikan/penawaran kebaruan Research}\newline
+Kebaruan penelitian ini adalah pemanfaatan aplikasi presensi sebagai alat ukur QoS \textit{crowdsourcing} melalui modul telemetri pasif yang anonim, ringan, dan dapat dimatikan dari server, lalu mengelompokkan hasilnya dengan K-Means per lokasi, jenis jaringan, dan waktu.
+\item \textbf{Tujuan Research}\newline
+Penelitian ini bertujuan untuk:\newline
+(1) mengembangkan modul telemetri QoS pasif pada aplikasi presensi;\newline
+(2) mengukur \textit{delay}, \textit{jitter}, tingkat kegagalan, dan \textit{throughput} jaringan di setiap lokasi kerja dan mengategorikannya menurut TIPHON; dan\newline
+(3) mengelompokkan kualitas jaringan per lokasi, jenis jaringan, dan waktu menggunakan K-Means.
+\end{enumerate}
+\\ \hline
+
+% ---------------------------------------------------------------- 4
+\begin{enumerate}[label=\arabic*.,start=4]
+\item Research method\newline Research design,\newline Population and samples\newline Instruments\newline Procedures\newline \textbf{4-5 kalimat}
+\end{enumerate}
+&
+\begin{enumerate}[label=\arabic*.]
+\item \textbf{Research Design}\newline
+Penelitian ini menggunakan metode \textit{Research and Development} (R\&D), yaitu rangkaian langkah untuk mengembangkan produk baru lalu menguji keefektifannya, dengan tahapan yang diadaptasi dari model Borg dan Gall (Jamaludin dkk., 2024):\newline
+(1) analisis masalah dan kebutuhan data;\newline
+(2) perancangan modul telemetri dan definisi metrik;\newline
+(3) implementasi pada aplikasi presensi;\newline
+(4) validasi instrumen dengan membandingkan hasil telemetri dan PCAPdroid pada kondisi jaringan yang dibuat sendiri (Wi-Fi, 4G, mode pesawat, putus-sambung); dan\newline
+(5) pengumpulan data di produksi dan analisis.
+\end{enumerate}
+\\
+&
+\begin{enumerate}[label=\arabic*.,start=2]
+\item \textbf{Bagaimana pengambilan data}\newline
+Populasi adalah seluruh komunikasi aplikasi presensi dengan server dari perangkat karyawan PT Semeru Agung Mandiri. Sampel adalah seluruh pengukuran yang tercatat selama empat minggu hari kerja, dengan target minimal 3.000 sampel \textit{probe} dan 2.000 sampel pengiriman data, serta minimal 30 sampel per lokasi kerja. Data dikumpulkan otomatis dan anonim (tanpa nama, GPS, atau foto) setelah mendapat izin perusahaan. Data pendukung berupa wawancara singkat dengan 1 HRD/admin.
+\end{enumerate}
+\\
+&
+\begin{enumerate}[label=\arabic*.,start=3]
+\item \textbf{Instrumen/Procedure}\newline
+Instrumen: modul telemetri pada aplikasi presensi (Flutter, Isar, PocketBase); koleksi server \texttt{net\_samples}; PCAPdroid/Wireshark untuk validasi; Python (pandas, scikit-learn) untuk analisis; pedoman wawancara.\newline
+Prosedur:\newline
+(1) membuat dan menguji modul telemetri di server uji;\newline
+(2) memvalidasi akurasi telemetri terhadap PCAPdroid;\newline
+(3) merilis aplikasi dengan telemetri dalam keadaan mati, lalu menyalakannya dari server secara bertahap;\newline
+(4) mengumpulkan data selama empat minggu;\newline
+(5) melakukan wawancara singkat dengan HRD.
+\end{enumerate}
+\\
+&
+\begin{enumerate}[label=\arabic*.,start=4]
+\item \textbf{Analisis Data (disesuaikan dengan perbandingan hasil pengujian)}\newline
+\textit{Delay} = waktu respons − waktu kirim; \textit{Jitter} = rata-rata selisih \textit{delay} berurutan; Tingkat gagal = pengiriman gagal / total pengiriman × 100\% (pengganti \textit{packet loss}); \textit{Throughput} = data terkirim (bit) / waktu kirim (detik). Setiap metrik dikategorikan menurut TIPHON (ETSI, 1999). Data per lokasi, jenis jaringan, dan waktu dikelompokkan dengan K-Means; jumlah klaster ditentukan dengan metode \textit{elbow} dan \textit{silhouette}. Hasil klaster dibandingkan dengan kategori TIPHON dan keterangan HRD.
+\end{enumerate}
+\\ \hline
+
+% ---------------------------------------------------------------- 5
+\begin{enumerate}[label=\arabic*.,start=5]
+\item Result: What result did you get?\newline Hanya berisi tentang Hasil wawancara, hasil observasi, hasil dokumentasi (berupa narasi atau keterangan data saja)\newline \textbf{4-5 kalimat}
+\end{enumerate}
+&
+Belum wawancara dan belum pengumpulan data, tapi akan mencari tahu soal ini nanti:
+\begin{enumerate}[label=\arabic*.]
+\item Hasil wawancara: [keterangan HRD tentang lokasi yang sering sulit sinyal dan keluhan presensi gagal terkirim].
+\item Hasil observasi: [jumlah sampel per lokasi dan jenis jaringan, hasil validasi telemetri terhadap PCAPdroid].
+\item Hasil dokumentasi: [data \texttt{net\_samples}, grafik, dan tangkapan layar modul telemetri].
+\item Tabel 1. Rata-rata \textit{delay}, \textit{jitter}, tingkat gagal, dan \textit{throughput} per lokasi beserta kategori TIPHON.
+\item Tabel 2. Hasil K-Means: pusat klaster, anggota klaster, dan nilai \textit{silhouette}.
+\item Gambar 1. Grafik sebaran klaster dan peta lokasi kerja menurut kualitas jaringan.
+\end{enumerate}
+\\ \hline
+
+% ---------------------------------------------------------------- 6
+\begin{enumerate}[label=\arabic*.,start=6]
+\item Discussion: How do the result fill the gap?\newline Pembahasan serta jawaban GAP (Nomor 2)
+\end{enumerate}
+&
+\begin{enumerate}[label=\arabic*.]
+\item Data telemetri menunjukkan lokasi mana yang kualitas jaringannya paling buruk, sehingga perusahaan kini memiliki data objektif per lokasi.
+\item Berbeda dengan pengukuran manual di satu titik, data mencakup berapa lokasi, berapa perangkat, dan seluruh jam kerja selama empat minggu.
+\item Pola waktu menunjukkan kualitas jaringan pada jam berapa paling buruk, sejalan/tidak sejalan dengan temuan jam sibuk penelitian sebelumnya.
+\item Klaster K-Means sesuai berapa persen dengan kategori TIPHON dan dengan keterangan HRD.
+\item Hasil ini membuktikan bahwa aplikasi operasional dapat dijadikan alat ukur QoS berbasis \textit{crowdsourcing}, melengkapi penelitian K-Means sebelumnya yang memakai data pihak ketiga.
+\end{enumerate}
+\\ \hline
+
+% ---------------------------------------------------------------- 7
+\begin{enumerate}[label=\arabic*.,start=7]
+\item Conclusion: What does this mean for us going forward?
+\end{enumerate}
+&
+\begin{enumerate}[label=\arabic*.]
+\item Modul telemetri pasif berhasil/tidak berhasil mengumpulkan berapa sampel QoS dari berapa lokasi kerja tanpa mengganggu alur presensi.
+\item Rata-rata \textit{delay} jaringan termasuk kategori apa menurut TIPHON, dengan lokasi terburuk di mana.
+\item K-Means membagi kualitas jaringan menjadi berapa klaster dengan nilai \textit{silhouette} berapa.
+\item \textbf{Kontribusi Research}\newline
+Teoretis: memberikan metode pengukuran QoS berbasis \textit{crowdsourcing} dari aplikasi operasional yang dikombinasikan dengan K-Means. Praktis: menjadi dasar bagi PT Semeru Agung Mandiri dalam menentukan lokasi yang perlu perbaikan jaringan atau penyesuaian prosedur presensi.
+\item \textbf{Limitation (Jika Ada)}\newline
+Pengukuran hanya ke server perusahaan dan hanya saat aplikasi dipakai. Tingkat gagal digunakan sebagai pengganti \textit{packet loss}, dan sebaran merek perangkat tidak dikendalikan.
+\end{enumerate}
+\\ \hline
+\end{longtable}
+
+\judul{Referensi}
+\begin{list}{}{\leftmargin=1cm \itemindent=-1cm \itemsep=4pt}
+\item Basmar, M. F., \& Yusuf, M. (2026). Analisis Quality of Service (QoS) Jaringan Internet Nirkabel pada Jam Sibuk (Peak Hours) di Gedung Fakultas Teknik Universitas Pejuang Republik Indonesia Makassar. \textit{JATI (Jurnal Mahasiswa Teknik Informatika)}, 10(3).
+\item ETSI. (1999). \textit{TR 101 329 V2.1.1: Telecommunications and Internet Protocol Harmonization Over Networks (TIPHON); General aspects of Quality of Service (QoS)}.
+\item Fiqria, C., \& Purnama, G. (2024). Analisis Quality of Service Jaringan Wireless pada ISP PT. Sinar Alam Abadi (YesNet.Wifi) dengan Standar TIPHON. \textit{JATI (Jurnal Mahasiswa Teknik Informatika)}, 8(5).
+\item Indah, N. K., \& Wati, L. (2025). Pengembangan Mode Offline dan Sinkronisasi Data pada Aplikasi Absensi Berbasis QR Code untuk Karyawan PT. Bintang Energi Pratama. \textit{JUTITI: Jurnal Teknik Informatika dan Teknologi Informasi}.
+\item Irwansyah, M. A., Meiriza, A., \& Lestarini, D. (2025). Analisis Klasterisasi Kualitas Internet Seluler Menggunakan Metode K-Means dan Gaussian Mixture Model. \textit{Building of Informatics, Technology and Science (BITS)}, 7(3), 1694-1704. https://doi.org/10.47065/bits.v7i3.8615
+\item Jamaludin, D. A., Henderi, \& Ladjamudin, A. B. (2024). Development of Android Application-Based E-Learning Learning Media Using the Borg and Gall Method. \textit{JINAV: Journal of Information and Visualization}, 5(1), 171-180. https://doi.org/10.35877/454RI.jinav2915
+\item Mubarak, R., Defit, S., \& Nurcahyo, G. W. (2023). Algoritma K-Means Clustering Penggunaan Bandwidth Internet (Studi Kasus di Pemerintah Daerah Kabupaten Padang Pariaman). \textit{Explore: Jurnal Sistem Informasi dan Telematika}, 14(1). https://doi.org/10.36448/jsit.v14i1.3037
+\item Ramayanti, D., \& Syarifudin. (2024). Analisis dan Peningkatan Kualitas Layanan pada Jaringan Komputer Nirkabel Badan Penghubung Lampung dalam Mendukung Tugas Pemerintahan. \textit{JSAI: Journal Scientific and Applied Informatics}, 7(1), 1-13.
+\item Rokhman, A. M., Darmanto, E., \& Supriyono. (2026). Rancang Bangun Manajemen Personalia Multiplatform Terintegrasi dengan Live Tracking dan Payroll. \textit{Jurnal Sistem Komputer dan Informatika (JSON)}, 7(4), 1390-1400. https://doi.org/10.30865/json.v7i4.9797
+\item Rosid, R. A., Martanto, \& Ali, I. (2023). Analisis Internet Network Performance Menggunakan Parameter Quality of Service. \textit{JATI (Jurnal Mahasiswa Teknik Informatika)}, 7(1).
+\item Wamser, F., Seufert, A., Hall, A., Wunderer, S., \& Hoßfeld, T. (2021). Valid Statements by the Crowd: Statistical Measures for Precision in Crowdsourced Mobile Measurements. \textit{Network}, 1(2), 215-232. https://doi.org/10.3390/network1020013
+\item Wu, D., Chang, R. K. C., Li, W., Cheng, E. K. T., \& Gao, D. (2017). MopEye: Opportunistic Monitoring of Per-app Mobile Network Performance. \textit{Proceedings of the 2017 USENIX Annual Technical Conference (USENIX ATC '17)}, 445-457.
+\end{list}
+
+\end{document}

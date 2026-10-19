@@ -1,0 +1,265 @@
+% =====================================================================
+%  Catatan Presentasi - Abdur Rouf
+%  Render: xelatex catatan-presentasi.tex   (jalankan 2x)
+% =====================================================================
+% !TEX program = xelatex
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Calibri}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{array,longtable,booktabs}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{head}{HTML}{1F3A5F}
+\definecolor{band}{HTML}{E8EEF5}
+\renewcommand{\arraystretch}{1.35}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\titleformat{\section}{\large\bfseries\color{head}}{\thesection.}{6pt}{}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
+\pagestyle{plain}
+\setlist{nosep,leftmargin=*,topsep=2pt}
+\newcommand{\term}[1]{\cellcolor{band}\textbf{#1}}
+\newcolumntype{K}{>{\raggedright\arraybackslash}p{3.8cm}}
+\newcolumntype{V}{>{\raggedright\arraybackslash}p{12.2cm}}
+\newcommand{\kepala}[2]{\rowcolor{head}\textcolor{white}{\textbf{#1}} & \textcolor{white}{\textbf{#2}}\\ \midrule}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries\color{head} CATATAN PRESENTASI ANATOMI PENELITIAN}\\[5pt]
+{\bfseries Analisis \textit{Quality of Service} Jaringan Berbasis \textit{Crowdsourcing} pada Aplikasi Presensi \textit{Mobile} Menggunakan \textit{Clustering} K-Means di PT Semeru Agung Mandiri}\\[6pt]
+Abdur Rouf \quad|\quad NIM 223140118
+\end{center}
+
+% ------------------------------------------------------------------
+\section{Struktur Penelitian (Sesuai Arahan Dosen)}
+\begin{tabular}{@{}lp{11.5cm}@{}}
+\textbf{Bidang / topik} & Jaringan: kualitas layanan (QoS) jaringan Wi-Fi dan seluler\\
+\textbf{Teknik / algoritma} & \textit{Clustering} K-Means (+ standar penilaian QoS TIPHON)\\
+\textbf{Penerapan / kasus} & Aplikasi presensi PT Semeru Agung Mandiri sebagai alat ukur\\
+\textbf{Metode penelitian} & \textit{Research and Development} (R\&D): membuat modul telemetri, menguji, lalu memakainya\\
+\end{tabular}
+
+Polanya sama dengan contoh dosen ``IoT + Fuzzy'': di sini \textbf{Jaringan + K-Means}. R\&D adalah cara kerjanya, bukan topik keilmuannya.
+
+% ------------------------------------------------------------------
+\section{Penjelasan Singkat (30 Detik)}
+\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\itshape
+``Karyawan PT Semeru Agung Mandiri absen lewat aplikasi dari kantor, posko, dan gudang yang sinyalnya berbeda-beda, tetapi perusahaan tidak punya data lokasi mana yang jaringannya buruk. Saya menambahkan modul kecil di aplikasi presensi yang \textbf{diam-diam dan anonim} mencatat kualitas jaringan setiap kali aplikasi menghubungi server, tanpa mengubah cara karyawan absen. Hasilnya dinilai dengan standar QoS TIPHON, lalu dikelompokkan dengan \textbf{K-Means} menjadi kategori baik, sedang, dan buruk per lokasi dan per jam. Jadi aplikasi presensi sekaligus menjadi alat ukur jaringan.''}}
+
+% ------------------------------------------------------------------
+\section{Manfaat Penelitian}
+\subsection{Bagi perusahaan}
+\begin{itemize}
+\item \textbf{Peta kualitas jaringan per lokasi kerja} tanpa harus mengirim orang mengukur ke setiap posko.
+\item \textbf{Dasar keputusan investasi}: tahu posko mana yang perlu dipasang Wi-Fi, \textit{repeater}, atau operator seluler lain, sehingga biaya tepat sasaran.
+\item \textbf{Penjelasan atas keluhan presensi}: kalau karyawan bilang ``absen tidak terkirim'', HRD bisa mengecek apakah lokasi dan jam itu memang bermasalah.
+\item \textbf{Pemantauan berkelanjutan}: modul tetap bisa dinyalakan setelah penelitian selesai untuk memantau perubahan kualitas jaringan.
+\item \textbf{Bahan perbaikan aplikasi}: tahu berapa lama dan seberapa sering HP offline, sehingga pengaturan sinkronisasi dan ukuran foto bisa disesuaikan dengan data, bukan perkiraan.
+\end{itemize}
+\subsection{Bagi karyawan}
+\begin{itemize}
+\item Lokasi bersinyal buruk bisa diperbaiki, sehingga absen lebih lancar.
+\item Tidak ada beban tambahan: tidak perlu mengisi apa pun dan data dibuat anonim.
+\end{itemize}
+\subsection{Bagi peneliti selanjutnya}
+\begin{itemize}
+\item \textbf{Contoh metode baru}: aplikasi operasional apa pun (kasir, kurir, presensi) bisa dijadikan alat ukur QoS dengan cara yang sama.
+\item \textbf{Desain privasi yang bisa ditiru}: anonim, ringan, dan bisa dimatikan dari server.
+\item \textbf{Bahan pengembangan}: data bisa dilanjutkan dengan prediksi kualitas jaringan (misalnya \textit{machine learning}), penjadwalan sinkronisasi pintar, atau perbandingan operator seluler.
+\item \textbf{Perbandingan metode}: hasil K-Means dari data aplikasi bisa dibandingkan dengan pengukuran manual Wireshark pada penelitian QoS lain.
+\end{itemize}
+\subsection{Bagi keilmuan}
+Menambah bukti bahwa pengukuran QoS berbasis \textit{crowdsourcing} pasif dapat diterapkan pada skala kecil (satu perusahaan) dan dikombinasikan dengan K-Means.
+
+% ------------------------------------------------------------------
+\section{Apakah Penelitian Ini Pernah Ada?}
+\begin{longtable}{KV}
+\toprule
+\kepala{Yang sudah ada}{Contoh}
+\endhead
+\term{QoS + TIPHON} & Sangat banyak di jurnal Indonesia, tetapi diukur manual dengan Wireshark di satu tempat (Fiqria 2024, Rosid 2023, Ramayanti 2024, Basmar 2026). \\
+\term{K-Means + kualitas jaringan} & Ada, tetapi memakai data pihak ketiga (Ookla) atau data perangkat jaringan (Irwansyah 2025, Mubarak 2023). \\
+\term{Crowdsourcing / pengukuran pasif} & Ada di luar negeri dengan aplikasi khusus pengukur dan skala jutaan pengguna (Wamser 2021, Wu 2017). \\
+\bottomrule
+\end{longtable}
+\textbf{Yang baru dari penelitian ini:} menggabungkan ketiganya, yaitu mengukur QoS secara pasif dari \textbf{aplikasi operasional perusahaan (presensi)}, lalu mengelompokkannya dengan K-Means per lokasi kerja. Dari pencarian yang sudah dilakukan, kombinasi ini belum ditemukan. Kalimat yang aman untuk dosen: \textit{``Sepanjang penelusuran saya, belum ditemukan penelitian yang memakai aplikasi presensi sebagai alat ukur QoS crowdsourcing.''}
+
+% ------------------------------------------------------------------
+\section{Tentang Judul}
+\subsection{Judul yang dipakai}
+\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\bfseries
+Analisis \textit{Quality of Service} Jaringan Berbasis \textit{Crowdsourcing} pada Aplikasi Presensi \textit{Mobile} Menggunakan \textit{Clustering} K-Means di PT Semeru Agung Mandiri}}
+
+\subsection{Kenapa judulnya seperti ini}
+\begin{longtable}{KV}
+\toprule
+\kepala{Bagian judul}{Fungsinya}
+\endhead
+\term{Analisis QoS Jaringan} & Bidang keilmuan: jaringan. Kata ``analisis'' menunjukkan hasilnya berupa pengukuran dan penilaian. \\
+\term{Berbasis Crowdsourcing} & Kebaruan: data diambil dari banyak HP karyawan, bukan diukur manual di satu titik. \\
+\term{pada Aplikasi Presensi Mobile} & Alat ukurnya: aplikasi presensi yang sudah dipakai sehari-hari. \\
+\term{Menggunakan Clustering K-Means} & Teknik/algoritma, sesuai pola dosen ``IoT + Fuzzy''. \\
+\term{di PT Semeru Agung Mandiri} & Objek/tempat penelitian. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Boleh pakai tanda kurung ``(Studi Kasus: \ldots)''?}
+Umumnya \textbf{boleh} dan banyak dipakai di skripsi Informatika. Panduan kampus yang ada di folder skripsi tidak melarangnya. Namun versi \textbf{tanpa kurung} (``\ldots di PT Semeru Agung Mandiri'') lebih aman karena lebih pendek dan tidak bergantung selera dosen. Karena itu versi tanpa kurung yang dipakai sekarang. Kalau dosen lebih suka model studi kasus, cukup ganti ``di PT Semeru Agung Mandiri'' menjadi ``(Studi Kasus: PT Semeru Agung Mandiri)''.
+
+\subsection{Cadangan kalau dosen minta lebih singkat}
+\begin{enumerate}
+\item \textit{Clustering} Kualitas Jaringan Berbasis \textit{Crowdsourcing} pada Aplikasi Presensi Menggunakan K-Means di PT Semeru Agung Mandiri.
+\item Pemetaan \textit{Quality of Service} Jaringan Lokasi Kerja Menggunakan K-Means dan Data Aplikasi Presensi \textit{Mobile} di PT Semeru Agung Mandiri.
+\end{enumerate}
+Isi penelitiannya sama; hanya penekanannya yang berbeda.
+
+\subsection{Tips agar judul di-ACC}
+\begin{itemize}
+\item Bawa \textbf{satu judul utama + dua cadangan} (di atas), jangan hanya satu.
+\item Sampaikan pola ``bidang + teknik + metode'' sesuai arahan dosen (bagian 1).
+\item Tekankan bahwa datanya pasti bisa diperoleh karena aplikasinya milik sendiri. Dosen biasanya khawatir mahasiswa tidak bisa mendapat data.
+\item Istilah asing (\textit{Quality of Service}, \textit{Crowdsourcing}, \textit{Mobile}, \textit{Clustering}) ditulis miring.
+\end{itemize}
+
+% ------------------------------------------------------------------
+\section{Hubungan dengan Offline-First}
+Penelitian ini \textbf{masih berhubungan} dengan \textit{offline-first}, tetapi \textit{offline-first} sekarang menjadi \textbf{konteks}, bukan fokus.
+\begin{itemize}
+\item \textbf{Konteks:} aplikasi presensi dibuat \textit{offline-first} justru karena jaringan di lokasi kerja tidak bisa diandalkan. Penelitian ini \textbf{mengukur seberapa buruk} jaringan tersebut.
+\item \textbf{Sumber data:} sebagian data telemetri berasal dari percobaan kirim antrean sinkronisasi \textit{offline-first} (berhasil/gagal, lama kirim, ukuran foto).
+\item \textbf{Data khusus offline:} telemetri mencatat \textbf{lama HP putus koneksi} (\textit{outage}). Angka ini menunjukkan seberapa sering dan seberapa lama mode \textit{offline} benar-benar dibutuhkan karyawan.
+\item \textbf{Manfaat balik:} hasilnya bisa dipakai untuk menyetel sinkronisasi \textit{offline-first} (jeda percobaan ulang, ukuran foto) berdasarkan data nyata.
+\end{itemize}
+Karena bukan fokus, kata \textit{offline-first} \textbf{tidak perlu} masuk judul. Cukup dibahas di Bab 1 (latar belakang) dan Bab 2 (teori aplikasi yang diteliti).
+
+% ------------------------------------------------------------------
+\section{Yang Perlu Disiapkan dan Urutan Kerja}
+\begin{enumerate}
+\item \textbf{Persetujuan dosen} atas judul dan metode.
+\item \textbf{Izin tertulis perusahaan} untuk pengumpulan data kualitas jaringan anonim (wajib, karena data berasal dari HP karyawan).
+\item \textbf{Perbaikan keamanan aplikasi dulu.} Audit menemukan APK yang sekarang masih menyimpan kredensial server. Update aplikasi yang membawa telemetri baru boleh dirilis \textbf{setelah} masalah ini diperbaiki (rencana induk fase F1).
+\item \textbf{Membuat modul telemetri} di server uji dan aplikasi versi uji.
+\item \textbf{Validasi di meja} dengan PCAPdroid.
+\item \textbf{Rilis bertahap}: telemetri mati dulu, lalu dinyalakan dari server untuk beberapa orang, kemudian semua.
+\item \textbf{Pengumpulan data 4 minggu}, lalu \textbf{analisis} TIPHON + K-Means di laptop.
+\end{enumerate}
+Rincian teknis setiap langkah ada di \texttt{docs/roadmap/18\_MASTER\_PLAN\_HARDENING\_ARSITEKTUR\_RISET.md} bagian 14 (Track R).
+
+% ------------------------------------------------------------------
+\section{Alur Presentasi (Urutan Bicara)}
+\begin{enumerate}
+\item \textbf{Masalah:} sinyal di lokasi kerja tidak merata, tetapi tidak ada datanya.
+\item \textbf{Yang sudah ada:} penelitian QoS biasanya manual di satu titik; penelitian K-Means memakai data pihak ketiga.
+\item \textbf{Celah (GAP):} belum ada yang memakai aplikasi operasional perusahaan sebagai alat ukur QoS.
+\item \textbf{Solusi:} modul telemetri pasif di aplikasi presensi (anonim, ringan, bisa dimatikan dari server).
+\item \textbf{Cara mengukur:} \textit{delay}, \textit{jitter}, tingkat gagal, \textit{throughput} → kategori TIPHON → K-Means.
+\item \textbf{Validasi:} hasil telemetri dicocokkan dengan PCAPdroid di meja sebelum dipakai di produksi.
+\item \textbf{Manfaat:} peta kualitas jaringan per lokasi sebagai dasar perbaikan jaringan perusahaan.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{Kamus Istilah (Bahasa Sederhana)}
+\begin{longtable}{KV}
+\toprule
+\kepala{Istilah}{Artinya}
+\endhead
+\multicolumn{2}{l}{\textbf{A. Istilah jaringan}}\\
+\term{QoS (Quality of Service)} & Ukuran \textbf{seberapa bagus kualitas jaringan}, dinilai dari beberapa angka: \textit{delay}, \textit{jitter}, \textit{packet loss}, dan \textit{throughput}. \\
+\term{Delay (latensi)} & \textbf{Waktu tunggu} dari kirim sampai dapat balasan. Makin kecil makin bagus. Contoh: HP ``memanggil'' server dan dijawab 80 milidetik kemudian. \\
+\term{Jitter} & Seberapa \textbf{tidak stabil} \textit{delay}-nya. Kalau \textit{delay} kadang 50 ms, kadang 400 ms, \textit{jitter}-nya besar. Mirip angkot yang kadang datang 5 menit, kadang 40 menit. \\
+\term{Packet loss} & Persentase \textbf{potongan data yang hilang} di jalan. Di penelitian ini diganti dengan \textbf{tingkat gagal}, yaitu persentase pengiriman yang gagal, karena aplikasi tidak bisa melihat paket satu per satu. \\
+\term{Throughput} & \textbf{Kecepatan nyata} pengiriman data, misalnya berapa kbps saat foto absen diunggah. Makin besar makin bagus. \\
+\term{TIPHON} & \textbf{Standar penilaian} kualitas jaringan dari lembaga Eropa (ETSI). Angka hasil ukur dicocokkan dengan tabelnya untuk mendapat kategori ``sangat bagus'', ``bagus'', ``sedang'', atau ``buruk''. \\
+\term{Wi-Fi / seluler} & Wi-Fi = internet dari router kantor. Seluler = internet dari kartu SIM (4G). \\
+\term{Blank spot} & Area yang \textbf{tidak ada sinyal sama sekali}. \\
+\multicolumn{2}{l}{\textbf{B. Istilah pengukuran}}\\
+\term{Crowdsourcing} & Mengumpulkan data dari \textbf{banyak orang sekaligus}. Di sini ``orang banyak'' adalah HP karyawan yang dipakai absen. Mirip Google Maps yang tahu jalan macet dari HP banyak pengguna. \\
+\term{Telemetri} & Pencatatan \textbf{otomatis} data teknis dari jarak jauh, lalu dikirim ke server. \\
+\term{Pasif} & Mengukur dari kegiatan yang \textbf{memang sudah terjadi} (aplikasi menghubungi server), bukan menjalankan tes khusus seperti Speedtest. \\
+\term{Probe} & ``Ketukan'' kecil ke server (3 kali, paling sering tiap 15 menit) untuk mengukur \textit{delay} dan \textit{jitter}. Ukurannya sangat kecil. \\
+\term{Anonim (hash)} & ID karyawan diubah menjadi kode acak yang tidak bisa dikembalikan ke nama. Tidak ada nama, GPS, atau foto yang dicatat. \\
+\term{Saklar server} & Pengaturan di server untuk \textbf{menyalakan/mematikan} telemetri di semua HP tanpa update aplikasi. \\
+\term{PCAPdroid} & Aplikasi Android untuk \textbf{merekam lalu lintas data}. Dipakai untuk mengecek apakah angka telemetri akurat. \\
+\term{Validasi instrumen} & Membuktikan \textbf{alat ukur buatan sendiri} memberi angka yang benar, dengan membandingkannya dengan alat yang sudah diakui. \\
+\term{Server uji (staging)} & Server cadangan khusus untuk mencoba-coba, \textbf{terpisah} dari server yang dipakai karyawan. \\
+\multicolumn{2}{l}{\textbf{C. Istilah K-Means}}\\
+\term{Clustering (klasterisasi)} & Mengelompokkan data yang \textbf{mirip ke dalam satu kelompok} secara otomatis, tanpa diberi label dulu. \\
+\term{K-Means} & Algoritma \textit{clustering} paling populer. ``K'' adalah jumlah kelompok. Cara kerjanya: tentukan K titik pusat, masukkan setiap data ke pusat terdekat, geser pusat ke rata-rata anggotanya, ulangi sampai stabil. \\
+\term{Klaster} & Satu kelompok hasil K-Means, misalnya ``jaringan buruk''. \\
+\term{Pusat klaster (centroid)} & Nilai rata-rata satu kelompok, dipakai untuk memberi nama kelompok (misalnya \textit{delay} tinggi = buruk). \\
+\term{Metode elbow} & Cara memilih jumlah kelompok terbaik: buat grafik untuk K = 2 sampai 6, cari titik ``siku'' tempat penurunan grafik mulai melandai. \\
+\term{Silhouette} & Nilai -1 sampai 1 yang menunjukkan \textbf{seberapa rapi} pengelompokan. Mendekati 1 berarti kelompok jelas terpisah. \\
+\term{Normalisasi} & Menyamakan skala angka (misalnya milidetik dan kbps) sebelum K-Means, agar satu metrik tidak mendominasi. \\
+\multicolumn{2}{l}{\textbf{D. Istilah metodologi}}\\
+\term{R\&D} & Metode penelitian berupa \textbf{proses membuat lalu menguji} produk. Produknya di sini modul telemetri. \\
+\term{Borg dan Gall} & Nama \textbf{model R\&D} yang paling sering dipakai. Aslinya 10 tahap (kumpulkan informasi, rencana, buat produk awal, uji coba, revisi, \ldots, sebarluaskan). Di penelitian ini diringkas menjadi 5 tahap: analisis, rancang, implementasi, validasi, pengumpulan \& analisis. \\
+\term{Populasi / sampel} & Populasi = semua komunikasi aplikasi ke server. Sampel = yang tercatat selama 4 minggu pengumpulan. \\
+\term{GAP penelitian} & Celah yang belum dijawab penelitian sebelumnya. \\
+\term{Limitation} & Batasan penelitian, yaitu hal yang tidak ikut diukur atau dikendalikan. \\
+\bottomrule
+\end{longtable}
+
+% ------------------------------------------------------------------
+\section{Cara Pengujian (Dari Meja + Dari Karyawan)}
+\begin{enumerate}
+\item \textbf{Di meja (validasi):} pasang aplikasi versi uji yang terhubung ke server uji. Buat sendiri kondisi Wi-Fi, 4G, mode pesawat, dan putus-sambung. Bandingkan angka telemetri dengan PCAPdroid.
+\item \textbf{Dari karyawan (data utama):} rilis update aplikasi dengan telemetri dalam keadaan \textbf{mati}. Setelah aman, nyalakan dari server untuk beberapa orang dulu, lalu semua. Data terkumpul sendiri selama 4 minggu.
+\item \textbf{Analisis di laptop:} unduh data dari server sebagai CSV, lalu olah dengan Python (pandas, scikit-learn) untuk tabel TIPHON dan K-Means.
+\item \textbf{Interaksi dengan orang lain:} izin tertulis perusahaan dan satu wawancara singkat dengan HRD (bisa lewat chat).
+\end{enumerate}
+\textbf{Kenapa tidak mengganggu karyawan:} telemetri hanya mengamati, tidak mengubah cara absen. Kalau ada kesalahan, modul gagal diam-diam tanpa memengaruhi absen, dan bisa dimatikan dari server dalam hitungan detik.
+
+% ------------------------------------------------------------------
+\section{Kemungkinan Pertanyaan Dosen}
+\subsection{``Apa topik keilmuan dan metodenya?''}
+Topiknya jaringan (QoS), tekniknya K-Means, dan metodenya R\&D: membuat modul telemetri, memvalidasinya, lalu memakainya untuk mengumpulkan data.
+
+\subsection{``Apa bedanya dengan penelitian QoS lain?''}
+Penelitian lain mengukur manual di satu tempat dan satu waktu. Penelitian ini mengukur otomatis dari banyak HP, banyak lokasi, dan seluruh jam kerja selama 4 minggu.
+
+\subsection{``Apakah boleh mengambil data dari HP karyawan?''}
+Boleh dengan izin tertulis perusahaan. Data dibuat anonim (tidak ada nama, GPS, atau foto), sesuai prinsip UU Pelindungan Data Pribadi No. 27/2022, dan ada pemberitahuan di menu Tentang Aplikasi.
+
+\subsection{``Bagaimana memastikan angka telemetri benar?''}
+Divalidasi di meja: angka telemetri dibandingkan dengan PCAPdroid pada kondisi jaringan yang sama. Target selisih paling banyak 20\%.
+
+\subsection{``Kenapa packet loss diganti tingkat gagal?''}
+Aplikasi tidak bisa melihat paket satu per satu tanpa akses khusus. Persentase pengiriman yang gagal adalah pendekatan yang bisa diukur dari dalam aplikasi, dan ini dicatat sebagai batasan.
+
+\subsection{``Kenapa K-Means, bukan cukup tabel TIPHON?''}
+TIPHON menilai satu metrik satu per satu. K-Means melihat semua metrik \textbf{sekaligus} dan menemukan pola kelompok lokasi/jam secara otomatis. Hasil keduanya dibandingkan.
+
+\subsection{``Kenapa referensi TIPHON tahun 1999?''}
+TIPHON adalah \textbf{dokumen standar}, bukan jurnal penelitian, dan masih menjadi acuan di jurnal QoS terbaru (misalnya Ramayanti 2024, Fiqria 2024, Basmar 2026).
+
+% ------------------------------------------------------------------
+\section{Daftar Referensi dan Isinya}
+\begin{longtable}{KV}
+\toprule
+\kepala{Referensi}{Dipakai untuk}
+\endhead
+\multicolumn{2}{l}{\textbf{A. QoS dan TIPHON}}\\
+\term{ETSI TIPHON (1999)} & Standar kategori QoS. \\
+\term{Ramayanti (2024)} & Contoh pengukuran QoS jaringan nirkabel dengan TIPHON. \\
+\term{Fiqria \& Purnama (2024)} & Contoh QoS memakai Wireshark (pengukuran manual satu titik, mendukung GAP). \\
+\term{Rosid dkk. (2023)} & Rumus dan langkah menghitung parameter QoS. \\
+\term{Basmar \& Yusuf (2026)} & Bukti kualitas jaringan turun pada jam sibuk (alasan mengukur sepanjang hari). \\
+\multicolumn{2}{l}{\textbf{B. Crowdsourcing dan pengukuran pasif}}\\
+\term{Wamser dkk. (2021)} & Pengukuran jaringan \textit{crowdsourcing} dan berapa banyak sampel yang dibutuhkan agar valid. \\
+\term{Wu dkk. (2017)} & MopEye: mengukur kualitas jaringan secara pasif dari lalu lintas aplikasi. \\
+\multicolumn{2}{l}{\textbf{C. K-Means}}\\
+\term{Irwansyah dkk. (2025)} & K-Means untuk mengelompokkan kualitas internet seluler (data Ookla). \\
+\term{Mubarak dkk. (2023)} & K-Means untuk mengelompokkan pemakaian \textit{bandwidth}. \\
+\multicolumn{2}{l}{\textbf{D. Konteks aplikasi dan metode}}\\
+\term{Indah \& Wati (2025)} & Aplikasi absensi yang butuh mode offline karena jaringan. \\
+\term{Rokhman dkk. (2026)} & Aplikasi presensi/personalia Flutter. \\
+\term{Jamaludin dkk. (2024)} & Definisi metode R\&D dan 10 tahap model Borg dan Gall, diterapkan pada pengembangan aplikasi Android (Teknik Informatika, Universitas Raharja). \\
+\bottomrule
+\end{longtable}
+
+\end{document}
