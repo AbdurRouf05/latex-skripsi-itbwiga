@@ -1,0 +1,74 @@
+\chapter{PENDAHULUAN}
+
+\section{Latar Belakang Masalah}
+Aplikasi presensi berbasis \textit{mobile} kini banyak digunakan perusahaan untuk mencatat kehadiran karyawan yang bekerja di lebih dari satu lokasi. Aplikasi semacam ini mengirim data presensi, foto, dan lokasi ke server melalui jaringan Wi-Fi atau seluler, sehingga keberhasilannya bergantung pada kualitas jaringan di tempat karyawan berada \parencite{ismail2023presensi,rokhman2026personalia}. Ketika koneksi di lapangan tidak stabil, data presensi dapat gagal atau terlambat sampai ke server, sehingga beberapa penelitian menambahkan mode \textit{offline} yang menyimpan data di perangkat terlebih dahulu lalu mengirimkannya ketika koneksi kembali tersedia \parencite{indah2025offline,rokhman2026personalia}.
+
+PT Semeru Agung Mandiri menghadapi kondisi yang sama. Karyawannya melakukan presensi melalui aplikasi Android dari kantor, posko, dan gudang yang kondisi jaringannya berbeda-beda. Aplikasi presensi perusahaan, yang dibangun oleh penulis dengan Flutter dan server PocketBase, sengaja dirancang dengan arsitektur \textit{offline-first} karena sebelumnya muncul keluhan presensi gagal terkirim di lokasi tertentu. Data presensi kini disimpan terlebih dahulu di perangkat lalu dikirim melalui antrean sinkronisasi ketika jaringan tersedia. Arsitektur ini berhasil mencegah presensi hilang, tetapi hanya mengatasi gejalanya. Penyebabnya, yaitu kualitas jaringan yang buruk, tetap ada dan tidak pernah diukur. Permasalahan yang muncul dari kondisi tersebut dirangkum pada Tabel~\ref{tab:permasalahan}.
+
+\begin{table}[!ht]
+\centering
+\caption{Permasalahan dan Dampaknya bagi Perusahaan}
+\label{tab:permasalahan}
+\begin{tabular}{>{\centering\arraybackslash}p{0.8cm}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{7.14cm}}
+\toprule
+\textbf{No.} & \textbf{Permasalahan} & \textbf{Dampak} \\ \midrule
+1. & Presensi di lokasi tertentu gagal atau terlambat terkirim & Rekap kehadiran untuk penggajian terlambat atau tidak lengkap; HRD memeriksa manual \\ \garis
+2. & Tidak ada data kualitas jaringan per lokasi dan jam & Lokasi yang perlu perbaikan tidak diketahui; biaya Wi-Fi atau \textit{repeater} bisa salah sasaran \\ \garis
+3. & Keluhan presensi tidak bisa dibuktikan dengan data & Sulit membedakan keterlambatan karena jaringan dari sebab lain \\ \garis
+4. & Pengukuran manual ke setiap lokasi mahal dan lama & Pengukuran sesaat di satu titik tidak mewakili seluruh lokasi dan jam kerja \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: pengamatan penulis sebagai pengembang aplikasi presensi, 2026\par}
+\end{table}
+
+Berdasarkan Tabel~\ref{tab:permasalahan} dapat dinyatakan bahwa inti permasalahannya adalah \textbf{perusahaan belum memiliki data objektif tentang kualitas jaringan di setiap lokasi kerja}, yaitu lokasi mana yang jaringannya buruk, pada jam berapa, melalui jenis jaringan apa, dan seberapa buruk.
+
+Kualitas jaringan sebenarnya dapat diukur secara objektif dengan parameter \textit{Quality of Service} (QoS), yaitu \textit{delay}, \textit{jitter}, \textit{packet loss}, dan \textit{throughput}, yang hasilnya dikategorikan menurut standar TIPHON \parencite{etsi1999tiphon,rosid2023qos}. Namun, penelitian QoS di Indonesia umumnya mengukur satu jaringan di satu lokasi dengan menangkap lalu lintas menggunakan Wireshark \parencite{rosid2023qos,fiqria2024qos,basmar2026jamsibuk} atau dengan aplikasi pengukur seperti speedtest dan nPerf \parencite{ramayanti2024qos,ainina2024qos4g}. Cara ini dilakukan manual di titik dan waktu tertentu, sehingga tidak cocok untuk perusahaan dengan banyak lokasi, padahal kualitas jaringan berubah menurut waktu. \textcite{basmar2026jamsibuk} menemukan bahwa pada jam sibuk \textit{packet loss} mencapai 26,5\% dan \textit{delay} 485 ms, keduanya kategori buruk menurut TIPHON. Aplikasi pengukur kecepatan juga mengukur ke servernya sendiri, bukan ke server perusahaan yang dipakai untuk presensi.
+
+Kendala tersebut dapat diatasi dengan pengukuran jaringan berbasis \textit{crowdsourcing}, yaitu pengukuran yang dijalankan langsung di perangkat banyak pengguna sehingga mencerminkan kondisi nyata yang mereka alami \parencite{wamser2021crowd}. Pengukuran dapat berjalan otomatis dari lalu lintas aplikasi tanpa tindakan pengguna, seperti dibuktikan \textcite{wu2017mopeye} melalui lebih dari lima juta pengukuran dari 2.351 ponsel. Data sebanyak itu perlu dikelompokkan agar mudah ditindaklanjuti. Algoritma K-Means telah digunakan untuk mengelompokkan kualitas internet seluler 17 kabupaten/kota menjadi tiga klaster \parencite{irwansyah2025kmeans} dan pemakaian \textit{bandwidth} 32 organisasi perangkat daerah menjadi kategori tinggi, sedang, dan rendah \parencite{mubarak2023kmeans}.
+
+Meskipun demikian, terdapat celah yang belum diisi oleh penelitian-penelitian tersebut. Pertama, penelitian QoS yang ada mengukur secara manual di satu titik pada waktu tertentu \parencite{fiqria2024qos,rosid2023qos}. Kedua, penelitian K-Means kualitas jaringan memakai data pihak ketiga (Ookla Open Data) atau data perangkat pemantau jaringan, bukan data dari aplikasi yang dipakai sehari-hari \parencite{irwansyah2025kmeans,mubarak2023kmeans}. Ketiga, penelitian aplikasi presensi hanya menangani koneksi buruk dengan mode \textit{offline} tanpa mengukur jaringannya \parencite{indah2025offline,rokhman2026personalia}. Sepanjang penelusuran penulis, belum ditemukan penelitian yang memanfaatkan aplikasi presensi perusahaan sebagai alat ukur QoS berbasis \textit{crowdsourcing} lalu mengelompokkan hasilnya dengan K-Means.
+
+Penelitian ini perlu dilakukan karena tiga alasan. Pertama, presensi merupakan dasar rekap kehadiran dan penggajian, sehingga lokasi dengan jaringan buruk berdampak langsung pada administrasi perusahaan dan karyawan. Kedua, perbaikan jaringan memerlukan biaya, sehingga harus diarahkan ke lokasi dan jam yang terbukti bermasalah, bukan berdasarkan perkiraan. Ketiga, aplikasi presensi sudah dipakai setiap hari di semua lokasi kerja, sehingga dapat menjadi alat ukur yang murah tanpa mengirim petugas ke setiap lokasi. Tanpa penelitian ini, perusahaan hanya mengetahui masalah jaringan dari keluhan, setelah presensi telanjur gagal terkirim.
+
+Oleh karena itu, penelitian ini mengembangkan modul telemetri pada aplikasi presensi PT Semeru Agung Mandiri. Modul tersebut mencatat \textit{delay}, \textit{jitter}, tingkat kegagalan, \textit{throughput}, dan lama putus koneksi secara otomatis dan anonim tanpa mengubah alur presensi. Data yang terkumpul selama empat minggu dikategorikan menurut standar TIPHON, lalu dikelompokkan dengan K-Means per lokasi kerja, jenis jaringan, dan waktu. Hasil yang dituju adalah peta kualitas jaringan perusahaan, yaitu daftar lokasi dan jam berkualitas baik, sedang, dan buruk sebagai dasar perbaikan jaringan.
+
+\section{Batasan Masalah}
+Agar penelitian ini fokus dan terarah, ruang lingkupnya dibatasi sebagai berikut:
+\begin{enumerate}
+    \item Penelitian dilakukan pada aplikasi presensi Android PT Semeru Agung Mandiri (Flutter, Isar, dan PocketBase). Perangkat iOS tidak diteliti.
+    \item Kualitas jaringan yang diukur adalah jalur komunikasi dari perangkat karyawan ke server perusahaan melalui HTTPS, bukan akses internet secara umum.
+    \item Parameter yang diukur adalah \textit{delay} (\textit{round-trip time} tingkat aplikasi), \textit{jitter}, tingkat kegagalan pengiriman sebagai pengganti \textit{packet loss}, \textit{throughput} unggah, dan lama putus koneksi.
+    \item Data dikumpulkan selama empat minggu hari kerja dan hanya ketika aplikasi sedang berjalan. Sinkronisasi latar belakang (WorkManager) tidak dicatat.
+    \item Data bersifat anonim tanpa nama, email, koordinat GPS, maupun foto. Lokasi diwakili kode lokasi kerja.
+    \item Kategori kualitas mengacu pada standar TIPHON, dan pengelompokan memakai K-Means dengan jumlah klaster dari metode \textit{elbow} dan nilai \textit{silhouette}. Penelitian tidak melakukan perbaikan jaringan, tetapi memberikan rekomendasi bagi perusahaan.
+\end{enumerate}
+
+\section{Rumusan Masalah}
+Rumusan masalah dalam penelitian ini adalah sebagai berikut:
+\begin{enumerate}
+    \item Bagaimana mengembangkan modul telemetri QoS pada aplikasi presensi yang hasil pengukurannya valid dan tidak mengganggu alur presensi karyawan?
+    \item Bagaimana kualitas jaringan di setiap lokasi kerja PT Semeru Agung Mandiri berdasarkan nilai \textit{delay}, \textit{jitter}, tingkat kegagalan, dan \textit{throughput} menurut kategori TIPHON?
+    \item Bagaimana hasil pengelompokan kualitas jaringan per lokasi kerja, jenis jaringan, dan waktu menggunakan K-Means, serta sejauh mana kesesuaiannya dengan kategori TIPHON dan keterangan HRD?
+\end{enumerate}
+
+\section{Tujuan Penelitian}
+Secara umum, penelitian ini bertujuan menyediakan data objektif tentang kualitas jaringan di setiap lokasi kerja dengan aplikasi presensi sebagai alat ukur. Sejalan dengan rumusan masalah, tujuan khususnya adalah:
+\begin{enumerate}
+    \item Mengembangkan dan memvalidasi modul telemetri QoS pada aplikasi presensi sebagai alat ukur yang akurat dan aman.
+    \item Mengukur \textit{delay}, \textit{jitter}, tingkat kegagalan, dan \textit{throughput} jaringan di setiap lokasi kerja, lalu mengategorikannya menurut standar TIPHON, sehingga diketahui lokasi dengan kualitas jaringan buruk.
+    \item Mengelompokkan kualitas jaringan per lokasi kerja, jenis jaringan, dan waktu menggunakan K-Means, lalu membandingkan hasilnya dengan kategori TIPHON dan keterangan HRD, sehingga diketahui pola lokasi dan jam yang bermasalah.
+\end{enumerate}
+
+\section{Manfaat Penelitian}
+Manfaat penelitian ini terdiri atas manfaat teoritis dan praktis sebagai berikut:
+\begin{enumerate}
+    \item \textbf{Manfaat Teoritis}\\
+    Penelitian ini memberikan cara pengukuran QoS berbasis \textit{crowdsourcing} yang memakai aplikasi operasional sebagai alat ukur, sebagai alternatif pengukuran manual di satu titik, dan penerapan K-Means pada data QoS dari perangkat pengguna.
+    \item \textbf{Manfaat Praktis}
+    \begin{enumerate}[label=\alph*.]
+        \item Bagi perusahaan, peta kualitas jaringan menjadi dasar perbaikan jaringan.
+        \item Bagi HRD, data per lokasi dan jam membantu menelusuri keluhan presensi gagal terkirim.
+        \item Bagi pengembang, modul telemetri dapat terus memantau jaringan.
+    \end{enumerate}
+\end{enumerate}

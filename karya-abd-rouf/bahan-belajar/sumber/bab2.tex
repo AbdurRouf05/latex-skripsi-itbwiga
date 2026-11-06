@@ -1,0 +1,194 @@
+\input{gaya.tex}
+\begin{document}
+\judul{Bab II --- Tinjauan Pustaka}{Teori yang dipakai, rumusnya, dan cara menjelaskannya}
+
+\begin{intinya}
+Bab II menjawab empat pertanyaan secara berurutan:
+\textbf{(1) Apa objeknya?} aplikasi presensi \textit{offline-first} (2.1.1).
+\textbf{(2) Apa yang diukur?} QoS, TIPHON, jaringan akses seluler \& Wi-Fi (2.1.2--2.1.4).
+\textbf{(3) Bagaimana mengukurnya?} \textit{crowdsourcing} dan telemetri (2.1.5--2.1.6).
+\textbf{(4) Bagaimana menganalisisnya?} K-Means, penentuan $k$, Kruskal-Wallis (2.1.7--2.1.9),
+ditambah metode penelitian (2.1.10) dan pelindungan data pribadi (2.1.11). Lalu 11 penelitian terdahulu (2.2).
+\end{intinya}
+
+\section*{1. Objek: aplikasi presensi dan \textit{offline-first} (2.1.1)}
+\begin{itemize}
+  \item \textbf{Offline-first} = data disimpan dulu di HP (Isar) sebagai sumber utama, dimasukkan ke antrean, lalu dikirim ke server (PocketBase via HTTPS) saat ada jaringan (Devina dkk., 2026).
+  \item Penting untuk penelitian: \textbf{antrean mencatat setiap percobaan kirim dan hasilnya}, jadi bisa \textit{diamati} tanpa diubah.
+  \item \textbf{Geofence}: presensi hanya bisa dalam radius 15--30 m lokasi kerja. Pengecualian: GAMAS (tugas luar), lokasi fleksibel dari admin, titik sementara admin. Geofence tetap jalan tanpa internet (GPS + daftar lokasi tersimpan di HP).
+  \item Wi-Fi kantor \textbf{tidak wajib}; aplikasi hanya mencatat apakah Wi-Fi yang tersambung itu Wi-Fi kantor (berdasarkan BSSID).
+  \item Kenapa dibahas? Karena geofence menentukan \textbf{apakah lokasi suatu pengukuran bisa dipercaya} (dipakai saat membentuk sesi di Bab III).
+\end{itemize}
+
+\section*{2. Parameter QoS (2.1.2)}
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}p{2.2cm}Xp{4.6cm}@{}}
+\toprule
+Parameter & Arti sederhana & Rumus \\
+\midrule
+Delay (RTT) & Waktu kirim permintaan sampai balasan diterima (pulang-pergi) & $d = t_{terima} - t_{kirim}$ \hfill (2.1)\\
+Jitter & Seberapa ``goyang'' delay dari satu pengukuran ke berikutnya & $J=\frac{1}{n-1}\sum_{i=2}^{n}|d_i-d_{i-1}|$ \hfill (2.2)\\
+Packet loss & Persen paket yang tidak sampai & $PL=\frac{N_{kirim}-N_{terima}}{N_{kirim}}\times100\%$ \hfill (2.3)\\
+Throughput & Kecepatan nyata kirim data & $T=\frac{B\times 8}{\Delta t}$ \hfill (2.4)\\
+\bottomrule
+\end{tabularx}
+\end{center}
+Satuan throughput: $B$ dalam byte, $\Delta t$ dalam ms, hasil dalam \textbf{kbps} (karena bit per milidetik = kilobit per detik).
+
+\begin{contoh}[delay, jitter, throughput]
+Tiga probe ke server: RTT = 100, 120, 110 ms.\\
+\textbf{Delay sesi} = median = \textbf{110 ms}.\\
+\textbf{Jitter} = $\frac{|120-100|+|110-120|}{3-1}=\frac{20+10}{2}=$ \textbf{15 ms}.\\
+\textbf{Throughput}: foto presensi 150.000 byte terkirim dalam 1.200 ms $\Rightarrow T=\frac{150.000\times8}{1.200}=$ \textbf{1.000 kbps} (kategori TIPHON ``sedang'', indeks 2).
+\end{contoh}
+
+\textbf{Mengapa packet loss diganti ``tingkat kegagalan''?} Aplikasi Android biasa tidak bisa melihat paket tanpa akses khusus (root/VPN). Maka dihitung di tingkat aplikasi: persen \textit{permintaan} yang gagal karena \textit{timeout} atau galat jaringan. Sama-sama menggambarkan ``data tidak sampai'', tetapi lebih kasar karena satu permintaan = banyak paket. \textbf{Ini keterbatasan yang diakui.}
+
+\section*{3. Standar TIPHON (2.1.3)}
+\begin{hafal}
+\small\begin{tabularx}{\linewidth}{@{}l>{\raggedright}X>{\raggedright}X>{\raggedright}X>{\raggedright\arraybackslash}Xc@{}}
+Kategori & Delay & Jitter & Gagal/PL & Throughput & Indeks\\
+\midrule
+Sangat bagus & $<150$ ms & 0 ms & $<3\%$ & $>2{,}1$ Mbps & 4\\
+Bagus & 150--300 & 0--75 & 3 -- $<15\%$ & 1,2--2,1 Mbps & 3\\
+Sedang & 300--450 & 75--125 & 15 -- $<25\%$ & 700 kbps--1,2 Mbps & 2\\
+Jelek & $>450$ & 125--225 & $\geq 25\%$ & $<700$ kbps & 1\\
+\end{tabularx}
+
+\medskip
+Indeks keseluruhan = rata-rata 4 indeks: \textbf{3,80--4,00} sangat memuaskan; \textbf{3,00--3,79} memuaskan; \textbf{2,00--2,99} kurang memuaskan; \textbf{1,00--1,99} tidak memuaskan.
+\end{hafal}
+\begin{itemize}
+  \item Di tabel asli ETSI, nilai packet loss (0\%, 3\%, 15\%, 25\%) adalah \textbf{batas bawah}; di proposal ditafsirkan jadi rentang seperti di atas.
+  \item TIPHON aslinya untuk \textbf{suara/multimedia real-time}, jadi cukup ketat untuk presensi. Tetap dipakai agar \textbf{bisa dibandingkan} dengan penelitian QoS lain; pola sebenarnya juga dilihat dari K-Means yang tidak bergantung ambang TIPHON.
+\end{itemize}
+
+\section*{4. Jaringan akses seluler dan Wi-Fi (2.1.4)}
+\begin{itemize}
+  \item \textbf{Wi-Fi}: HP $\rightarrow$ \textit{access point} (AP) $\rightarrow$ ISP kantor $\rightarrow$ internet.
+  \item \textbf{Seluler}: HP $\rightarrow$ BTS/eNodeB operator $\rightarrow$ jaringan inti operator $\rightarrow$ internet.
+  \item Kualitas dipengaruhi: \textbf{jarak \& hambatan} ke AP/BTS, \textbf{jumlah pengguna} yang berbagi kapasitas, dan \textbf{kapasitas jalur} operator/ISP ke server.
+  \item Akibatnya: dua orang di lokasi sama bisa beda kualitas jika operatornya beda; kualitas turun saat ramai (jam sibuk). Jadi \textbf{jenis jaringan dan operator wajib dicatat}.
+  \item Nama operator SIM data dibaca dengan \texttt{TelephonyManager} (tanpa izin tambahan).
+  \item Kalimat kunci: \textit{penelitian ini mengukur infrastruktur fisik jaringan (BTS dan AP) dari sisi pengguna, dengan ponsel karyawan sebagai sensor.}
+\end{itemize}
+
+\section*{5. Crowdsourcing dan telemetri (2.1.5--2.1.6)}
+\begin{itemize}
+  \item \textbf{Crowdsourced network measurement}: diukur di HP pengguna akhir, banyak perangkat, lokasi, dan waktu (Wamser dkk., 2021).
+  \item \textbf{Participatory} = pengguna sengaja menjalankan tes. \textbf{Opportunistic} = berjalan otomatis saat ada kesempatan (Wu dkk., 2017). \textbf{Penelitian ini: opportunistic, dipicu presensi.}
+  \item Kelemahan: lokasi dan waktu tidak dikendalikan. Penanganan: diringkas \textbf{per sesi}, minimal \textbf{30 sesi} per lokasi untuk uji beda, disajikan \textbf{agregat} (Wamser 2021; Tripkovic 2021).
+  \item \textbf{Telemetri} = modul di satu HP yang mengukur lalu mengunggah. \textbf{Crowdsourcing} = gabungan data dari banyak HP.
+  \item \textbf{Kenapa bukan ping?} Aplikasi biasa tidak bisa kirim ICMP tanpa root. Maka diukur \textbf{RTT tingkat aplikasi} (HTTP) ke \texttt{/api/health} yang sangat ringan (tidak membuka basis data), sehingga RTT didominasi waktu jaringan.
+  \item \textbf{Hibrida}: pasif (sinkronisasi, unggah foto, status koneksi) + aktif (\textit{probe} kecil saat presensi).
+\end{itemize}
+\begin{hafal}
+\textbf{Tabel 2.3 --- dua alamat pengukuran}\par
+\begin{tabularx}{\linewidth}{@{}p{2.6cm}p{3.2cm}X@{}}
+Server perusahaan & Pembanding (\texttt{generate\_204}) & Artinya\\
+\midrule
+Baik & Baik & Jaringan dan server baik\\
+Buruk & Buruk & Masalah di jaringan akses/operator (BTS, AP, ISP)\\
+Buruk & Baik & Masalah di server perusahaan atau jalur ke server\\
+\end{tabularx}
+\end{hafal}
+
+\section*{6. K-Means (2.1.7)}
+K-Means membagi $n$ data ke $k$ klaster; tiap data masuk ke pusat (\textit{centroid}) terdekat. \textit{Unsupervised} (tidak butuh label). Kelebihan: sederhana, cepat, mudah ditafsirkan. Kelemahan: $k$ harus ditentukan dan hasil dipengaruhi pusat awal.
+
+\textbf{Langkah:} (1) tentukan $k$; (2) pilih pusat awal dengan \textbf{k-means++} (saling berjauhan, lebih stabil); (3) hitung jarak Euclidean (2.5); (4) masukkan ke pusat terdekat; (5) hitung ulang pusat = rata-rata anggota (2.6); (6) ulangi 3--5 sampai anggota tidak berubah.
+\[
+D(x_i,c_j)=\sqrt{\sum_{p=1}^{m}(x_{ip}-c_{jp})^2}\quad(2.5)\qquad
+c_j=\frac{1}{|C_j|}\sum_{x_i\in C_j}x_i\quad(2.6)
+\]
+\textbf{Normalisasi wajib}, karena delay ratusan ms sedangkan kegagalan 0--100\%; tanpa normalisasi delay akan mendominasi. Dipakai \textbf{RobustScaler} (median dan IQR, tahan pencilan):
+\[x'=\frac{x-Q_2}{Q_3-Q_1}\quad(2.7)\]
+
+\section*{7. Menentukan jumlah klaster (2.1.8)}
+\begin{itemize}
+  \item \textbf{Elbow}: hitung SSE untuk beberapa $k$, pilih ``siku'' (setelah itu SSE tidak turun berarti). $SSE=\sum_{j}\sum_{x_i\in C_j}D(x_i,c_j)^2$ (2.8). Perlu dicek dengan pemahaman bidang (Mihevc \& Podržaj, 2025).
+  \item \textbf{Silhouette}: $s(i)=\frac{b(i)-a(i)}{\max\{a(i),b(i)\}}$ (2.9). $a(i)$ = rata-rata jarak ke teman sekelompok; $b(i)$ = rata-rata jarak ke kelompok lain terdekat. Rentang $-1$ s.d. $1$: dekat 1 = tepat, $\approx 0$ = di perbatasan, negatif = mungkin salah klaster. Pembanding: Irwansyah (2025) memperoleh 0,351.
+\end{itemize}
+\begin{contoh}[silhouette]
+Sebuah sesi punya $a(i)=0{,}3$ dan $b(i)=1{,}2$. Maka $s(i)=\frac{1{,}2-0{,}3}{1{,}2}=0{,}75$ $\Rightarrow$ sesi itu jelas berada di klaster yang tepat.
+\end{contoh}
+
+\section*{8. Uji Kruskal-Wallis (2.1.9)}
+\begin{itemize}
+  \item Uji \textbf{nonparametrik}: apakah 3+ kelompok independen punya median sama. Untuk 2 kelompok setara \textbf{Mann-Whitney}.
+  \item Tidak butuh data normal karena memakai \textbf{peringkat}. Cocok untuk delay yang \textbf{menceng ke kanan} (banyak kecil, sedikit sangat besar).
+  \item $H=\frac{12}{N(N+1)}\sum_{j=1}^{g}\frac{R_j^2}{n_j}-3(N+1)$ (2.10), dibandingkan dengan \textbf{chi-square}, derajat bebas $g-1$. Jika $p<0{,}05$ $\Rightarrow$ minimal satu kelompok berbeda.
+  \item Lanjut \textbf{uji Dunn + koreksi Bonferroni} untuk mencari pasangan mana yang beda (koreksi diperlukan karena banyak perbandingan menaikkan peluang ``beda palsu'').
+\end{itemize}
+\begin{contoh}[Kruskal-Wallis, data latihan]
+Delay (ms) tiga lokasi: A = 80, 95, 120; B = 150, 210, 300; C = 100, 130, 400. $N=9$, $g=3$.\\
+Urutkan semua dan beri peringkat: 80(1) 95(2) 100(3) 120(4) 130(5) 150(6) 210(7) 300(8) 400(9).\\
+$R_A=1+2+4=7$, \ $R_B=6+7+8=21$, \ $R_C=3+5+9=17$ (cek: total 45 = $9\cdot10/2$).\\
+$H=\frac{12}{9\cdot10}\left(\frac{7^2}{3}+\frac{21^2}{3}+\frac{17^2}{3}\right)-3\cdot10=0{,}1333\times259{,}67-30=\mathbf{4{,}62}$.\\
+Nilai kritis chi-square ($db=2$, $\alpha=0{,}05$) = 5,991. Karena $4{,}62<5{,}991$ ($p\approx0{,}099$), \textbf{H$_0$ diterima}: belum terbukti berbeda. Pelajaran: dengan data sedikit, selisih yang kelihatan besar pun bisa tidak signifikan --- itulah alasan minimal 30 sesi.
+\end{contoh}
+
+\section*{9. Metode penelitian dan data pribadi (2.1.10--2.1.11)}
+\begin{itemize}
+  \item \textbf{Kuantitatif}: data angka dari instrumen, dianalisis statistik (Sugiyono, 2019).
+  \item \textbf{Deskriptif}: menggambarkan nilai satu variabel. \textbf{Komparatif}: membandingkan variabel pada dua atau lebih sampel.
+  \item Variabel = kualitas jaringan pada sesi presensi; dibandingkan antarlokasi \& antaroperator; instrumen = modul telemetri yang divalidasi (harus \textbf{valid} dan \textbf{reliabel}).
+  \item \textbf{UU PDP 27/2022}: pemrosesan harus terbatas, spesifik, sah, transparan.
+  \item \textbf{Pseudonim}: 16 karakter awal SHA-256(ID pengguna + \textit{salt} rahasia). Beda dengan anonim karena \textbf{masih bisa dikaitkan kembali} oleh pemegang \textit{salt} $\Rightarrow$ tetap diperlakukan sebagai data pribadi.
+\end{itemize}
+
+\section*{10. Penelitian terdahulu (2.2) --- tiga kelompok}
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}p{3.1cm}Xp{4.4cm}@{}}
+\toprule
+Kelompok & Isi & Kekurangannya (celah)\\
+\midrule
+1. QoS manual (no. 1--5) & Rosid 2023; Fiqria \& Purnama 2024; Ainina \& Ridwan 2024; Basmar \& Yusuf 2026; Makarim 2026 --- Wireshark/nPerf/SpeedTest + TIPHON atau uji statistik & Manual, satu titik, satu waktu\\
+2. Crowdsourcing \& K-Means (no. 6--9) & Wu 2017 (MopEye); Wamser 2021; Mubarak 2023 (Cacti, 32 OPD); Irwansyah 2025 (Ookla, 17 kab/kota, silhouette 0,351) & Data dari aplikasi khusus, pihak ketiga, atau alat pemantau\\
+3. Aplikasi presensi (no. 10--11) & Indah \& Wati 2025 (offline QR); Rokhman 2026 (geofence, \texttt{client\_event\_id}) & Tangani koneksi buruk tanpa mengukur jaringan\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\textbf{Kalimat penutup yang harus bisa diucapkan:} ``Penelitian ini menggabungkan ketiganya: mengukur QoS otomatis dari aplikasi presensi, menilainya dengan TIPHON, menguji perbedaan dengan Kruskal-Wallis, dan mengelompokkan dengan K-Means per lokasi dan operator.''
+
+\section*{11. Kemungkinan pertanyaan penguji}
+\setcounter{tanya}{0}
+\begin{tanya}{RTT tingkat aplikasi kan termasuk waktu server, berarti bukan murni jaringan?}
+Benar, karena itu probe diarahkan ke \texttt{/api/health} yang tidak membuka basis data sehingga waktu server sangat kecil. Selain itu ada permintaan pembuka (TCP+TLS) sehingga yang diukur adalah RTT pada koneksi yang sudah terbuka, dan hasilnya divalidasi terhadap PCAPdroid/Wireshark.
+\end{tanya}
+\begin{tanya}{Kenapa pakai median, bukan rata-rata?}
+Delay menceng ke kanan; satu nilai sangat besar menarik rata-rata jauh. Median lebih mewakili kondisi umum.
+\end{tanya}
+\begin{tanya}{Kenapa tidak ANOVA?}
+ANOVA mensyaratkan data normal dan varians sama. Data delay umumnya tidak normal, jadi dipakai Kruskal-Wallis yang berbasis peringkat.
+\end{tanya}
+\begin{tanya}{Kenapa RobustScaler, bukan Min-Max atau Z-score?}
+Min-Max dan Z-score sangat terpengaruh pencilan (satu delay 5.000 ms bisa ``memampatkan'' data lain). RobustScaler memakai median dan IQR sehingga tahan pencilan; dipakai juga oleh Irwansyah (2025) pada data internet seluler.
+\end{tanya}
+\begin{tanya}{Kenapa generate\_204?}
+Alamat milik Google yang juga dipakai Android sendiri untuk mengecek internet; sangat ringan (balasan kosong) dan servernya tersebar luas, jadi cocok sebagai patokan ``internet umum''.
+\end{tanya}
+\begin{tanya}{TIPHON itu untuk VoIP, cocok untuk presensi?}
+Ambangnya memang ketat. TIPHON dipakai sebagai tolok ukur umum agar bisa dibandingkan dengan penelitian lain; keputusan pola tidak hanya dari TIPHON tetapi juga K-Means.
+\end{tanya}
+\begin{tanya}{Apa bedanya pseudonim dan anonim?}
+Anonim tidak bisa dikembalikan ke orangnya. Pseudonim masih bisa jika punya \textit{salt}. Karena itu data tetap diperlakukan sebagai data pribadi (akses admin, salt tidak diekspor, hasil agregat).
+\end{tanya}
+
+\begin{awas}
+\begin{itemize}
+  \item Satuan: delay \& jitter dalam \textbf{ms}, throughput dalam \textbf{kbps/Mbps}, kegagalan dalam \textbf{\%}.
+  \item Kruskal-Wallis membandingkan \textbf{median/peringkat}, bukan rata-rata.
+  \item K-Means \textbf{bukan} klasifikasi (tidak ada label); label ``baik/buruk'' diberikan \textit{setelah} melihat pusat klaster.
+  \item Silhouette \textbf{bukan} akurasi.
+\end{itemize}
+\end{awas}
+
+\section*{12. Latihan mandiri}
+\begin{enumerate}
+  \item RTT probe 200, 260, 230 ms. Hitung delay (median) dan jitter. \textit{(Jawaban: 230 ms; (60+30)/2 = 45 ms.)}
+  \item Sesi dengan delay 320 ms, jitter 95 ms, gagal 12,5\%, throughput 850 kbps. Berapa indeks TIPHON-nya? \textit{(Jawaban: (2+2+3+2)/4 = 2,25 = kurang memuaskan.)}
+  \item Server buruk, generate\_204 baik. Di mana masalahnya? \textit{(Jawaban: di server perusahaan atau jalur ke server.)}
+  \item Jelaskan dalam dua kalimat kenapa data harus dinormalisasi sebelum K-Means.
+\end{enumerate}
+\end{document}

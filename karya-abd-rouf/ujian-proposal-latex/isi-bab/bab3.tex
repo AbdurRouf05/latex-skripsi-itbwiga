@@ -1,0 +1,402 @@
+\chapter{METODE PENELITIAN}
+
+\section{Jenis dan Pendekatan Penelitian}
+Penelitian ini menggunakan metode \textit{Research and Development} (R\&D), yaitu metode untuk menghasilkan produk lalu menguji keefektifannya, dengan tahapan yang diadaptasi dari model Borg and Gall \parencite{jamaludin2024borggall}. Produk yang dikembangkan adalah modul telemetri QoS pada aplikasi presensi PT Semeru Agung Mandiri. Modul tersebut divalidasi terlebih dahulu sebagai alat ukur, lalu digunakan untuk mengumpulkan data kualitas jaringan dari perangkat karyawan.
+
+Penelitian ini termasuk Bidang Minat \textit{Artificial Intelligence \& Networks}, topik \textit{Network Management}, dengan ruang lingkup analisis kinerja jaringan dan penggunaan kecerdasan buatan dalam pengelolaan jaringan \parencite{fti2026pedoman}. Yang dianalisis adalah kinerja jaringan (QoS), bukan fitur aplikasi presensi. Aplikasi presensi berperan sebagai instrumen pengukuran, sama seperti Wireshark pada penelitian QoS sebelumnya \parencite{rosid2023qos,fiqria2024qos}, sedangkan K-Means merupakan metode \textit{machine learning} untuk mengelompokkan hasil pengukuran.
+
+Pendekatan yang digunakan adalah pendekatan kuantitatif. Data yang diolah berupa angka, yaitu \textit{delay}, \textit{jitter}, tingkat kegagalan, \textit{throughput}, dan lama putus koneksi. Data tersebut dikategorikan dengan standar TIPHON dan dikelompokkan dengan algoritma K-Means. Data kualitatif dari wawancara HRD hanya digunakan sebagai pembanding hasil pengelompokan.
+
+\section{Objek dan Sumber Data Penelitian}
+
+\subsection{Lokasi dan Waktu Penelitian}
+Penelitian dilakukan di PT Semeru Agung Mandiri, yaitu pada lokasi kerja tempat karyawan melakukan presensi, yang terdiri atas kantor, posko, dan gudang. Setiap lokasi kerja tercatat di basis data aplikasi dengan kode lokasi (\texttt{office\_id}) sehingga sampel pengukuran dapat dikelompokkan per lokasi tanpa mencatat koordinat GPS. Pengembangan dan validasi modul dilakukan di laptop peneliti dan server uji (\textit{staging}) yang terpisah dari server produksi. Penelitian direncanakan selama tiga bulan (12 minggu) sesuai jadwal pada Subbab~\ref{sec:jadwal}, dengan periode pengumpulan data selama empat minggu hari kerja.
+
+\subsection{Objek Penelitian}
+Objek penelitian ini adalah kualitas jaringan pada jalur komunikasi antara aplikasi presensi di perangkat karyawan dan server perusahaan. Aplikasi presensi yang digunakan sebagai alat ukur adalah aplikasi Android versi 2.0.1 yang dibangun dengan Flutter, menyimpan data lokal di Isar, dan berkomunikasi dengan server PocketBase melalui HTTPS. Aplikasi tersebut sudah dipakai karyawan setiap hari untuk presensi masuk, presensi pulang, pengajuan izin, dan lembur, sehingga komunikasi dengan server terjadi di semua lokasi kerja dan pada jam kerja.
+
+\subsection{Populasi dan Sampel}
+Populasi penelitian adalah seluruh komunikasi aplikasi presensi dengan server dari perangkat karyawan PT Semeru Agung Mandiri. Sampel adalah seluruh pengukuran yang tercatat oleh modul telemetri selama empat minggu hari kerja, sehingga tidak dilakukan pemilihan sampel secara acak. Target minimal sampel adalah 3.000 sampel \textit{probe} dan 2.000 sampel percobaan sinkronisasi. Target ini diperkirakan dari sekitar 90 karyawan yang melakukan dua kali presensi setiap hari selama 20 hari kerja. Selain itu, setiap lokasi kerja ditargetkan memiliki paling sedikit 30 sampel \textit{probe}, karena jumlah pengukuran menentukan apakah pernyataan tentang kualitas jaringan di suatu lokasi dapat dianggap valid \parencite{wamser2021crowd}.
+
+\subsection{Jenis dan Sumber Data}
+Data yang digunakan terdiri dari data primer dan data sekunder. Rincian jenis dan sumber data ditunjukkan pada Tabel~\ref{tab:sumber_data}.
+
+\begin{table}[!htb]
+\centering
+\caption{Jenis dan Sumber Data Penelitian}
+\label{tab:sumber_data}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.8cm}>{\centering\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}p{6.34cm}}
+\toprule
+\textbf{Data} & \textbf{Jenis} & \textbf{Sumber} \\ \midrule
+Sampel \textit{probe}, percobaan sinkronisasi, dan putus koneksi & Primer & Modul telemetri pada perangkat karyawan (koleksi \texttt{net\_samples}) \\ \garis
+Data validasi instrumen & Primer & Pengukuran di meja dengan telemetri dan PCAPdroid pada server uji \\ \garis
+Keterangan lokasi yang sering sulit sinyal & Primer & Wawancara dengan HRD atau admin \\ \garis
+Daftar lokasi kerja (\texttt{office\_id}) & Sekunder & Basis data aplikasi presensi \\ \garis
+Teori dan penelitian terdahulu & Sekunder & Jurnal ilmiah, prosiding, dan dokumen standar \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: diolah peneliti, 2026\par}
+\end{table}
+
+\section{Teknik Pengumpulan Data}
+\label{sec:pengumpulan}
+Teknik pengumpulan data yang digunakan dalam penelitian ini adalah sebagai berikut.
+\begin{enumerate}
+    \item \textbf{Telemetri berbasis \textit{crowdsourcing}.} Data utama dikumpulkan dengan pendekatan \textit{opportunistic sensing}, yaitu pengukuran otomatis oleh aplikasi presensi di perangkat banyak karyawan tanpa tindakan dari pengguna \parencite{wu2017mopeye,wamser2021crowd}. Modul telemetri mencatat tiga jenis sampel. Sampel \textit{probe} berisi tiga permintaan kecil ke \texttt{/api/health} paling sering setiap 15 menit selama aplikasi berjalan, termasuk ketika perangkat tidak terhubung ke jaringan. Sampel percobaan sinkronisasi dicatat setiap kali antrean presensi mencoba mengirim data ke server. Sampel putus koneksi dicatat ketika perangkat kembali terhubung setelah terputus paling sedikit lima detik. Definisi setiap metrik ditunjukkan pada Tabel~\ref{tab:metrik}.
+    \item \textbf{Validasi instrumen.} Sebelum dipakai di produksi, hasil telemetri dibandingkan dengan RTT tingkat TCP yang direkam PCAPdroid dan dibaca dengan Wireshark pada kondisi jaringan yang dibuat sendiri, yaitu Wi-Fi, jaringan seluler 4G, mode pesawat, dan koneksi putus-sambung. Setiap kondisi diambil paling sedikit sepuluh pasang pengukuran (Lampiran~2).
+    \item \textbf{Wawancara.} Wawancara singkat dilakukan dengan HRD atau admin tentang lokasi kerja yang sering sulit sinyal dan keluhan presensi gagal terkirim (Lampiran~1). Hasilnya digunakan sebagai pembanding hasil pengelompokan.
+    \item \textbf{Dokumentasi.} Daftar lokasi kerja beserta kodenya diambil dari basis data aplikasi presensi. Data \texttt{net\_samples} diekspor setiap minggu dalam format CSV dan disimpan di luar repositori kode.
+    \item \textbf{Studi literatur.} Peneliti mempelajari jurnal, prosiding, dan dokumen standar yang berkaitan dengan QoS, standar TIPHON, pengukuran jaringan berbasis \textit{crowdsourcing}, K-Means, dan metode R\&D.
+\end{enumerate}
+
+\begin{table}[!htb]
+\centering
+\caption{Definisi Metrik QoS pada Modul Telemetri}
+\label{tab:metrik}
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{5.0cm}>{\raggedright\arraybackslash}p{2.29cm}}
+\toprule
+\textbf{Metrik} & \textbf{Sumber Sampel} & \textbf{Cara Menghitung} & \textbf{Penilaian} \\ \midrule
+\textit{Delay} (RTT) & \textit{Probe} \texttt{/api/health} & Median RTT tiga permintaan, diukur dengan jam monoton (\texttt{Stopwatch}) di perangkat, Persamaan~(\ref{eq:delay}) & TIPHON \textit{delay} \\ \garis
+\textit{Jitter} & Tiga permintaan \textit{probe} berurutan & Rata-rata selisih mutlak RTT berurutan, Persamaan~(\ref{eq:jitter}) & TIPHON \textit{jitter} \\ \garis
+Tingkat kegagalan & \textit{Probe} dan percobaan sinkronisasi & Percobaan gagal karena jaringan (\textit{timeout} atau galat jaringan) dibagi seluruh percobaan $\times$ 100\% & TIPHON \textit{packet loss} (pengganti) \\ \garis
+\textit{Throughput} unggah & Sinkronisasi presensi berfoto yang berhasil & Ukuran data terkirim $\times$ 8 dibagi lama pengiriman, Persamaan~(\ref{eq:throughput}) & TIPHON \textit{throughput} \\ \garis
+Lama putus koneksi & Perubahan status koneksi & Waktu kembali terhubung dikurangi waktu terputus & Deskriptif \\ \garis
+Waktu tanpa jaringan & \textit{Probe} & \textit{Probe} tanpa jaringan dibagi seluruh \textit{probe} $\times$ 100\% & Deskriptif \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: diolah dari \textcite{rosid2023qos} dan \textcite{wu2017mopeye}\par}
+\end{table}
+
+Berdasarkan Tabel~\ref{tab:metrik} dapat dinyatakan bahwa \textit{delay} dan \textit{jitter} hanya dihitung dari \textit{probe} karena ukuran permintaannya kecil dan seragam, sedangkan \textit{throughput} hanya dihitung dari sinkronisasi presensi berfoto karena ukuran datanya cukup besar untuk mencerminkan kecepatan pengiriman. Waktu mulai dan selesai sama-sama diambil dari jam monoton perangkat, sehingga selisih jam perangkat dengan jam server tidak memengaruhi hasil. Permintaan yang gagal karena galat HTTP 4xx tidak dihitung sebagai kegagalan jaringan karena penyebabnya ada di aplikasi atau server.
+
+\section{Tahapan Penelitian}
+\label{sec:tahapan}
+Tahapan penelitian diadaptasi dari model Borg and Gall \parencite{jamaludin2024borggall}. Kesepuluh tahap Borg and Gall diringkas menjadi lima tahap seperti ditunjukkan pada Tabel~\ref{tab:borg_gall}.
+
+\begin{table}[!htb]
+\centering
+\caption{Penyesuaian Tahapan Borg and Gall}
+\label{tab:borg_gall}
+\begin{tabular}{>{\raggedright\arraybackslash}p{5.6cm}>{\raggedright\arraybackslash}p{7.69cm}}
+\toprule
+\textbf{Tahap Borg and Gall} & \textbf{Tahap Penelitian Ini} \\ \midrule
+(1) Penelitian dan pengumpulan informasi & 1. Analisis masalah dan kebutuhan data \\ \garis
+(2) Perencanaan & 2. Perancangan modul telemetri dan definisi metrik \\ \garis
+(3) Pengembangan produk awal & 3. Implementasi modul pada aplikasi presensi \\ \garis
+(4) Uji coba awal dan (5) revisi produk & 4. Validasi instrumen di server uji, diulang sampai lulus \\ \garis
+(6)--(9) Uji coba lapangan, uji operasional, dan revisi & 5. Rilis bertahap, pengumpulan data selama empat minggu, dan analisis \\ \garis
+(10) Diseminasi dan implementasi & Penulisan laporan skripsi \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: diolah dari \textcite{jamaludin2024borggall}\par}
+\end{table}
+
+Alur kelima tahap tersebut ditunjukkan pada Gambar~\ref{fig:tahapan}.
+
+\begin{figure}[!htb]
+\centering
+\begin{tikzpicture}[
+    node distance=0.28cm,
+    proses/.style={rectangle, draw, rounded corners=2pt, align=center, text width=9.2cm, minimum height=0.6cm, font=\small},
+    batas/.style={rectangle, draw, rounded corners=9pt, align=center, minimum width=2.6cm, minimum height=0.7cm, font=\small},
+    keputusan/.style={diamond, draw, aspect=2.4, align=center, inner sep=1pt, font=\small},
+    panah/.style={-{Stealth[length=2mm]}}
+]
+\node[batas] (mulai) {Mulai};
+\node[proses, below=of mulai] (s1) {1. Analisis masalah dan kebutuhan data: studi literatur, wawancara awal, dan penentuan metrik};
+\node[proses, below=of s1] (s2) {2. Perancangan modul telemetri: arsitektur, alur \textit{probe}, struktur data, dan desain privasi};
+\node[proses, below=of s2] (s3) {3. Implementasi modul pada aplikasi presensi (Flutter, Isar, PocketBase)};
+\node[proses, below=of s3] (s4) {4. Validasi instrumen: telemetri dibandingkan dengan PCAPdroid di server uji};
+\node[keputusan, below=of s4] (k) {Selisih\\$\le$ 20\%?};
+\node[proses, below=of k] (s5) {5. Rilis bertahap, pengumpulan data empat minggu, kategorisasi TIPHON, dan K-Means};
+\node[proses, below=of s5] (s6) {Analisis hasil dan penyusunan laporan};
+\node[batas, below=of s6] (selesai) {Selesai};
+\draw[panah] (mulai) -- (s1);
+\draw[panah] (s1) -- (s2);
+\draw[panah] (s2) -- (s3);
+\draw[panah] (s3) -- (s4);
+\draw[panah] (s4) -- (k);
+\draw[panah] (k) -- node[right, font=\small] {Ya} (s5);
+\draw[panah] (s5) -- (s6);
+\draw[panah] (s6) -- (selesai);
+\draw[panah] (k.east) -- node[above, font=\small] {Tidak} ++(4.2,0) |- (s3.east);
+\end{tikzpicture}
+\caption{Tahapan Penelitian}
+\label{fig:tahapan}
+\end{figure}
+
+Berdasarkan Gambar~\ref{fig:tahapan} dapat dinyatakan bahwa penelitian terdiri atas lima tahap, dengan penjelasan sebagai berikut.
+\begin{enumerate}
+    \item \textbf{Analisis masalah dan kebutuhan data.} Peneliti mempelajari penelitian terdahulu, menggali keluhan presensi gagal terkirim dari HRD, dan menetapkan metrik yang diukur beserta rumusnya.
+    \item \textbf{Perancangan modul telemetri.} Peneliti merancang arsitektur modul, alur \textit{probe}, struktur koleksi \texttt{net\_samples}, saklar jarak jauh, dan mekanisme anonimisasi.
+    \item \textbf{Implementasi.} Modul dibuat sebagai komponen terpisah di dalam aplikasi presensi. Perubahan pada kode lama hanya berupa titik sadap kecil pada antrean sinkronisasi dan pemantau koneksi, dan seluruhnya diuji dengan pengujian unit.
+    \item \textbf{Validasi instrumen.} Hasil telemetri dibandingkan dengan PCAPdroid pada kondisi jaringan yang dibuat sendiri di server uji. Jika selisih median RTT lebih dari 20\%, modul diperbaiki dan diuji kembali. Beban kuota dan baterai juga diukur pada tahap ini.
+    \item \textbf{Rilis bertahap, pengumpulan data, dan analisis.} Aplikasi dirilis dengan telemetri dalam keadaan mati, lalu dinyalakan dari server untuk beberapa karyawan sebagai pilot selama dua hari sebelum dinyalakan untuk semua. Data dikumpulkan selama empat minggu, kemudian dibersihkan, dikategorikan dengan TIPHON, dan dikelompokkan dengan K-Means.
+\end{enumerate}
+
+\section{Desain Sistem}
+
+\subsection{Analisis Kebutuhan Modul Telemetri}
+Modul telemetri harus mengukur kualitas jaringan tanpa mengganggu fungsi utama aplikasi, yaitu presensi. Kebutuhan fungsional modul ditunjukkan pada Tabel~\ref{tab:kebutuhan}.
+
+\begin{table}[!htb]
+\centering
+\caption{Kebutuhan Fungsional Modul Telemetri}
+\label{tab:kebutuhan}
+\begin{tabular}{>{\centering\arraybackslash}p{1.2cm}>{\raggedright\arraybackslash}p{12.09cm}}
+\toprule
+\textbf{Kode} & \textbf{Kebutuhan Fungsional} \\ \midrule
+F01 & Menjalankan \textit{probe} tiga permintaan ke \texttt{/api/health} paling sering setiap 15 menit dan mencatat RTT serta \textit{jitter} \\ \garis
+F02 & Mencatat hasil, lama, ukuran data, dan jenis galat setiap percobaan sinkronisasi presensi \\ \garis
+F03 & Mencatat lama putus koneksi ketika perangkat kembali terhubung \\ \garis
+F04 & Mencatat jenis jaringan, Wi-Fi kantor atau bukan, kode lokasi kerja, mode presensi, status lokasi terverifikasi, versi aplikasi, dan model perangkat pada setiap sampel \\ \garis
+F05 & Menyimpan sampel di basis data lokal Isar dengan batas 2.000 sampel \\ \garis
+F06 & Mengunggah sampel ke koleksi \texttt{net\_samples} secara berkelompok setelah antrean presensi kosong \\ \garis
+F07 & Menyala atau mati berdasarkan saklar di aplikasi dan saklar di server (\texttt{app\_config}) \\ \garis
+F08 & Mengganti identitas pengguna dengan kode anonim \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: diolah peneliti, 2026\par}
+\end{table}
+
+Kebutuhan nonfungsional modul adalah: (1) modul hanya mengamati dan tidak mengubah urutan, jeda, isi, maupun hasil sinkronisasi presensi; (2) setiap fungsi modul dibungkus penanganan galat sehingga kegagalan telemetri tidak menjalar ke alur presensi; (3) ukuran satu sampel kurang dari 300 \textit{byte} dan beban data telemetri kurang dari 1 MB per hari per perangkat; serta (4) modul dalam keadaan mati secara bawaan dan dapat dimatikan dari server tanpa memperbarui aplikasi.
+
+\subsection{Arsitektur Modul Telemetri}
+Hubungan antara alur presensi yang sudah ada, modul telemetri, dan server ditunjukkan pada Gambar~\ref{fig:arsitektur}.
+
+\begin{figure}[!htb]
+\centering
+\begin{tikzpicture}[
+    kotak/.style={rectangle, draw, rounded corners=2pt, align=center, text width=3.1cm, minimum height=0.85cm, font=\footnotesize},
+    kotakserver/.style={rectangle, draw, rounded corners=2pt, align=center, text width=2.6cm, minimum height=0.85cm, font=\footnotesize},
+    panah/.style={-{Stealth[length=2mm]}},
+    amati/.style={-{Stealth[length=2mm]}, dashed}
+]
+% Perangkat karyawan
+\node[kotak] (presensi) at (0,0) {Alur presensi\\(tidak diubah)};
+\node[kotak] (antrean) at (0,-1.75) {Antrean sinkronisasi presensi};
+\node[kotak] (koneksi) at (0,-3.6) {Pemantau koneksi\\({\scriptsize\texttt{connectivity\_plus}})};
+\node[kotak, fill=gray!15] (telemetri) at (4.8,-1.75) {Modul NetTelemetry\\(\textit{probe}, catat, anonim)};
+\node[kotak] (isar) at (4.8,-3.6) {Isar: \texttt{NetSample}\\(maks. 2.000 sampel)};
+\node[kotak] (unggah) at (4.8,-5.45) {Pengunggah \textit{batch}\\(setelah antrean kosong)};
+\begin{scope}[on background layer]
+\node[draw, rounded corners=4pt, inner sep=7pt, fit=(presensi)(koneksi)(telemetri)(unggah), label={[font=\footnotesize\bfseries]above:Perangkat karyawan (aplikasi presensi)}] (hp) {};
+\end{scope}
+% Server
+\node[kotakserver] (att) at (9.8,0) {Koleksi presensi\\(\texttt{attendances}, dll.)};
+\node[kotakserver] (cfg) at (9.8,-1.75) {\texttt{app\_config}\\(saklar telemetri)};
+\node[kotakserver, fill=gray!15] (net) at (9.8,-5.45) {\texttt{net\_samples}\\(hanya admin)};
+\node[draw, rounded corners=4pt, inner sep=7pt, fit=(att)(cfg)(net), label={[font=\footnotesize\bfseries]above:Server PocketBase}] (srv) {};
+\node[kotakserver] (py) at (9.8,-7.6) {Analisis Python\\(TIPHON, K-Means)};
+% Panah
+\draw[panah] (presensi) -- (antrean);
+\draw[panah] (presensi) -- node[above, font=\scriptsize, pos=0.5] {HTTPS (melalui antrean)} (att);
+\draw[amati] (antrean) -- node[above, font=\scriptsize] {diamati} (telemetri);
+\draw[amati] (koneksi.east) -- node[below right, font=\scriptsize, inner sep=1pt] {diamati} (telemetri.south west);
+\draw[panah] (telemetri) -- (isar);
+\draw[panah] (isar) -- (unggah);
+\draw[panah] (unggah) -- node[above, font=\scriptsize] {HTTPS} (net);
+\draw[panah] (cfg) -- node[above, font=\scriptsize] {nyala/mati} (telemetri);
+\draw[panah] (srv.south -| net) -- node[right, font=\scriptsize] {ekspor CSV} (py);
+\end{tikzpicture}
+\caption{Arsitektur Modul Telemetri pada Aplikasi Presensi}
+\label{fig:arsitektur}
+\end{figure}
+
+Berdasarkan Gambar~\ref{fig:arsitektur} dapat dinyatakan bahwa modul telemetri berdiri di samping alur presensi, bukan di dalamnya. Garis putus-putus menunjukkan bahwa modul hanya mengamati antrean sinkronisasi dan pemantau koneksi. Sampel disimpan di Isar lalu diunggah ke koleksi \texttt{net\_samples} dengan prioritas terendah, yaitu setelah seluruh data presensi terkirim. Modul hanya aktif jika saklar di aplikasi dan saklar \texttt{app\_config} di server sama-sama menyala, sehingga jika terjadi masalah, seluruh perangkat dapat dihentikan dari server tanpa merilis aplikasi baru.
+
+\subsection{Alur Pengukuran Probe}
+Alur pengukuran \textit{probe} yang dijalankan pada setiap akhir siklus sinkronisasi ditunjukkan pada Gambar~\ref{fig:alur_probe}.
+
+\begin{figure}[!htb]
+\centering
+\begin{tikzpicture}[
+    node distance=0.3cm,
+    proses/.style={rectangle, draw, align=center, text width=7.6cm, minimum height=0.55cm, font=\small},
+    batas/.style={rectangle, draw, rounded corners=9pt, align=center, minimum width=2.6cm, minimum height=0.65cm, font=\small},
+    keputusan/.style={diamond, draw, aspect=2.6, align=center, inner sep=1pt, font=\small},
+    panah/.style={-{Stealth[length=2mm]}}
+]
+\node[batas] (a) {Mulai};
+\node[keputusan, below=of a] (k1) {Telemetri\\aktif?};
+\node[keputusan, below=of k1] (k2) {$\ge$ 15 menit sejak\\\textit{probe} terakhir?};
+\node[proses, below=of k2] (b) {Kirim tiga permintaan \texttt{GET /api/health} (batas waktu 5 detik) dan ukur RTT setiap permintaan dengan \texttt{Stopwatch}};
+\node[proses, below=of b] (c) {Hitung median RTT dan \textit{jitter}; tandai berhasil jika ketiga permintaan berhasil};
+\node[proses, below=of c] (d) {Simpan sampel \textit{probe} beserta jenis jaringan, kode lokasi, dan kode anonim ke Isar};
+\node[batas, below=of d] (e) {Selesai};
+\foreach \x/\y in {a/k1,b/c,c/d,d/e} \draw[panah] (\x) -- (\y);
+\draw[panah] (k1) -- node[right, font=\small] {Ya} (k2);
+\draw[panah] (k2) -- node[right, font=\small] {Ya} (b);
+\draw[panah] (k1.east) -- node[above, font=\small] {Tidak} ++(3.4,0) coordinate (jalur) |- (e.east);
+\draw (k2.east) -- node[above, font=\small] {Tidak} (k2.east -| jalur);
+\end{tikzpicture}
+\caption{Alur Pengukuran \textit{Probe} pada Modul Telemetri}
+\label{fig:alur_probe}
+\end{figure}
+
+Berdasarkan Gambar~\ref{fig:alur_probe} dapat dinyatakan bahwa \textit{probe} tidak dijalankan pada setiap siklus sinkronisasi, tetapi paling sering satu kali setiap 15 menit. Batasan ini menjaga beban kuota dan baterai tetap kecil. Satu sampel \textit{probe} menghasilkan satu nilai \textit{delay}, satu nilai \textit{jitter}, dan satu status berhasil atau gagal.
+
+\subsection{Rancangan Data}
+Setiap sampel disimpan di koleksi \texttt{net\_samples} pada server PocketBase dengan struktur yang ditunjukkan pada Tabel~\ref{tab:net_samples}.
+
+\begin{table}[!htb]
+\centering
+\caption{Struktur Koleksi \texttt{net\_samples}}
+\label{tab:net_samples}
+\begin{tabular}{>{\raggedright\arraybackslash}p{3.1cm}>{\centering\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{7.94cm}}
+\toprule
+\textbf{Kolom} & \textbf{Tipe} & \textbf{Keterangan} \\ \midrule
+\texttt{anon\_id} & teks & 16 karakter pertama SHA-256 dari ID pengguna dan \textit{salt} rahasia \\ \garis
+\texttt{kind} & pilihan & \texttt{probe}, \texttt{sync\_attempt}, atau \texttt{outage} \\ \garis
+\texttt{office\_id} & teks & Kode lokasi kerja dari presensi terakhir \\ \garis
+\texttt{mode} & pilihan & Mode presensi: \texttt{normal}, \texttt{titik\_admin}, \texttt{gamas}, atau \texttt{fleksibel} \\ \garis
+\texttt{loc\_valid} & \textit{boolean} & Benar jika sampel diambil paling lama 15 menit sebelum atau sesudah presensi yang lolos \textit{geofence} \\ \garis
+\texttt{network\_type} & pilihan & \texttt{wifi}, \texttt{mobile}, \texttt{ethernet}, \texttt{none}, atau \texttt{other} \\ \garis
+\texttt{office\_wifi} & \textit{boolean} & Benar jika Wi-Fi yang terhubung adalah Wi-Fi kantor (BSSID tidak disimpan) \\ \garis
+\texttt{rtt\_ms}, \texttt{jitter\_ms} & angka & RTT dan \textit{jitter} \textit{probe}, atau lama permintaan sinkronisasi \\ \garis
+\texttt{ok}, \texttt{error\_class} & \textit{boolean}, pilihan & Status berhasil dan jenis galat (\texttt{timeout}, \texttt{network}, \texttt{http4xx}, \texttt{http5xx}) \\ \garis
+\texttt{bytes\_sent} & angka & Ukuran data terkirim pada percobaan sinkronisasi \\ \garis
+\texttt{outage\_ms} & angka & Lama putus koneksi \\ \garis
+\texttt{sampled\_at} & tanggal & Waktu pengukuran (UTC) \\ \garis
+\texttt{app\_version}, \texttt{os\_sdk}, \texttt{device\_model} & teks, angka & Versi aplikasi, versi Android, dan model perangkat (bukan nomor seri) \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: diolah peneliti, 2026\par}
+\end{table}
+
+Berdasarkan Tabel~\ref{tab:net_samples} dapat dinyatakan bahwa tidak ada kolom yang menyimpan nama, email, ID pengguna asli, koordinat GPS, maupun foto. Aturan akses koleksi dibuat sehingga karyawan hanya dapat menambah data, sedangkan melihat, mengubah, dan menghapus data hanya dapat dilakukan oleh admin. Kode anonim tetap memungkinkan analisis membedakan perangkat tanpa mengetahui pemiliknya, sesuai prinsip pemrosesan data yang terbatas dan spesifik \parencite{uupdp2022}.
+
+\section{Alat Penelitian}
+Alat yang digunakan dalam penelitian ini terdiri dari perangkat keras dan perangkat lunak yang ditunjukkan pada Tabel~\ref{tab:alat}.
+
+\begin{table}[!htb]
+\centering
+\caption{Alat Penelitian}
+\label{tab:alat}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{9.09cm}}
+\toprule
+\textbf{Alat} & \textbf{Kegunaan} \\ \midrule
+\multicolumn{2}{l}{\textbf{Perangkat keras}} \\ \garis
+Laptop (Windows 11) & Pengembangan modul, pengolahan data, dan penulisan laporan \\ \garis
+Minimal dua ponsel Android berbeda kelas & Pengujian modul dan validasi instrumen \\ \garis
+Server PocketBase produksi dan server uji & Penyimpanan data presensi dan sampel telemetri \\ \garis
+\multicolumn{2}{l}{\textbf{Perangkat lunak}} \\ \garis
+Flutter dan Dart & \textit{Framework} dan bahasa pemrograman aplikasi presensi \\ \garis
+Isar 3.1 & Basis data lokal untuk menyimpan sampel sebelum diunggah \\ \garis
+\texttt{connectivity\_plus} & Mendeteksi jenis jaringan dan perubahan status koneksi \\ \garis
+PCAPdroid dan Wireshark & Merekam dan membaca lalu lintas jaringan untuk validasi instrumen \\ \garis
+Android Debug Bridge (adb) & Mengatur skenario Wi-Fi, data seluler, dan mode pesawat saat validasi \\ \garis
+Python (pandas, scikit-learn, matplotlib) & Pembersihan data, kategorisasi TIPHON, K-Means, dan pembuatan grafik \\ \garis
+Visual Studio Code & Penyunting kode \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: diolah peneliti, 2026\par}
+\end{table}
+
+\section{Teknik Analisis Data}
+Analisis data dilakukan dalam lima langkah, yaitu validasi instrumen, pembersihan dan agregasi data, kategorisasi TIPHON, pengelompokan dengan K-Means, dan perbandingan hasil. Karena data penelitian baru diperoleh setelah modul dirilis, contoh perhitungan pada subbab ini menggunakan data ilustrasi.
+
+\subsection{Validasi Instrumen}
+Validasi dilakukan dengan membandingkan median RTT telemetri dan median RTT tingkat TCP dari PCAPdroid pada setiap kondisi jaringan:
+\begin{equation}
+\delta = \frac{\left| \tilde{d}_{\mathrm{telemetri}} - \tilde{d}_{\mathrm{PCAP}} \right|}{\tilde{d}_{\mathrm{PCAP}}} \times 100\%
+\label{eq:validasi}
+\end{equation}
+dengan $\delta$ adalah selisih relatif, $\tilde{d}_{\mathrm{telemetri}}$ adalah median RTT dari telemetri, dan $\tilde{d}_{\mathrm{PCAP}}$ adalah median RTT dari PCAPdroid. Telemetri mengukur di tingkat aplikasi sehingga termasuk waktu pemrosesan HTTP, sedangkan PCAPdroid mengukur di tingkat TCP, sehingga selisih kecil pasti ada. Instrumen dinyatakan valid jika $\delta \le 20\%$ pada setiap kondisi. Sebagai pembanding, MopEye yang mengukur di tingkat paket memiliki selisih rata-rata RTT paling banyak 1 ms terhadap tcpdump \parencite{wu2017mopeye}. Selain itu, lama putus koneksi yang tercatat harus sesuai dengan jadwal skenario dengan toleransi lima detik, dan beban data telemetri harus kurang dari 1 MB per hari per perangkat.
+
+\subsection{Pembersihan dan Agregasi Data}
+Sampel dibersihkan dengan membuang sampel yang nilai RTT-nya kurang dari atau sama dengan 0 atau lebih dari 60.000 ms dan sampel ganda. Sampel dengan jenis jaringan \texttt{none} tidak dibuang, karena lokasi tanpa sinyal sama sekali adalah kondisi terburuk; sampel tersebut dihitung sebagai persentase waktu tanpa jaringan per lokasi. Sampel yang bersih kemudian dikelompokkan per kombinasi lokasi kerja, jenis jaringan, dan slot waktu, yaitu pagi (05.00--09.00), siang (09.00--15.00), sore (15.00--19.00), dan malam (19.00--05.00). Setiap kombinasi disebut agregat. Nilai setiap agregat adalah median \textit{delay}, median \textit{jitter}, tingkat kegagalan, dan median \textit{throughput}. Median dipilih agar hasil tidak mudah dipengaruhi gangguan sesaat, sejalan dengan saran \textcite{tripkovic2021cluster} untuk mengelompokkan dan merata-ratakan pengukuran \textit{crowdsourcing} sebelum dianalisis. Agregat dengan kurang dari sepuluh sampel \textit{probe} tidak diikutkan dalam K-Means, tetapi tetap dilaporkan secara deskriptif.
+
+Kode lokasi pada sampel hanya dapat dipercaya jika perangkat memang berada di lokasi itu saat sampel diambil. Karena itu, analisis per lokasi hanya memakai sampel dengan \texttt{loc\_valid} bernilai benar, yaitu sampel yang diambil paling lama 15 menit dari presensi yang lolos \textit{geofence}. Presensi \textit{offline} yang baru terkirim beberapa jam kemudian dinilai menurut waktu pengirimannya, sehingga tidak dianggap berasal dari lokasi presensi. Sampel mode GAMAS dan lokasi fleksibel dianalisis terpisah sebagai kelompok ``di luar lokasi kerja'', sedangkan sampel tanpa lokasi terverifikasi tetap dipakai untuk analisis per jenis jaringan dan waktu. Karena karyawan bebas memilih Wi-Fi atau data seluler, jumlah sampel setiap jenis jaringan per lokasi dilaporkan, dan Wi-Fi kantor dibedakan dari Wi-Fi lain.
+
+\subsection{Kategorisasi TIPHON}
+Setiap metrik agregat dikonversi ke indeks 1--4 menurut Tabel~\ref{tab:tiphon}, lalu indeks keseluruhan dihitung sebagai rata-rata keempat indeks dan ditafsirkan dengan Tabel~\ref{tab:tiphon_total}. Contoh dengan enam agregat ilustrasi ditunjukkan pada Tabel~\ref{tab:ilustrasi_tiphon}.
+
+\begin{table}[!htb]
+\centering
+\caption{Contoh Kategorisasi TIPHON pada Data Ilustrasi}
+\label{tab:ilustrasi_tiphon}
+\begin{tabular}{>{\centering\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{3.4cm}>{\centering\arraybackslash}p{1.25cm}>{\centering\arraybackslash}p{1.25cm}>{\centering\arraybackslash}p{1.25cm}>{\centering\arraybackslash}p{1.85cm}>{\centering\arraybackslash}p{1.6cm}}
+\toprule
+\textbf{Kode} & \textbf{Agregat} & \textbf{\textit{Delay} (ms)} & \textbf{\textit{Jitter} (ms)} & \textbf{Gagal (\%)} & \textbf{\textit{Throughput} (kbps)} & \textbf{Rata-rata Indeks} \\ \midrule
+G1 & Kantor, Wi-Fi, pagi & 85 (4) & 12 (3) & 0,5 (4) & 3.200 (4) & 3,75 \\ \garis
+G2 & Kantor, seluler, pagi & 140 (4) & 35 (3) & 2,0 (4) & 1.900 (3) & 3,50 \\ \garis
+G3 & Posko A, seluler, pagi & 320 (2) & 95 (2) & 9,0 (3) & 850 (2) & 2,25 \\ \garis
+G4 & Posko A, seluler, sore & 510 (1) & 160 (1) & 21,0 (2) & 420 (1) & 1,25 \\ \garis
+G5 & Gudang, Wi-Fi, siang & 180 (3) & 40 (3) & 3,5 (3) & 1.500 (3) & 3,00 \\ \garis
+G6 & Posko B, seluler, sore & 460 (1) & 140 (1) & 17,0 (2) & 600 (1) & 1,25 \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Catatan: angka dalam kurung adalah indeks TIPHON.\\ Sumber: data ilustrasi, diolah peneliti, 2026\par}
+\end{table}
+
+Berdasarkan Tabel~\ref{tab:ilustrasi_tiphon} dapat dinyatakan bahwa G1, G2, dan G5 termasuk kategori memuaskan, G3 kurang memuaskan, sedangkan G4 dan G6 tidak memuaskan. Kategorisasi ini menilai setiap metrik secara terpisah, sehingga satu agregat dapat bernilai baik pada satu metrik tetapi buruk pada metrik lain, seperti G3 yang tingkat kegagalannya bagus tetapi \textit{delay}-nya sedang.
+
+\subsection{Pengelompokan dengan K-Means}
+Pengelompokan dilakukan dengan langkah-langkah pada Subbab~\ref{subsec:kmeans}. Atribut yang digunakan adalah keempat metrik agregat. Setiap atribut dinormalisasi dengan RobustScaler menggunakan Persamaan~(\ref{eq:robust}), K-Means dijalankan dengan inisialisasi k-means++ sebanyak sepuluh kali untuk setiap nilai $k$, dan hasil dengan SSE terkecil dipilih. Nilai $k$ yang diuji adalah 2 sampai 6, lalu $k$ terbaik ditentukan dengan metode \textit{elbow} dan nilai \textit{silhouette} tertinggi seperti dijelaskan pada Subbab~\ref{subsec:jumlah_klaster}. Dugaan awal adalah $k = 3$, yaitu kualitas baik, sedang, dan buruk, tetapi nilai akhirnya ditentukan oleh data.
+
+Agar perhitungan mudah diikuti, contoh berikut hanya menggunakan dua atribut, yaitu \textit{delay} dan tingkat kegagalan dari Tabel~\ref{tab:ilustrasi_tiphon}, dengan $k = 2$. Untuk atribut \textit{delay}, nilai $Q_1 = 150$, $Q_2 = 250$, dan $Q_3 = 425$, sehingga normalisasi G1 adalah:
+\begin{equation*}
+x'_{\mathrm{G1,delay}} = \frac{85 - 250}{425 - 150} = -0{,}6000
+\end{equation*}
+Untuk atribut tingkat kegagalan, nilai $Q_1 = 2{,}375$, $Q_2 = 6{,}25$, dan $Q_3 = 15$, sehingga $x'_{\mathrm{G1,gagal}} = (0{,}5 - 6{,}25)/12{,}625 = -0{,}4554$. Hasil normalisasi seluruh agregat ditunjukkan pada Tabel~\ref{tab:ilustrasi_kmeans}. Pusat awal dipilih G1 dan G4. Jarak G3 ke pusat pertama dihitung dengan Persamaan~(\ref{eq:euclidean}):
+\begin{equation*}
+D(\mathrm{G3}, c_1) = \sqrt{(0{,}2545 - (-0{,}6000))^2 + (0{,}2178 - (-0{,}4554))^2} = 1{,}0879
+\end{equation*}
+
+\begin{table}[!htb]
+\centering
+\caption{Contoh Normalisasi dan Iterasi Pertama K-Means}
+\label{tab:ilustrasi_kmeans}
+\begin{tabular}{>{\centering\arraybackslash}p{0.9cm}>{\centering\arraybackslash}p{1.55cm}>{\centering\arraybackslash}p{1.55cm}>{\centering\arraybackslash}p{1.55cm}>{\centering\arraybackslash}p{1.55cm}>{\centering\arraybackslash}p{1.3cm}>{\centering\arraybackslash}p{3.13cm}}
+\toprule
+\textbf{Kode} & \textbf{$x'_{\mathrm{delay}}$} & \textbf{$x'_{\mathrm{gagal}}$} & \textbf{$D(x, c_1)$} & \textbf{$D(x, c_2)$} & \textbf{Klaster} & \textbf{Kategori TIPHON} \\ \midrule
+G1 & $-$0,6000 & $-$0,4554 & 0,0000 & 2,2417 & 1 & Memuaskan \\ \garis
+G2 & $-$0,4000 & $-$0,3366 & 0,2326 & 2,0187 & 1 & Memuaskan \\ \garis
+G3 & 0,2545 & 0,2178 & 1,0879 & 1,1751 & 1 & Kurang memuaskan \\ \garis
+G4 & 0,9455 & 1,1683 & 2,2417 & 0,0000 & 2 & Tidak memuaskan \\ \garis
+G5 & $-$0,2545 & $-$0,2178 & 0,4193 & 1,8334 & 1 & Memuaskan \\ \garis
+G6 & 0,7636 & 0,8515 & 1,8888 & 0,3653 & 2 & Tidak memuaskan \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: data ilustrasi, diolah peneliti, 2026\par}
+\end{table}
+
+Pusat klaster baru dihitung dengan Persamaan~(\ref{eq:centroid}), yaitu $c_1 = (-0{,}2500;\ -0{,}1980)$ dari G1, G2, G3, dan G5, serta $c_2 = (0{,}8545;\ 1{,}0099)$ dari G4 dan G6. Pada iterasi kedua, anggota setiap klaster tidak berubah sehingga iterasi berhenti. Berdasarkan Tabel~\ref{tab:ilustrasi_kmeans} dapat dinyatakan bahwa klaster 2 berisi agregat posko dengan jaringan seluler pada sore hari yang \textit{delay} dan tingkat kegagalannya tinggi. G3 masuk klaster 1 walaupun kategori TIPHON-nya kurang memuaskan, dan jaraknya ke kedua pusat hampir sama (1,0879 dan 1,1751). Hal ini menunjukkan bahwa dengan $k = 2$ agregat yang berkualitas sedang belum terpisah, sehingga nilai $k$ perlu diuji lebih dari satu. Pada data penelitian, perhitungan ini dilakukan dengan scikit-learn menggunakan keempat atribut, lalu setiap klaster diberi label berdasarkan nilai pusatnya.
+
+\subsection{Perbandingan Hasil Klaster}
+Hasil K-Means dibandingkan dengan kategori TIPHON menggunakan tabel silang antara label klaster dan kategori indeks keseluruhan. Kategori memuaskan dan sangat memuaskan dipadankan dengan klaster berkualitas baik, kategori kurang memuaskan dengan klaster sedang, dan kategori tidak memuaskan dengan klaster buruk. Tingkat kesesuaian dihitung dengan persamaan berikut:
+\begin{equation}
+K = \frac{\text{jumlah agregat yang label klasternya sesuai kategori TIPHON}}{\text{jumlah seluruh agregat}} \times 100\%
+\label{eq:kesesuaian}
+\end{equation}
+Selain itu, lokasi kerja yang masuk klaster buruk dicocokkan dengan keterangan HRD tentang lokasi yang sering sulit sinyal. Ketidaksesuaian tidak dianggap kegagalan, tetapi dibahas penyebabnya, misalnya ambang TIPHON yang terlalu ketat atau persepsi HRD yang berbeda dengan data. Hasil disajikan dalam tabel statistik per lokasi, diagram kotak \textit{delay}, grafik sebaran klaster, dan peta panas jam terhadap lokasi.
+
+\section{Jadwal Penelitian}
+\label{sec:jadwal}
+Penelitian direncanakan selama tiga bulan atau 12 minggu, seperti ditunjukkan pada Tabel~\ref{tab:jadwal}.
+
+\begin{table}[!htb]
+\centering
+\caption{Jadwal Penelitian}
+\label{tab:jadwal}
+\newcommand{\isi}{\cellcolor{gray!60}}
+\setlength{\tabcolsep}{1.5pt}
+\begin{tabular}{>{\centering\arraybackslash}p{0.6cm}>{\raggedright\arraybackslash}p{3.9cm}*{12}{>{\centering\arraybackslash}p{0.38cm}}}
+\toprule
+\textbf{No.} & \textbf{Kegiatan} & \multicolumn{4}{c}{\textbf{Bulan ke-1}} & \multicolumn{4}{c}{\textbf{Bulan ke-2}} & \multicolumn{4}{c}{\textbf{Bulan ke-3}} \\ \cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(lr){11-14}
+ & & \multicolumn{12}{c}{\textbf{Minggu ke-}} \\
+ & & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 \\ \midrule
+1. & Studi literatur dan proposal & \isi &  &  &  &  &  &  &  &  &  &  &  \\ \garis
+2. & Ujian proposal dan izin penelitian &  & \isi &  &  &  &  &  &  &  &  &  &  \\ \garis
+3. & Perancangan modul telemetri &  & \isi & \isi &  &  &  &  &  &  &  &  &  \\ \garis
+4. & Implementasi dan pengujian modul &  &  & \isi & \isi & \isi &  &  &  &  &  &  &  \\ \garis
+5. & Validasi instrumen di server uji &  &  &  &  & \isi & \isi &  &  &  &  &  &  \\ \garis
+6. & Rilis bertahap dan pilot &  &  &  &  &  & \isi &  &  &  &  &  &  \\ \garis
+7. & Pengumpulan data dan wawancara HRD &  &  &  &  &  &  & \isi & \isi & \isi & \isi &  &  \\ \garis
+8. & Analisis data (TIPHON dan K-Means) &  &  &  &  &  &  &  &  &  & \isi & \isi &  \\ \garis
+9. & Penyusunan laporan skripsi &  &  &  &  &  &  &  &  &  & \isi & \isi & \isi \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: diolah peneliti, 2026\par}
+\end{table}

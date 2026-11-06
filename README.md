@@ -1,76 +1,57 @@
-# Skripsi Abdur Rouf: Dokumen dan Template LaTeX ITB Widya Gama Lumajang
+# LaTeX Skripsi ITB Widya Gama Lumajang
 
-Repositori ini berisi seluruh dokumen penyusunan skripsi Program Studi S1 Teknik Informatika di **Institut Teknologi dan Bisnis Widya Gama Lumajang**: template LaTeX skripsi, draf seminar proposal, anatomi penelitian, catatan presentasi, serta referensi pendukung.
+Template LaTeX untuk skripsi, ujian proposal, seminar hasil, dan artikel jurnal, beserta **contoh nyata yang sudah terisi** dari skripsi Abd. Rouf (S1 Informatika, Institut Teknologi dan Bisnis Widya Gama Lumajang).
 
-## Pemberitahuan Penggunaan
-Template dan repositori ini adalah milik pribadi Abdur Rouf dan dibuat secara spesifik untuk penelitian pada PT Semeru Agung Mandiri. Jika Anda ingin menggunakan atau mengadopsi template ini, ada banyak bagian (identitas, nama instansi, judul, data penelitian, dan konfigurasi) yang perlu Anda ubah dan sesuaikan dengan kebutuhan Anda sendiri.
+Repositori ini terbuka untuk siapa saja. Pakai templatnya untuk mulai menulis, atau lihat folder `karya-abd-rouf/` sebagai acuan hasil jadi.
 
-## Identitas Penulis
-- **Nama:** Abdur Rouf
-- **NIM:** 223140118
-- **Program Studi:** S1 Teknik Informatika
-- **Fakultas:** Teknik
-- **Institusi:** Institut Teknologi dan Bisnis Widya Gama Lumajang
+## Isi repositori
 
-## Topik Penelitian
+| Folder | Isi | Untuk siapa |
+| --- | --- | --- |
+| [`templat/skripsi-itbwiga/`](templat/skripsi-itbwiga/) | Template LaTeX: `ujian-proposal.tex`, `skripsi.tex`, isi bab, kelas dokumen `skripsi.cls`, contoh tabel dan grafik. Di `dokumen-lain/` ada templat seminar hasil dan artikel jurnal (Indonesia dan Inggris). | Siapa saja yang mau mulai menulis |
+| [`templat/anatomi-penelitian/`](templat/anatomi-penelitian/) | Format Word anatomi penelitian (RSc). | Mahasiswa yang menyiapkan anatomi penelitian |
+| [`karya-abd-rouf/`](karya-abd-rouf/) | Contoh nyata: dokumen ujian proposal (Word dan LaTeX), anatomi penelitian, catatan presentasi, daftar pertanyaan kritis, bahan belajar Bab I sampai III, dan kartu belajar. | Acuan hasil jadi |
+| [`dokumentasi/`](dokumentasi/) | Panduan lengkap penggunaan template dan ringkasan aturan format ITB WiGa. | Semua pengguna |
+| [`alat/`](alat/) | Skrip bantu, misalnya konversi LaTeX ke Word (`tex-ke-docx`). | Pengguna tingkat lanjut |
 
-### Rancangan terbaru (Anatomi Penelitian)
-**"Analisis *Quality of Service* Jaringan Berbasis *Crowdsourcing* pada Aplikasi Presensi *Mobile* Menggunakan *Clustering* K-Means di PT Semeru Agung Mandiri"**
+## Mulai cepat
 
-Karyawan PT Semeru Agung Mandiri melakukan presensi dari kantor, posko, dan gudang dengan kualitas jaringan yang berbeda-beda, tetapi perusahaan belum memiliki data objektif tentang kualitas jaringan di tiap lokasi kerja. Penelitian ini menggunakan metode *Research and Development* (R&D) dengan menambahkan modul telemetri pasif pada aplikasi presensi. Modul tersebut mencatat *delay*, *jitter*, tingkat kegagalan pengiriman, *throughput*, dan lama putus koneksi secara anonim setiap kali aplikasi berkomunikasi dengan server. Data dikategorikan menurut standar **TIPHON**, lalu lokasi kerja dikelompokkan dengan **K-Means** (jumlah klaster ditentukan dengan metode *elbow* dan *silhouette*).
+1. Pasang TeX Live atau MiKTeX, atau pakai [Overleaf](https://www.overleaf.com/) (zip folder `templat/skripsi-itbwiga/`, lalu unggah).
+2. Salin folder `templat/skripsi-itbwiga/`.
+3. Ubah data diri dan judul di `ujian-proposal.tex` (`\fullname{}`, `\idnum{}`, `\titleskripsi{}`, data pembimbing dan penguji).
+4. Tulis isi bab di `isi-bab/` dan daftar pustaka di `referensi/daftar-pustaka.bib`.
+5. Kompilasi:
 
-**Kata kunci:** *Quality of Service*; *Crowdsourcing*; K-Means; TIPHON; Presensi Mobile
+```bash
+latexmk -pdf ujian-proposal.tex
+# atau manual:
+pdflatex ujian-proposal.tex
+biber ujian-proposal
+pdflatex ujian-proposal.tex
+pdflatex ujian-proposal.tex
+```
 
-### Draf seminar proposal sebelumnya
-**"Rancang Bangun Aplikasi Presensi Karyawan Berbasis Mobile Menggunakan Arsitektur Offline-First dengan Flutter pada PT Semeru Agung Mandiri"**
+Untuk skripsi lengkap, ganti `ujian-proposal` dengan `skripsi`. Panduan lengkap ada di [`dokumentasi/panduan-template.md`](dokumentasi/panduan-template.md).
 
-Draf ini masih tersimpan di `template-skripsi-itbwiga/seminar-proposal.tex` dan menjadi dasar aplikasi presensi (Flutter, penyimpanan lokal, dan sinkronisasi ke server) yang kini digunakan sebagai alat ukur pada rancangan penelitian terbaru.
+## Contoh karya: Abd. Rouf
 
-## Struktur Repositori
+**Judul ujian proposal:** Analisis QoS Jaringan Berbasis *Crowdsourcing* pada Aplikasi Presensi Menggunakan K-Means
+
 | Lokasi | Isi |
 | --- | --- |
-| `anatomi-penelitian/` | Anatomi penelitian (`anatomi-penelitian.tex`), catatan presentasi, daftar pertanyaan kritis, pedoman Tugas Akhir FTI 2026-2027, dan arsip versi lama (`_arsip/`). |
-| `anatomi-penelitian/referensi/` | Jurnal dan standar acuan (QoS TIPHON, K-Means, *crowdsourced measurement*, R&D Borg & Gall, presensi *offline*). |
-| `template-skripsi-itbwiga/` | Template LaTeX skripsi ITB WiGa: `seminar-proposal.tex`, `skripsi.tex`, isi bab (`isi-bab/`), daftar pustaka (`referensi/`), gambar, dan kelas dokumen (`pengaturan/skripsi.cls`). |
-| `PANDUAN.md` | Panduan lengkap penggunaan dan kustomisasi template LaTeX. |
-| `PANDUAN_SKRIPSI_ITB_WIGA.md`, `panduan skripsi.md` | Ringkasan aturan format penulisan skripsi ITB WiGa. |
-| `BLUEPRINT_SKRIPSI.md`, `implementation_plan.md` | Cetak biru dan rencana implementasi aplikasi presensi. |
-| `*.docx` | Format anatomi penelitian dan panduan skripsi dalam bentuk Word. |
+| `karya-abd-rouf/ujian-proposal/` | **Dokumen ujian proposal terbaru** (`Proposal_Skripsi_ABD_ROUF.docx`) dan skrip pembuatnya di `sumber-docx/` (`npm install && npm run build`). |
+| `karya-abd-rouf/ujian-proposal-latex/` | Versi LaTeX dokumen ujian proposal. |
+| `karya-abd-rouf/anatomi-penelitian/` | Anatomi penelitian, catatan presentasi, dan pertanyaan kritis beserta jawabannya. |
+| `karya-abd-rouf/bahan-belajar/` | Ringkasan belajar Bab I, II, dan III untuk persiapan ujian proposal. |
+| `karya-abd-rouf/kartu-belajar/` | Kartu belajar tanya-jawab (HTML dan PDF). |
+| `karya-abd-rouf/catatan-perencanaan/` | Catatan perencanaan dan draf topik sebelumnya (aplikasi presensi *offline-first*). |
 
-## Cara Kompilasi Dokumen
+PDF jurnal yang dikutip tidak disertakan karena hak ciptanya milik penulis atau penerbit. Data pustakanya tersedia di berkas `.bib` masing-masing dokumen.
 
-### Prasyarat
-- Distribusi TeX: [MiKTeX](https://miktex.org/download) atau [TeX Live](https://tug.org/texlive/) (aktifkan *install missing packages on the fly*).
-- Editor: [Visual Studio Code](https://code.visualstudio.com/) dengan ekstensi **LaTeX Workshop**.
-- `biber` untuk daftar pustaka (biasanya sudah ikut terinstal).
+## Kontribusi
 
-### Template skripsi / seminar proposal (pdfLaTeX + Biber)
-Dari folder `template-skripsi-itbwiga/`:
-```bash
-pdflatex seminar-proposal.tex
-biber seminar-proposal
-pdflatex seminar-proposal.tex
-pdflatex seminar-proposal.tex
-```
-Di VS Code, gunakan *Recipe* **pdflatex -> biber -> pdflatex -> pdflatex**. Di Overleaf, unggah isi folder sebagai `.zip` dan atur *Compiler* ke **pdfLaTeX**.
+Perbaikan template, format kampus lain, atau contoh karya baru sangat diterima. Buka *issue* atau kirim *pull request*.
 
-### Anatomi penelitian dan catatan presentasi (XeLaTeX)
-Dokumen di `anatomi-penelitian/` memakai font Calibri melalui `fontspec`, sehingga harus dikompilasi dengan **XeLaTeX** (jalankan dua kali):
-```bash
-xelatex anatomi-penelitian.tex
-xelatex anatomi-penelitian.tex
-```
+## Lisensi
 
-### Cara mengedit
-- **Data diri dan judul:** ubah `\fullname{}`, `\idnum{}`, `\titleskripsi{}`, dan data dosen di `seminar-proposal.tex` atau `skripsi.tex`.
-- **Isi bab:** tulis di `isi-bab/bab1.tex` sampai `bab5.tex`.
-- **Daftar pustaka:** tambahkan entri ke `referensi/daftar-pustaka.bib`, lalu sitasi dengan `\textcite{}` atau `\parencite{}`.
-- **Gambar dan logo:** simpan di `gambar/`; ukuran logo sampul diatur di `pengaturan/skripsi.cls`.
-
-Panduan yang lebih rinci tersedia di [PANDUAN.md](PANDUAN.md).
-
-## Catatan
-Repositori ini hanya berisi dokumen akademik. *Source code* aplikasi presensi Flutter dikelola di repositori terpisah. File hasil kompilasi LaTeX (`.aux`, `.log`, `.bbl`, dan sejenisnya) sengaja tidak disimpan.
-
----
-*Disusun sebagai syarat memperoleh gelar Sarjana Komputer (S.Kom).*
+[BSD 3-Clause](LICENSE). Template ini diadaptasi dari [dirsulaiman/Skripsi](https://github.com/dirsulaiman/Skripsi) (Universitas Hasanuddin). Logo ITB Widya Gama Lumajang adalah milik institusi tersebut.

@@ -1,0 +1,187 @@
+\chapter{TINJAUAN PUSTAKA}
+
+\section{Landasan Teori}
+Landasan teori berikut membahas konsep yang digunakan dalam penelitian, mulai dari objek penelitian (aplikasi presensi \textit{mobile} dan arsitektur \textit{offline-first}), apa yang diukur (QoS dan standar TIPHON), cara mengukur (pengukuran berbasis \textit{crowdsourcing} dan telemetri pasif), cara menganalisis (K-Means, metode \textit{elbow}, dan nilai \textit{silhouette}), hingga metode penelitian dan aspek pelindungan data pribadi.
+
+\subsection{Aplikasi Presensi Mobile dan Arsitektur Offline-First}
+Aplikasi presensi \textit{mobile} adalah aplikasi pada telepon pintar yang digunakan karyawan untuk mencatat kehadiran, biasanya dilengkapi validasi lokasi dengan GPS dan foto. \textcite{ismail2023presensi} membangun aplikasi presensi berbasis Flutter dan \textit{library} Geolocator untuk menggantikan mesin sidik jari yang datanya harus direkap secara manual, sedangkan \textcite{rokhman2026personalia} membangun sistem personalia multiplatform dengan presensi berbasis \textit{geofence}, verifikasi wajah, dan pelacakan lokasi tenaga penjual. Kedua aplikasi tersebut bergantung pada jaringan untuk mengirim data ke server.
+
+Masalah koneksi di lapangan diatasi dengan mode \textit{offline}. \textcite{indah2025offline} mengembangkan aplikasi absensi berbasis QR Code yang menyimpan data secara lokal ketika koneksi tidak tersedia dan menyinkronkannya ke server ketika koneksi kembali, karena perusahaan memiliki banyak lokasi kerja dengan koneksi yang tidak stabil. \textcite{rokhman2026personalia} menerapkan penyimpanan lokal SQLite dan penanda \texttt{client\_event\_id} agar sinkronisasi tetap konsisten ketika koneksi tidak stabil. Pendekatan yang menjadikan penyimpanan lokal sebagai sumber data utama dan sinkronisasi sebagai proses susulan disebut \textit{offline-first} \parencite{devina2026offlinefirst}.
+
+Aplikasi presensi PT Semeru Agung Mandiri menerapkan arsitektur \textit{offline-first}. Setiap presensi disimpan terlebih dahulu di basis data lokal Isar, dimasukkan ke antrean sinkronisasi, lalu dikirim ke server PocketBase melalui HTTPS ketika perangkat terhubung ke jaringan. Antrean ini mencatat setiap percobaan pengiriman beserta hasilnya. Dalam penelitian ini, percobaan pengiriman tersebut dimanfaatkan sebagai sumber data kualitas jaringan tanpa mengubah cara kerja antrean.
+
+Aplikasi juga memvalidasi lokasi dengan \textit{geofence}, yaitu presensi hanya dapat dilakukan jika perangkat berada di dalam radius lokasi kerja yang dipilih. Terdapat tiga pengecualian: (1) mode tugas luar kota atau lapangan (GAMAS), yang membolehkan presensi dari mana saja dengan menuliskan lokasi dan keterangan tugas untuk disetujui admin; (2) karyawan yang diberi izin lokasi fleksibel oleh admin, yang tidak diperiksa radiusnya sama sekali; dan (3) titik sementara yang dibuat admin dengan radius dan batas waktu sendiri. Presensi tidak mewajibkan Wi-Fi kantor. Selama berada di dalam radius, karyawan boleh memakai Wi-Fi maupun data seluler, dan aplikasi hanya mencatat apakah Wi-Fi yang terhubung adalah Wi-Fi kantor berdasarkan BSSID. Pemeriksaan \textit{geofence} tetap berjalan ketika perangkat tidak terhubung ke internet, karena posisi dibaca dari satelit GPS dan daftar lokasi kerja tersimpan di basis data lokal, sehingga presensi \textit{offline} di lokasi kerja tetap tervalidasi. Aturan-aturan ini menentukan apakah lokasi sebuah sampel pengukuran dapat dipercaya, sehingga diperhitungkan dalam rancangan data dan analisis pada Bab 3.
+
+\subsection{Quality of Service}
+\label{subsec:qos}
+\textit{Quality of Service} (QoS) adalah cara mengukur seberapa baik jaringan menyediakan layanan pengiriman data, yang dinyatakan dengan sejumlah parameter yang dapat diukur \parencite{rosid2023qos}. Parameter QoS yang umum digunakan adalah sebagai berikut \parencite{etsi1999tiphon,rosid2023qos,basmar2026jamsibuk}.
+\begin{enumerate}
+    \item \textbf{\textit{Delay}}, yaitu waktu yang dibutuhkan data untuk menempuh jarak dari asal ke tujuan. Pada pengukuran pulang-pergi, \textit{delay} dinyatakan sebagai \textit{round-trip time} (RTT), yaitu selisih waktu antara permintaan dikirim dan balasan diterima:
+    \begin{equation}
+    d = t_{\mathrm{terima}} - t_{\mathrm{kirim}}
+    \label{eq:delay}
+    \end{equation}
+    dengan $d$ adalah \textit{delay} dalam milidetik (ms), $t_{\mathrm{kirim}}$ adalah waktu permintaan dikirim, dan $t_{\mathrm{terima}}$ adalah waktu balasan diterima.
+    \item \textbf{\textit{Jitter}}, yaitu variasi \textit{delay} antarpaket atau antarpengukuran yang berurutan. Semakin besar \textit{jitter}, semakin tidak stabil jaringan:
+    \begin{equation}
+    J = \frac{1}{n-1}\sum_{i=2}^{n} \left| d_i - d_{i-1} \right|
+    \label{eq:jitter}
+    \end{equation}
+    dengan $J$ adalah \textit{jitter} (ms), $d_i$ adalah \textit{delay} pengukuran ke-$i$, dan $n$ adalah jumlah pengukuran.
+    \item \textbf{\textit{Packet loss}}, yaitu persentase paket yang hilang dan tidak sampai ke tujuan:
+    \begin{equation}
+    PL = \frac{\text{paket dikirim} - \text{paket diterima}}{\text{paket dikirim}} \times 100\%
+    \label{eq:packetloss}
+    \end{equation}
+    \item \textbf{\textit{Throughput}}, yaitu kecepatan nyata pengiriman data, dihitung dari jumlah data yang berhasil dikirim dibagi waktu pengiriman:
+    \begin{equation}
+    T = \frac{B \times 8}{\Delta t}
+    \label{eq:throughput}
+    \end{equation}
+    dengan $T$ adalah \textit{throughput} dalam kbps, $B$ adalah jumlah data terkirim dalam \textit{byte}, dan $\Delta t$ adalah lama pengiriman dalam milidetik.
+\end{enumerate}
+
+\textit{Packet loss} pada Persamaan~(\ref{eq:packetloss}) dihitung per paket di tingkat jaringan. Aplikasi Android biasa tidak dapat melihat paket tanpa akses khusus, sehingga dalam penelitian ini \textit{packet loss} diganti dengan tingkat kegagalan pengiriman di tingkat aplikasi, yaitu persentase permintaan yang gagal karena masalah jaringan. Keduanya sama-sama menggambarkan data yang tidak sampai, tetapi tingkat kegagalan lebih kasar karena satu permintaan terdiri atas banyak paket. Penggantian ini dinyatakan sebagai keterbatasan penelitian.
+
+\subsection{Standar TIPHON}
+\textit{Telecommunications and Internet Protocol Harmonization Over Networks} (TIPHON) adalah dokumen ETSI yang membahas aspek umum QoS pada jaringan berbasis IP \parencite{etsi1999tiphon}. Penelitian QoS di Indonesia menggunakan kategori TIPHON untuk menilai \textit{delay}, \textit{jitter}, \textit{packet loss}, dan \textit{throughput} ke dalam indeks 1 sampai 4 \parencite{rosid2023qos,fiqria2024qos,ramayanti2024qos,basmar2026jamsibuk}. Kategori yang digunakan dalam penelitian ini ditunjukkan pada Tabel~\ref{tab:tiphon}.
+
+\begin{table}[!ht]
+\centering
+\caption{Kategori Parameter QoS Menurut Standar TIPHON}
+\label{tab:tiphon}
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.1cm}>{\centering\arraybackslash}p{1.85cm}>{\centering\arraybackslash}p{1.85cm}>{\centering\arraybackslash}p{1.9cm}>{\centering\arraybackslash}p{2.98cm}>{\centering\arraybackslash}p{1.2cm}}
+\toprule
+\textbf{Kategori} & \textbf{\textit{Delay}} & \textbf{\textit{Jitter}} & \textbf{\textit{Packet Loss}} & \textbf{\textit{Throughput}} & \textbf{Indeks} \\ \midrule
+Sangat bagus & $<$ 150 ms & 0 ms & 0\% & $>$ 2,1 Mbps & 4 \\ \garis
+Bagus & 150--300 ms & 0--75 ms & 3\% & 1,2--2,1 Mbps & 3 \\ \garis
+Sedang & 300--450 ms & 75--125 ms & 15\% & 700 kbps--1,2 Mbps & 2 \\ \garis
+Jelek & $>$ 450 ms & 125--225 ms & 25\% & $<$ 700 kbps & 1 \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: \textcite{etsi1999tiphon} dalam \textcite{rosid2023qos}\par}
+\end{table}
+
+Berdasarkan Tabel~\ref{tab:tiphon} dapat dinyatakan bahwa setiap parameter memiliki satuan dan ambang yang berbeda, tetapi semuanya dikonversi ke indeks yang sama, yaitu 1 sampai 4. Nilai \textit{packet loss} pada tabel merupakan batas bawah setiap kategori, sehingga dalam penelitian ini kategori sangat bagus diartikan kurang dari 3\%, bagus 3\% sampai kurang dari 15\%, sedang 15\% sampai kurang dari 25\%, dan jelek 25\% atau lebih. Indeks keseluruhan diperoleh dari rata-rata indeks keempat parameter, lalu ditafsirkan dengan kategori pada Tabel~\ref{tab:tiphon_total}.
+
+\begin{table}[!ht]
+\centering
+\caption{Kategori Indeks Keseluruhan TIPHON}
+\label{tab:tiphon_total}
+\begin{tabular}{>{\centering\arraybackslash}p{4.0cm}>{\centering\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{4.94cm}}
+\toprule
+\textbf{Rata-rata Indeks} & \textbf{Persentase} & \textbf{Kategori} \\ \midrule
+3,80--4,00 & 95--100\% & Sangat memuaskan \\ \garis
+3,00--3,79 & 75--94,75\% & Memuaskan \\ \garis
+2,00--2,99 & 50--74,75\% & Kurang memuaskan \\ \garis
+1,00--1,99 & 25--49,75\% & Tidak memuaskan \\ \bottomrule
+\end{tabular}
+\par\vspace{3pt}
+{\raggedright\footnotesize Sumber: \textcite{rosid2023qos}\par}
+\end{table}
+
+Ambang TIPHON awalnya disusun untuk layanan suara dan multimedia secara \textit{real-time} sehingga cukup ketat untuk aplikasi presensi yang tidak bersifat \textit{real-time}. Dalam penelitian ini TIPHON tetap digunakan sebagai tolok ukur umum agar hasilnya dapat dibandingkan dengan penelitian QoS lain, dan hasilnya juga dikelompokkan dengan K-Means yang tidak bergantung pada ambang TIPHON.
+
+\subsection{Pengukuran Jaringan Berbasis Crowdsourcing}
+\textit{Crowdsourcing} pada awalnya berarti partisipasi aktif sukarelawan dalam suatu kegiatan yang dialihdayakan. Dalam pengukuran jaringan, \textit{crowdsourced network measurement} adalah pengukuran yang dilakukan langsung pada perangkat pengguna akhir sehingga menggambarkan kinerja jaringan dari sudut pandang pengguna dalam skala besar \parencite{wamser2021crowd}. Berbeda dengan pengukuran manual di satu titik, data berasal dari banyak perangkat, banyak lokasi, dan banyak waktu.
+
+Berdasarkan keterlibatan pengguna, pengukuran \textit{crowdsourcing} dapat dibedakan menjadi dua. Pada \textit{participatory sensing}, pengguna secara sadar menjalankan pengujian, misalnya menekan tombol tes kecepatan. Pada \textit{opportunistic sensing}, pengukuran berjalan otomatis ketika ada kesempatan, misalnya ketika aplikasi sedang berkomunikasi dengan server, tanpa tindakan dari pengguna \parencite{wu2017mopeye}. Penelitian ini menggunakan pendekatan \textit{opportunistic sensing} karena karyawan cukup memakai aplikasi presensi seperti biasa.
+
+Kelemahan pengukuran \textit{crowdsourcing} adalah lokasi dan waktu pengukuran tidak dikendalikan, sehingga validitas dan keandalannya perlu dijaga. \textcite{wamser2021crowd} menganalisis lebih dari 20,4 juta pengukuran seluler di Prancis dan menegaskan bahwa jumlah pengukuran menentukan apakah suatu pernyataan tentang kualitas jaringan dapat dianggap valid. \textcite{tripkovic2021cluster} menunjukkan bahwa pengukuran \textit{crowdsourcing} perlu dikelompokkan dan dirata-ratakan per area untuk mengurangi derau, dan jumlah titik pengukuran di setiap kelompok harus cukup. Karena itu, penelitian ini menetapkan jumlah sampel minimal per lokasi dan menganalisis data dalam bentuk agregat, bukan per sampel.
+
+\subsection{Telemetri Pasif dan RTT Tingkat Aplikasi}
+Telemetri adalah pengukuran otomatis dari jarak jauh yang hasilnya dikirim ke pusat pengolahan data. Dalam penelitian ini, telemetri berupa modul di dalam aplikasi presensi yang mengukur kualitas jaringan pada satu perangkat lalu mengirimkan hasilnya ke server. \textit{Crowdsourcing} adalah teknik yang menjalankan modul tersebut di banyak perangkat sekaligus dan menggabungkan datanya.
+
+\textcite{wu2017mopeye} mengembangkan MopEye, aplikasi Android yang mengukur \textit{round-trip delay} setiap aplikasi secara oportunistik setiap kali ada lalu lintas aplikasi. Pengukuran ini dirancang ringan dan akurat sehingga dapat berjalan dalam jangka panjang, dan hasilnya mencakup lebih dari lima juta pengukuran dari 6.266 aplikasi pada 2.351 ponsel. MopEye mengukur di tingkat paket melalui layanan VPN Android, sedangkan penelitian ini mengukur di tingkat aplikasi karena aplikasi biasa tidak dapat mengirim paket ICMP (\textit{ping}) tanpa akses \textit{root}.
+
+Aplikasi presensi berkomunikasi dengan server melalui HTTPS, yaitu HTTP di atas TCP dan TLS, melalui Wi-Fi atau jaringan seluler. RTT tingkat aplikasi adalah waktu sejak permintaan HTTP dikirim sampai balasan diterima, yang terdiri atas waktu tempuh jaringan pulang-pergi dan waktu pemrosesan di server. Jika permintaan ditujukan ke alamat yang sangat ringan, misalnya \texttt{/api/health} yang tidak membuka basis data, waktu pemrosesan server sangat kecil sehingga RTT didominasi oleh jaringan. Untuk memastikannya, hasil telemetri divalidasi dengan RTT tingkat TCP yang direkam aplikasi PCAPdroid dan dibaca dengan Wireshark, alat yang juga digunakan pada penelitian QoS sebelumnya \parencite{rosid2023qos,fiqria2024qos}.
+
+Penelitian ini bersifat hibrida. Sebagian data diambil secara pasif dari komunikasi presensi yang sudah berjalan, yaitu percobaan sinkronisasi, unggah foto, dan perubahan status koneksi. Sebagian lain diambil dari \textit{probe}, yaitu tiga permintaan kecil ke \texttt{/api/health} paling sering setiap 15 menit. \textit{Probe} termasuk pengukuran aktif, tetapi sangat ringan dan tidak memerlukan tindakan pengguna.
+
+\subsection{Algoritma K-Means}
+\label{subsec:kmeans}
+K-Means adalah algoritma \textit{clustering} yang membagi $n$ data ke dalam $k$ klaster sehingga setiap data masuk ke klaster dengan pusat (\textit{centroid}) terdekat \parencite{ikotun2023kmeans}. K-Means termasuk metode \textit{unsupervised learning} karena tidak membutuhkan data berlabel. Algoritma ini banyak digunakan karena sederhana, cepat, dan hasilnya mudah ditafsirkan, tetapi jumlah klaster $k$ harus ditentukan terlebih dahulu dan hasilnya dipengaruhi oleh pemilihan pusat awal \parencite{ikotun2023kmeans}. Langkah-langkah K-Means adalah sebagai berikut:
+\begin{enumerate}
+    \item Menentukan jumlah klaster $k$.
+    \item Memilih $k$ pusat klaster awal. Penelitian ini menggunakan inisialisasi k-means++, yaitu varian yang memilih pusat awal saling berjauhan agar hasil lebih stabil \parencite{ikotun2023kmeans}.
+    \item Menghitung jarak setiap data ke setiap pusat klaster dengan jarak Euclidean:
+    \begin{equation}
+    D(x_i, c_j) = \sqrt{\sum_{p=1}^{m} \left(x_{ip} - c_{jp}\right)^2}
+    \label{eq:euclidean}
+    \end{equation}
+    dengan $x_i$ adalah data ke-$i$, $c_j$ adalah pusat klaster ke-$j$, dan $m$ adalah jumlah atribut.
+    \item Memasukkan setiap data ke klaster dengan jarak terkecil.
+    \item Menghitung ulang pusat setiap klaster sebagai rata-rata anggotanya:
+    \begin{equation}
+    c_j = \frac{1}{\left|C_j\right|}\sum_{x_i \in C_j} x_i
+    \label{eq:centroid}
+    \end{equation}
+    dengan $C_j$ adalah himpunan anggota klaster ke-$j$ dan $\left|C_j\right|$ adalah jumlah anggotanya.
+    \item Mengulangi langkah 3 sampai 5 hingga pusat klaster tidak berubah atau jumlah iterasi maksimum tercapai.
+\end{enumerate}
+
+Karena K-Means berbasis jarak, atribut dengan rentang nilai besar akan mendominasi perhitungan jarak. Dalam data QoS, \textit{delay} bernilai ratusan milidetik, tingkat kegagalan 0--100\%, dan \textit{throughput} ribuan kbps, sehingga setiap atribut harus dinormalisasi terlebih dahulu. \textcite{irwansyah2025kmeans} menggunakan RobustScaler untuk menormalisasi data kualitas internet seluler sebelum dikelompokkan. RobustScaler menggunakan median dan rentang antarkuartil sehingga tidak mudah terpengaruh pencilan:
+\begin{equation}
+x' = \frac{x - Q_2}{Q_3 - Q_1}
+\label{eq:robust}
+\end{equation}
+dengan $x'$ adalah nilai hasil normalisasi, $Q_2$ adalah median, serta $Q_1$ dan $Q_3$ adalah kuartil pertama dan ketiga dari atribut tersebut.
+
+\subsection{Penentuan Jumlah Klaster}
+\label{subsec:jumlah_klaster}
+Jumlah klaster yang tepat tidak diketahui sebelumnya sehingga perlu ditentukan dari data. Penelitian ini menggunakan dua cara, yaitu metode \textit{elbow} dan nilai \textit{silhouette}.
+
+Metode \textit{elbow} menghitung \textit{Sum of Squared Error} (SSE) atau inersia untuk beberapa nilai $k$, lalu memilih $k$ pada titik ``siku'', yaitu titik setelah penambahan klaster tidak lagi menurunkan SSE secara berarti:
+\begin{equation}
+SSE = \sum_{j=1}^{k}\sum_{x_i \in C_j} D(x_i, c_j)^2
+\label{eq:sse}
+\end{equation}
+\textcite{mihevc2025elbow} menerapkan metode \textit{elbow} pada data perkembangan komunikasi elektronik 32 negara dan memperoleh tiga klaster sebagai jumlah optimal. Mereka juga menegaskan bahwa hasil metode kuantitatif ini perlu diperiksa kembali dengan pemahaman terhadap bidang yang diteliti.
+
+Nilai \textit{silhouette} mengukur seberapa dekat suatu data dengan klasternya sendiri dibandingkan dengan klaster lain \parencite{shahapure2020silhouette}:
+\begin{equation}
+s(i) = \frac{b(i) - a(i)}{\max\{a(i), b(i)\}}
+\label{eq:silhouette}
+\end{equation}
+dengan $a(i)$ adalah rata-rata jarak data ke-$i$ ke anggota lain dalam klasternya dan $b(i)$ adalah rata-rata jarak terkecil data ke-$i$ ke anggota klaster lain. Nilai $s(i)$ berada pada rentang $-1$ sampai $1$. Nilai mendekati 1 berarti data berada di klaster yang tepat, nilai sekitar 0 berarti data berada di perbatasan dua klaster, dan nilai negatif berarti data kemungkinan masuk klaster yang salah. Rata-rata $s(i)$ seluruh data digunakan untuk membandingkan kualitas pengelompokan pada beberapa nilai $k$ \parencite{shahapure2020silhouette}. Sebagai pembanding, \textcite{irwansyah2025kmeans} memperoleh nilai \textit{silhouette} 0,351 untuk K-Means pada data kualitas internet seluler dengan $k = 3$.
+
+\subsection{Metode Penelitian dan Pengembangan Borg and Gall}
+Metode penelitian dan pengembangan (\textit{Research and Development}, R\&D) adalah metode untuk menghasilkan produk tertentu lalu menguji keefektifannya. \textcite{jamaludin2024borggall} menggunakan model Borg and Gall, yaitu model pengembangan berbasis industri yang memanfaatkan temuan penelitian untuk merancang produk, lalu mengujinya secara sistematis di lapangan hingga diperoleh produk yang teruji keefektifannya. Model Borg and Gall terdiri atas sepuluh tahap, yaitu (1) penelitian dan pengumpulan informasi, (2) perencanaan, (3) pengembangan produk awal, (4) uji coba awal, (5) revisi produk, (6) uji coba lapangan, (7) revisi produk, (8) uji lapangan operasional, (9) revisi produk akhir, serta (10) diseminasi dan implementasi.
+
+Dalam penelitian ini, produk yang dikembangkan adalah modul telemetri QoS pada aplikasi presensi. Kesepuluh tahap Borg and Gall diringkas menjadi lima tahap sesuai skala skripsi. Penyesuaian tahapan tersebut dijelaskan pada Subbab~\ref{sec:tahapan}.
+
+\subsection{Pelindungan Data Pribadi}
+Data telemetri berasal dari perangkat karyawan sehingga pengumpulannya harus memperhatikan pelindungan data pribadi. Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi mengatur bahwa pemrosesan data pribadi harus dilakukan secara terbatas, spesifik, sah, dan transparan sesuai tujuannya \parencite{uupdp2022}. Penelitian ini menerapkan prinsip tersebut dengan cara: (1) meminta izin tertulis perusahaan; (2) memberikan pemberitahuan di dalam aplikasi; (3) hanya mencatat data teknis jaringan; dan (4) mengganti identitas pengguna dengan kode \textit{hash} SHA-256 yang tidak dapat dikembalikan ke identitas aslinya.
+
+\section{Penelitian Terdahulu}
+Penelitian terdahulu yang relevan dengan penelitian ini dirangkum pada Tabel~\ref{tab:penelitian_terdahulu}. Tabel tersebut memuat hasil setiap penelitian dan perbedaannya dengan penelitian yang dilakukan.
+
+{\small\singlespacing
+\setlength{\LTleft}{0pt}
+\setlength{\tabcolsep}{5pt}
+\begin{longtable}{>{\centering\arraybackslash}p{0.8cm}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{3.89cm}}
+\caption{Ringkasan Penelitian Terdahulu}\label{tab:penelitian_terdahulu}\\
+\toprule
+\textbf{No.} & \textbf{Peneliti dan Judul Penelitian Terdahulu} & \textbf{Hasil Penelitian Terdahulu} & \textbf{Perbedaan dengan Penelitian yang Dilakukan} \\ \midrule
+\endfirsthead
+\toprule
+\textbf{No.} & \textbf{Peneliti dan Judul Penelitian Terdahulu} & \textbf{Hasil Penelitian Terdahulu} & \textbf{Perbedaan dengan Penelitian yang Dilakukan} \\ \midrule
+\endhead
+\bottomrule
+\endfoot
+1. & \textcite{rosid2023qos}, Analisis \textit{Internet Network Performance} Menggunakan Parameter \textit{Quality of Service} & Lalu lintas jaringan di SMK Al-Ma'rifah direkam dengan Wireshark dan dinilai dengan TIPHON. \textit{Delay} 3,15 ms dan \textit{packet loss} 0\% (sangat bagus), \textit{jitter} 3,156 ms (bagus). & Pengukuran dilakukan otomatis dari perangkat banyak pengguna di banyak lokasi selama empat minggu, bukan manual di satu jaringan. \\ \garis
+2. & \textcite{fiqria2024qos}, Analisis \textit{Quality of Service} Jaringan \textit{Wireless} pada ISP PT. Sinar Alam Abadi (YesNet.Wifi) dengan Standar TIPHON & Wireshark digunakan untuk mengukur QoS sebelum dan sesudah manajemen \textit{bandwidth} PCQ. \textit{Delay} turun dari 9,967 ms menjadi 0,283 ms dan seluruh parameter naik ke kategori sangat baik. & Tidak mengubah konfigurasi jaringan, tetapi memetakan kualitas jaringan yang sudah ada; menambahkan pengelompokan K-Means. \\ \garis
+3. & \textcite{ainina2024qos4g}, Analisis QoS Jaringan Internet 4G dengan Parameter \textit{Throughput}, \textit{Delay} dan \textit{Jitter} pada Kecamatan Seulimeum Kabupaten Aceh Besar & Survei lapangan dengan aplikasi nPerf pada tiga operator. \textit{Throughput} rata-rata 67,90 Mbps dan \textit{delay} 110 ms (sangat bagus), \textit{jitter} 182 ms (sedang), keseluruhan indeks 3. & Pengukuran tidak dilakukan peneliti di titik survei, melainkan berjalan otomatis di aplikasi yang dipakai karyawan; mencakup Wi-Fi dan seluler. \\ \garis
+4. & \textcite{basmar2026jamsibuk}, Analisis QoS Jaringan Internet Nirkabel pada Jam Sibuk (\textit{Peak Hours}) di Gedung Fakultas Teknik Universitas Pejuang Republik Indonesia Makassar & Pada jam sibuk, \textit{packet loss} 26,5\% dan \textit{delay} 485 ms (buruk), \textit{throughput} 950 kbps dan \textit{jitter} 165 ms (sedang). Disarankan manajemen \textit{bandwidth} PCQ dan penambahan \textit{access point}. & Pola waktu dianalisis dari data sepanjang jam kerja dan dikelompokkan per slot waktu, bukan hanya pada jam sibuk yang ditentukan sebelumnya. \\ \garis
+5. & \textcite{wu2017mopeye}, \textit{MopEye: Opportunistic Monitoring of Per-App Mobile Network Performance} & Aplikasi Android mengukur \textit{round-trip delay} per aplikasi secara oportunistik; lebih dari lima juta pengukuran dari 2.351 ponsel selama sepuluh bulan. & Pengukuran ditanam di aplikasi operasional perusahaan dan diarahkan ke server perusahaan; hasil dikategorikan dengan TIPHON dan dikelompokkan dengan K-Means. \\ \garis
+6. & \textcite{wamser2021crowd}, \textit{Valid Statements by the Crowd: Statistical Measures for Precision in Crowdsourced Mobile Measurements} & Mendefinisikan konsep dan pedoman presisi pengukuran \textit{crowdsourcing}, yaitu jumlah pengukuran yang dibutuhkan agar pernyataan valid, dengan data 20,4 juta pengukuran di Prancis. & Diterapkan pada skala satu perusahaan; jumlah sampel minimal per lokasi ditetapkan dan dipantau selama pengumpulan data. \\ \garis
+7. & \textcite{mubarak2023kmeans}, Algoritma K-Means \textit{Clustering} Penggunaan \textit{Bandwidth} Internet & Data Cacti dari 32 OPD Kabupaten Padang Pariaman dikelompokkan menjadi tiga klaster (tinggi, sedang, rendah). Hasil manual sama dengan RapidMiner. & Data berasal dari telemetri aplikasi di perangkat pengguna, bukan perangkat pemantau jaringan; jumlah klaster ditentukan dengan \textit{elbow} dan \textit{silhouette}. \\ \garis
+8. & \textcite{irwansyah2025kmeans}, Analisis Klasterisasi Kualitas Internet Seluler Menggunakan Metode K-Means dan \textit{Gaussian Mixture Model} & Data Ookla Open Data 17 kabupaten/kota di Sumatera Selatan dinormalisasi RobustScaler dan dikelompokkan menjadi tiga klaster. \textit{Silhouette} K-Means 0,351, GMM 0,426. & Data dikumpulkan sendiri dari aplikasi operasional per lokasi kerja, bukan data pihak ketiga per kabupaten; hasil klaster dibandingkan dengan TIPHON dan keterangan HRD. \\ \garis
+9. & \textcite{indah2025offline}, Pengembangan Mode \textit{Offline} dan Sinkronisasi Data pada Aplikasi Absensi Berbasis QR Code untuk Karyawan PT. Bintang Energi Pratama & Aplikasi absensi dengan metode RAD yang menyimpan data secara lokal saat koneksi tidak stabil dan menyinkronkannya ketika koneksi kembali. & Tidak membangun mode \textit{offline}, tetapi mengukur kualitas jaringan yang menjadi alasan mode \textit{offline} dibutuhkan. \\ \garis
+10. & \textcite{rokhman2026personalia}, Rancang Bangun Manajemen Personalia Multiplatform Terintegrasi dengan \textit{Live Tracking} dan \textit{Payroll} & Sistem Flutter dan Laravel dengan presensi \textit{geofence}, mode \textit{offline}, dan \texttt{client\_event\_id}. Seluruh modul lulus uji \textit{black-box}. & Aplikasi presensi dijadikan alat ukur QoS; pengujian berupa validasi instrumen terhadap PCAPdroid, bukan uji fungsional. \\
+\end{longtable}
+}
+\vspace{-6pt}
+{\raggedright\footnotesize Sumber: diolah dari penelitian terdahulu, 2026\par}
+
+Berdasarkan Tabel~\ref{tab:penelitian_terdahulu} dapat dinyatakan bahwa penelitian terdahulu terbagi menjadi tiga kelompok. Kelompok pertama (nomor 1--4) mengukur QoS secara manual di satu lokasi dengan Wireshark atau aplikasi pengukur, lalu menilainya dengan TIPHON. Kelompok kedua (nomor 5--8) membuktikan bahwa pengukuran \textit{crowdsourcing} dapat dilakukan secara oportunistik dalam skala besar dan bahwa K-Means dapat mengelompokkan data kualitas jaringan, tetapi datanya berasal dari aplikasi pengukur khusus, pihak ketiga, atau perangkat jaringan. Kelompok ketiga (nomor 9--10) menangani koneksi buruk pada aplikasi presensi dengan mode \textit{offline} tanpa mengukur kualitas jaringannya. Belum ditemukan penelitian yang menggabungkan ketiganya, yaitu mengukur QoS secara otomatis dari aplikasi presensi yang dipakai karyawan sehari-hari, menilainya dengan TIPHON, lalu mengelompokkannya dengan K-Means per lokasi kerja, jenis jaringan, dan waktu. Penelitian ini mengisi celah tersebut sekaligus memenuhi indikator pembeda dari penelitian sebelumnya, yaitu perbedaan objek penelitian serta mekanisme pengumpulan dan pengujian data.

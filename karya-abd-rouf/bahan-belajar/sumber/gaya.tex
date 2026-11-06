@@ -1,0 +1,34 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[indonesian]{babel}
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,array}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist{itemsep=2pt,topsep=3pt}
+\renewcommand{\arraystretch}{1.25}
+\definecolor{biru}{HTML}{1F4E79}
+\definecolor{hijau}{HTML}{2E7D32}
+\definecolor{merah}{HTML}{B71C1C}
+\definecolor{kuning}{HTML}{8D6E00}
+\newtcolorbox{intinya}{colback=biru!6,colframe=biru,title=Intinya,fonttitle=\bfseries,boxrule=0.6pt,arc=2pt}
+\newtcolorbox{hafal}{colback=hijau!6,colframe=hijau,title=Wajib hafal,fonttitle=\bfseries,boxrule=0.6pt,arc=2pt}
+\newtcolorbox{awas}{colback=merah!5,colframe=merah,title=Jangan salah ucap,fonttitle=\bfseries,boxrule=0.6pt,arc=2pt}
+\newtcolorbox{contoh}[1][]{colback=kuning!5,colframe=kuning,title={Contoh hitung #1},fonttitle=\bfseries,boxrule=0.6pt,arc=2pt}
+\newcounter{tanya}
+\newenvironment{tanya}[1]{\refstepcounter{tanya}\par\medskip\needspace{4\baselineskip}\noindent\textbf{\color{biru}T\thetanya.\ #1}\par\noindent\textbf{Jawab:}\ }{\par}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small Bahan Belajar Proposal --- Abd. Rouf (223140118)}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\newcommand{\judul}[2]{\begin{center}{\LARGE\bfseries\color{biru}#1}\par\vspace{4pt}{\large #2}\par\vspace{2pt}{\small Pegangan pribadi untuk bimbingan dan ujian proposal. Isi mengikuti \textit{Proposal\_Skripsi\_ABD\_ROUF.docx}.}\end{center}\vspace{-4pt}\hrule\vspace{6pt}}

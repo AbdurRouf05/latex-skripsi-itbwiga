@@ -1,0 +1,228 @@
+\input{gaya.tex}
+\begin{document}
+\judul{Bab III --- Metode Penelitian}{Apa yang dilakukan, dengan alat apa, dan bagaimana datanya dianalisis}
+
+\begin{intinya}
+\textbf{Jenis:} kuantitatif, deskriptif dan komparatif.
+\textbf{Unit:} sesi presensi.
+\textbf{Alat ukur:} modul telemetri di aplikasi presensi, divalidasi dulu terhadap PCAPdroid/Wireshark (selisih $\leq 20\%$).
+\textbf{Data:} 4 minggu dari 16 lokasi kerja (sampling jenuh).
+\textbf{Analisis 6 langkah:} validasi $\rightarrow$ pembersihan \& sesi $\rightarrow$ deskriptif + TIPHON $\rightarrow$ Kruskal-Wallis $\rightarrow$ K-Means $\rightarrow$ profil lokasi.
+\end{intinya}
+
+\section*{1. Jenis penelitian (3.1)}
+\begin{itemize}
+  \item \textbf{Deskriptif}: menggambarkan kualitas jaringan per lokasi \& operator menurut TIPHON.
+  \item \textbf{Komparatif}: menguji beda antarlokasi \& antaroperator dengan Kruskal-Wallis.
+  \item Lalu pola dikelompokkan dengan K-Means. Wawancara HRD hanya \textbf{pembanding}.
+  \item Bidang minat \textbf{AI \& Networks}, topik \textbf{Network Management} (Pedoman TA 2026).
+  \item Kalimat kunci: \textit{yang dianalisis kinerja jaringan, bukan fitur aplikasi; modul telemetri adalah instrumen, seperti Wireshark pada penelitian QoS lain, sehingga harus divalidasi dulu.}
+\end{itemize}
+
+\section*{2. Objek, populasi, sampel, unit analisis (3.2)}
+\begin{itemize}
+  \item \textbf{Lokasi}: PT Semeru Agung Mandiri, 16 lokasi (kantor, posko, gudang), dikenali dengan kode \texttt{office\_id} (tanpa GPS). Pengembangan \& validasi di server uji (\textit{staging}). 12 minggu total, 4 minggu pengumpulan.
+  \item \textbf{Objek}: kualitas jaringan saat presensi (jalur HP $\leftrightarrow$ server perusahaan lewat Wi-Fi/seluler).
+  \item \textbf{Instrumen}: aplikasi Android v2.0.1 (Flutter, Isar, PocketBase) + modul telemetri.
+\end{itemize}
+\begin{hafal}
+\textbf{Sesi presensi} = kumpulan pengukuran dari \textbf{satu HP} di sekitar \textbf{satu presensi masuk atau pulang} yang \textbf{lolos geofence}. Isinya: probe saat presensi tersimpan + percobaan sinkronisasi presensi itu + pengukuran lain dalam \textbf{15 menit sesudah masuk} atau \textbf{15 menit sebelum pulang}.\\[3pt]
+\textit{Kenapa sisi waktunya begitu?} Karena pada rentang itu karyawan \textbf{pasti berada di lokasi}, jadi kode lokasinya bisa dipercaya.\\[3pt]
+\textbf{Populasi} = semua sesi selama pengumpulan. \textbf{Sampel} = semuanya (\textbf{sampling jenuh}). Perkiraan: $\pm$50 catatan/hari $\Rightarrow$ $\pm$1.400 catatan, maks. $\pm$2.800 sesi dalam 4 minggu. Lokasi $\geq 30$ sesi ikut uji beda; sisanya dilaporkan deskriptif.
+\end{hafal}
+
+\textbf{Jenis data (Tabel 3.1):} Primer = sampel telemetri (\texttt{net\_samples}), data validasi instrumen, wawancara HRD. Sekunder = data presensi agregat \& daftar lokasi, literatur.
+
+\section*{3. Teknik pengumpulan data (3.3)}
+\begin{enumerate}
+  \item \textbf{Telemetri crowdsourcing}: probe saat presensi ke dua alamat + catat sinkronisasi, unggah foto, putus koneksi + probe berkala paling sering tiap 15 menit.
+  \item \textbf{Validasi instrumen}: bandingkan dengan PCAPdroid/Wireshark pada Wi-Fi, 4G, mode pesawat, putus-sambung; tiap kondisi $\geq 10$ pasang (Lampiran 2).
+  \item \textbf{Wawancara} HRD/admin: lokasi, jam, operator yang sering dikeluhkan (Lampiran 1).
+  \item \textbf{Dokumentasi}: data presensi agregat, daftar lokasi; ekspor \texttt{net\_samples} mingguan ke CSV.
+  \item \textbf{Studi literatur}.
+\end{enumerate}
+
+\textbf{Definisi metrik per sesi (Tabel 3.2):}
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}p{2.4cm}p{3.2cm}Xp{2.3cm}@{}}
+\toprule
+Metrik & Sumber & Cara hitung & Penilaian\\
+\midrule
+Delay & Probe server & Median RTT probe yang berhasil (2.1) & TIPHON\\
+Jitter & Probe server berurutan & Rumus (2.2) atas RTT berurutan & TIPHON\\
+Tingkat kegagalan & Probe server + sinkronisasi & Gagal (timeout/galat jaringan) $\div$ semua $\times100\%$; \textbf{HTTP 4xx tidak dihitung} & Pengganti PL\\
+Throughput unggah & Sinkronisasi berfoto & Rumus (2.4) pada unggahan berhasil & TIPHON\\
+Lama putus & Status koneksi & Jumlah lama terputus dalam sesi & Deskriptif\\
+Nilai pembanding & Probe \texttt{generate\_204} & Median RTT, jitter, gagal, cara sama & Tabel 2.3\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\begin{itemize}
+  \item Delay \& jitter dari probe karena ukurannya \textbf{kecil dan seragam}; throughput hanya dari presensi \textbf{berfoto} karena datanya cukup besar.
+  \item Waktu diukur dengan \textbf{Stopwatch} (jam monoton), jadi selisih jam HP vs server tidak berpengaruh.
+  \item HTTP 4xx tidak dihitung gagal karena itu kesalahan permintaan (mis. token habis), \textbf{bukan} masalah jaringan.
+\end{itemize}
+
+\section*{4. Tahapan penelitian (3.4, Gambar 3.1)}
+\begin{enumerate}
+  \item Studi pendahuluan \& literatur (data agregat, wawancara awal HRD, penetapan metrik).
+  \item Penyusunan instrumen (modul telemetri: probe dua alamat, nama operator, pseudonim).
+  \item Validasi instrumen di meja $\rightarrow$ \textbf{selisih $\leq 20\%$?} Jika \textbf{tidak}, kembali ke tahap 2.
+  \item Pengumpulan data: rilis bertahap, pilot 2 hari, 4 minggu hari kerja.
+  \item Analisis: sesi, TIPHON, Kruskal-Wallis, K-Means, profil lokasi.
+  \item Pembahasan, rekomendasi, laporan.
+\end{enumerate}
+
+\section*{5. Rancangan instrumen (3.5)}
+\needspace{16\baselineskip}\textbf{Kebutuhan fungsional F01--F09} (cara ingat: \textit{ukur -- catat -- simpan -- kirim -- kendali}):
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+F01 & Saat presensi tersimpan: 1 permintaan pembuka + 3 terukur ke \texttt{/api/health} + 3 ke \texttt{generate\_204}, batas 5 detik\\
+F02 & Probe berkala paling sering tiap 15 menit selama aplikasi berjalan\\
+F03 & Catat hasil, lama, ukuran data, jenis galat setiap percobaan sinkronisasi\\
+F04 & Catat lama putus koneksi saat tersambung kembali\\
+F05 & Catat konteks: jenis jaringan, Wi-Fi kantor/bukan, operator, kode lokasi, mode, geofence, versi aplikasi, model HP\\
+F06 & Kode sesi + jenis peristiwa (masuk/pulang/berkala)\\
+F07 & Simpan di Isar, batas 2.000 sampel\\
+F08 & Unggah berkelompok ke \texttt{net\_samples} \textbf{setelah antrean presensi kosong}\\
+F09 & Nyala/mati lewat saklar server (\texttt{app\_config}) + pseudonim\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\textbf{Kebutuhan nonfungsional (4):} (1) hanya mengamati, tidak mengubah sinkronisasi presensi; (2) tidak ditunggu alur presensi + dibungkus penanganan galat; (3) 1 sampel $<300$ byte, beban $<1$ MB/hari/HP; (4) \textbf{mati secara bawaan} dan bisa dimatikan dari server tanpa update aplikasi.
+
+\textbf{Arsitektur (Gambar 3.2):} modul \texttt{NetTelemetry} berada \textbf{di samping} alur presensi. Presensi tersimpan = pemicu sesi; antrean sinkronisasi \& pemantau koneksi diamati; sampel disimpan di Isar lalu diunggah setelah antrean presensi kosong (\textbf{presensi selalu didahulukan}); data diekspor ke Python.
+
+\textbf{Alur probe (Gambar 3.3):} telemetri aktif? $\rightarrow$ buat kode sesi \& catat konteks $\rightarrow$ 3$\times$ \texttt{GET /api/health} (5 dtk) $\rightarrow$ 3$\times$ \texttt{generate\_204} $\rightarrow$ hitung median, jitter, gagal tiap alamat $\rightarrow$ simpan 2 sampel ke Isar.
+
+\begin{hafal}
+\textbf{Kenapa ada permintaan pembuka?} Permintaan pertama ke server harus membuka koneksi TCP dan TLS (jabat tangan) sehingga waktunya jauh lebih lama. Permintaan pembuka ``menghabiskan'' biaya itu, jadi 3 permintaan terukur berjalan di koneksi yang sudah terbuka dan RTT-nya \textbf{sebanding dengan RTT di PCAPdroid}.
+\end{hafal}
+
+\textbf{Struktur \texttt{net\_samples} (Tabel 3.4)} --- kelompokkan begini:
+\begin{itemize}
+  \item \textbf{Siapa}: \texttt{anon\_id} (pseudonim SHA-256 + salt).
+  \item \textbf{Kapan \& kenapa}: \texttt{session\_id}, \texttt{event} (\texttt{check\_in}/\texttt{check\_out}/\texttt{berkala}), \texttt{sampled\_at} (UTC).
+  \item \textbf{Apa}: \texttt{kind} (\texttt{probe}/\texttt{sync\_attempt}/\texttt{outage}), \texttt{probe\_target} (\texttt{server}/\texttt{pembanding}).
+  \item \textbf{Di mana}: \texttt{office\_id}, \texttt{mode}, \texttt{loc\_valid}.
+  \item \textbf{Lewat apa}: \texttt{network\_type}, \texttt{office\_wifi} (BSSID tidak disimpan), \texttt{carrier}.
+  \item \textbf{Hasil}: \texttt{rtt\_ms}, \texttt{jitter\_ms}, \texttt{ok}, \texttt{error\_class}, \texttt{bytes\_sent}, \texttt{outage\_ms}.
+  \item \textbf{Perangkat}: \texttt{app\_version}, \texttt{os\_sdk}, \texttt{device\_model} (bukan nomor seri).
+\end{itemize}
+Tidak ada nama, email, nomor HP, ID asli, GPS, foto. Karyawan hanya bisa \textbf{menambah}; melihat/ubah/hapus hanya admin.
+
+\textbf{Alat (Tabel 3.5):} laptop Windows 11; minimal 2 HP Android beda kelas; server PocketBase produksi \& uji; Flutter/Dart/Isar 3.1; Kotlin MethodChannel + \texttt{TelephonyManager} (operator); \texttt{connectivity\_plus} (jenis jaringan); PCAPdroid, Wireshark, adb (validasi); Python: pandas, scipy, scikit-posthocs, scikit-learn, matplotlib.
+
+\section*{6. Teknik analisis data (3.7) --- 6 langkah}
+\subsection*{Langkah 1. Validasi instrumen}
+\[\delta=\frac{|M_{tel}-M_{PCAP}|}{M_{PCAP}}\times100\%\quad(3.1)\qquad \text{valid jika } \delta\leq20\% \text{ di setiap kondisi}\]
+Syarat tambahan: nama operator sesuai SIM data aktif; probe terpicu di setiap presensi uji; lama putus sesuai skenario $\pm5$ detik; beban data $<1$ MB/hari.
+\begin{contoh}[validasi]
+Kondisi 4G: median telemetri 58 ms, median PCAPdroid 52 ms. $\delta=\frac{|58-52|}{52}\times100\%=11{,}5\%\leq20\%$ $\Rightarrow$ \textbf{valid}.\\
+Kalau misalnya $\delta=27\%$ $\Rightarrow$ modul diperbaiki lalu divalidasi ulang (panah ``Tidak'' di Gambar 3.1).
+\end{contoh}
+
+\subsection*{Langkah 2. Pembersihan dan pembentukan sesi}
+\begin{itemize}
+  \item Buang RTT $\leq 0$ atau $>60.000$ ms, dan sampel ganda.
+  \item Kelompokkan per \texttt{session\_id}, hitung nilai sesi (Tabel 3.2).
+  \item \textbf{Sesi tanpa layanan} = semua permintaan gagal $\Rightarrow$ tidak punya delay, \textbf{tidak diisi nilai buatan}, \textbf{tidak ikut K-Means}, tetapi dilaporkan sebagai \textbf{persentase per lokasi} (kondisi terburuk).
+  \item Sesi GAMAS dan lokasi fleksibel dianalisis \textbf{terpisah}.
+\end{itemize}
+
+\subsection*{Langkah 3. Deskriptif dan TIPHON}
+Ringkas per lokasi, per operator, per peristiwa: jumlah sesi, \textbf{median}, \textbf{IQR}. Median dikonversi ke indeks TIPHON lalu ditafsirkan.
+\begin{contoh}[TIPHON sesi S3 di Tabel 3.6]
+Posko A, operator A: delay 320 ms (2), jitter 95 ms (2), gagal 12,5\% (3), throughput 850 kbps (2).\\
+Indeks $=(2+2+3+2)/4=\mathbf{2{,}25}$ $\Rightarrow$ \textbf{kurang memuaskan}.\\
+Hasil semua sesi ilustrasi: S1 3,75; S2 3,50; S5 3,25 (memuaskan); S3 2,25 (kurang); S4 dan S6 1,00 (tidak memuaskan).
+\end{contoh}
+
+\subsection*{Langkah 4. Kruskal-Wallis}
+\begin{itemize}
+  \item $\alpha=0{,}05$; untuk \textbf{delay, jitter, tingkat kegagalan}.
+  \item Tiga perbandingan: \textbf{antarlokasi} ($\geq30$ sesi), \textbf{antaroperator} (hanya sesi seluler), \textbf{masuk vs pulang}.
+  \item H$_0$: median kelompok sama. H$_1$: minimal satu berbeda. Jika H$_0$ ditolak $\rightarrow$ Dunn--Bonferroni + laporkan \textbf{besar selisih median}.
+  \item \textbf{Pengaman 1}: satu karyawan bisa menyumbang banyak sesi $\Rightarrow$ uji diulang pada \textbf{median per karyawan}.
+  \item \textbf{Pengaman 2}: komposisi operator per lokasi dilaporkan, karena beda lokasi bisa sebenarnya beda operator.
+\end{itemize}
+
+\subsection*{Langkah 5. K-Means}
+Atribut: \textbf{delay, jitter, tingkat kegagalan}. Throughput \textbf{tidak} jadi atribut (hanya ada di sesi berfoto) tetapi dilaporkan per klaster. RobustScaler $\rightarrow$ k-means++, 10 kali percobaan, $k=2$ s.d. $6$ $\rightarrow$ pilih $k$ dengan elbow + silhouette $\rightarrow$ beri label dari nilai pusat.
+\begin{contoh}[K-Means pada data ilustrasi --- ikuti langkahnya]
+Atribut delay \& gagal, $k=2$, pusat awal S1 dan S4.\\
+\textbf{a. Kuartil.} Delay terurut: 85, 140, 180, 320, 460, 510 $\Rightarrow Q_1=150,\ Q_2=250,\ Q_3=425$ (IQR 275). Gagal terurut: 0, 0, 0, 12,5, 25, 37,5 $\Rightarrow Q_1=0,\ Q_2=6{,}25,\ Q_3=21{,}875$.\\
+\textbf{b. Normalisasi.} S3: delay $\frac{320-250}{275}=0{,}2545$; gagal $\frac{12{,}5-6{,}25}{21{,}875}=0{,}2857$.\\
+\textbf{c. Jarak.} $D(S3,C_1)=\sqrt{(0{,}2545+0{,}6000)^2+(0{,}2857+0{,}2857)^2}=1{,}0280$; ke $C_2$ = 1,3355 $\Rightarrow$ S3 masuk \textbf{C1}.\\
+\textbf{d. Iterasi 1.} C1 = \{S1, S2, S3, S5\}, C2 = \{S4, S6\}.\\
+\textbf{e. Pusat baru.} C1 $=(-0{,}2500;\,-0{,}1429)$, C2 $=(0{,}8545;\,1{,}1429)$.\\
+\textbf{f. Iterasi 2} keanggotaan tidak berubah $\Rightarrow$ berhenti. SSE 0,824; silhouette 0,62.\\
+\textbf{g. Label:} C1 ``baik dan stabil'', C2 ``lambat dan sering gagal''.\\
+\textbf{Pelajaran:} S3 (TIPHON kurang memuaskan) masuk C1 $\Rightarrow$ pada data nyata perlu mencoba beberapa $k$ dan memasukkan jitter agar pola ``sedang'' terpisah.
+\end{contoh}
+
+\subsection*{Langkah 6. Profil lokasi dan perbandingan dengan HRD}
+\begin{itemize}
+  \item \textbf{Profil lokasi} = persen sesi lokasi di tiap klaster. Ilustrasi: Posko A 50\% di C2, Posko B 100\%, kantor pusat \& gudang 0\%.
+  \item Lokasi \textbf{didominasi pola buruk} jika $>50\%$ sesinya di klaster buruk $\Rightarrow$ cek server vs pembanding (Tabel 2.3) untuk tahu masalahnya di jaringan akses atau server.
+  \item Kesesuaian dengan HRD: $K=\frac{n_{sesuai}}{n_{total}}\times100\%$ (3.2). Contoh: 12 dari 14 lokasi sama $\Rightarrow K=85{,}7\%$.
+  \item \textbf{Keluaran}: tabel kualitas per lokasi \& operator, hasil uji beda, profil klaster tiap lokasi, rekomendasi.
+\end{itemize}
+
+\section*{7. Etika, keterbatasan, jadwal (3.8--3.9)}
+\textbf{Etika:} izin tertulis perusahaan; pemberitahuan di aplikasi (Lampiran 3); hanya data teknis + pseudonim; salt tidak diekspor; tidak dipublikasikan per individu.
+
+\textbf{Keterbatasan (4):} (1) tingkat kegagalan hanya pengganti packet loss; (2) ukur hanya saat aplikasi aktif $\Rightarrow$ jumlah sampel per sesi bisa beda; (3) sinyal \& lokasi BTS tidak diukur; (4) lokasi sedikit sesi hanya deskriptif.
+
+\textbf{Jadwal 12 minggu (9 kegiatan):} studi pendahuluan \& proposal $\rightarrow$ ujian proposal \& izin $\rightarrow$ perancangan instrumen $\rightarrow$ implementasi \& uji unit $\rightarrow$ validasi di meja $\rightarrow$ rilis bertahap \& pilot $\rightarrow$ pengumpulan data \& wawancara HRD (4 minggu) $\rightarrow$ analisis $\rightarrow$ laporan.
+
+\section*{8. Kemungkinan pertanyaan penguji}
+\setcounter{tanya}{0}
+\begin{tanya}{Kenapa unit analisisnya sesi, bukan per sampel?}
+Satu presensi menghasilkan beberapa sampel yang saling terkait. Jika dihitung per sampel, HP yang lebih sering mengukur akan mendominasi. Sesi juga menjamin lokasi bisa dipercaya karena terikat presensi yang lolos geofence.
+\end{tanya}
+\begin{tanya}{Bagaimana memastikan alat ukur Anda benar?}
+Validasi di meja: dibandingkan dengan PCAPdroid dan Wireshark pada 4 kondisi, $\geq10$ pasang per kondisi, syarat $\delta\leq20\%$, plus cek operator, pemicu probe, lama putus, dan beban data.
+\end{tanya}
+\begin{tanya}{Kenapa batas 20\%?}
+RTT HTTP di aplikasi selalu sedikit lebih besar dari RTT paket karena ada waktu pemrosesan di HP dan server; 20\% adalah toleransi agar instrumen dianggap mewakili, dan nilainya bisa disesuaikan atas arahan pembimbing.
+\end{tanya}
+\begin{tanya}{Apakah telemetri bisa mengganggu presensi?}
+Tidak: hanya mengamati, berjalan tanpa ditunggu, galat ditangkap, unggah setelah antrean presensi kosong, $<1$ MB/hari, mati bawaan, bisa dimatikan dari server.
+\end{tanya}
+\begin{tanya}{Bagaimana kalau satu lokasi hanya punya 10 sesi?}
+Tidak ikut uji Kruskal-Wallis, tetapi dilaporkan deskriptif sebagai lokasi kecil.
+\end{tanya}
+\begin{tanya}{Bagaimana kalau beda antarlokasi ternyata karena operatornya?}
+Komposisi operator per lokasi dilaporkan dan perbandingan antaroperator diuji sendiri, sehingga bisa dibedakan.
+\end{tanya}
+\begin{tanya}{Kenapa sesi tanpa layanan tidak dimasukkan K-Means?}
+Sesi itu tidak punya nilai delay. Mengisinya dengan angka buatan akan memalsukan data. Karena itu kondisi terburuk ini dilaporkan sebagai persentase per lokasi.
+\end{tanya}
+\begin{tanya}{Kenapa ada wawancara padahal kuantitatif?}
+Hanya pembanding (tingkat kesesuaian $K$), bukan data utama.
+\end{tanya}
+\begin{tanya}{Kalau dosen minta metode R\&D?}
+Cukup Subbab 3.1 dan Gambar 3.1 yang diubah; rancangan instrumen, validasi, dan analisis tetap sama.
+\end{tanya}
+
+\begin{awas}
+\begin{itemize}
+  \item Contoh angka di Tabel 3.6--3.7 adalah \textbf{data ilustrasi}, bukan hasil penelitian.
+  \item Throughput \textbf{tidak} dipakai sebagai atribut K-Means.
+  \item Uji antaroperator hanya untuk \textbf{sesi seluler}.
+  \item HTTP 4xx \textbf{tidak} dihitung sebagai gagal jaringan.
+  \item Unggah telemetri \textbf{setelah} antrean presensi kosong, bukan bersamaan.
+\end{itemize}
+\end{awas}
+
+\section*{9. Latihan mandiri}
+\begin{enumerate}
+  \item Median telemetri 130 ms, PCAPdroid 100 ms. Valid? \textit{(Jawaban: $\delta=30\%$, tidak valid; perbaiki modul.)}
+  \item Sebutkan F01--F09 dengan kata kunci masing-masing.
+  \item Hitung $x'$ delay untuk S6 (460 ms). \textit{(Jawaban: $(460-250)/275=0{,}7636$.)}
+  \item Lokasi X punya 40 sesi, 24 di klaster buruk. Didominasi pola buruk? \textit{(Jawaban: 60\% $>$ 50\%, ya.)}
+  \item Jelaskan alasan ``15 menit sesudah masuk / sebelum pulang''.
+\end{enumerate}
+\end{document}

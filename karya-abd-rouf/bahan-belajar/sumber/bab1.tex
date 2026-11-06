@@ -1,0 +1,133 @@
+\input{gaya.tex}
+\begin{document}
+\judul{Bab I --- Pendahuluan}{Analisis QoS Jaringan Berbasis Crowdsourcing pada Aplikasi Presensi Menggunakan K-Means}
+
+\begin{intinya}
+Karyawan PT Semeru Agung Mandiri sering mengeluh presensi lambat atau gagal terkirim. Aplikasi sudah \textit{offline-first}, jadi presensi tidak hilang. Tetapi itu hanya obat gejala. \textbf{Penyebabnya (kualitas jaringan di lokasi kerja) belum pernah diukur.}
+Penelitian ini memakai aplikasi presensi itu sendiri sebagai \textbf{alat ukur jaringan}: setiap kali karyawan absen, HP-nya mengukur kualitas jaringan. Hasilnya dinilai dengan standar \textbf{TIPHON}, perbedaannya diuji dengan \textbf{Kruskal-Wallis}, dan polanya dikelompokkan dengan \textbf{K-Means}.
+\end{intinya}
+
+\section*{1. Alur logika Bab I (hafalkan urutannya)}
+Bab I adalah ``cerita'' yang membawa penguji dari masalah ke solusi. Urutannya:
+\begin{enumerate}[label=\textbf{\arabic*.}]
+  \item \textbf{Aplikasi presensi bergantung pada jaringan.} Data, foto, dan lokasi dikirim lewat Wi-Fi/seluler. Penelitian lain menambah mode offline karena koneksi lapangan tidak stabil.
+  \item \textbf{Di perusahaan ini terjadi hal yang sama.} Ada keluhan; mode offline hanya mengatasi gejala, penyebabnya tidak diukur.
+  \item \textbf{Bukti awal (studi pendahuluan)} dari data presensi 20 April--27 Mei 2026 (Tabel 1.1).
+  \item \textbf{Inti masalah:} tidak ada \textit{data objektif} tentang kualitas jaringan saat presensi --- di lokasi mana, operator apa, seberapa buruk.
+  \item \textbf{Cara mengukur yang objektif} = parameter QoS (delay, jitter, packet loss, throughput) + kategori TIPHON.
+  \item \textbf{Kelemahan cara lama:} penelitian QoS biasanya manual di satu titik dengan Wireshark atau nPerf, padahal kualitas berubah menurut waktu (contoh jam sibuk: packet loss 26,5\%, delay 485 ms). Aplikasi speedtest juga mengukur ke server mereka sendiri, bukan server perusahaan.
+  \item \textbf{Membandingkan rata-rata saja tidak cukup:} data jaringan tidak normal, jadi perlu uji statistik (Kruskal-Wallis, contoh Makarim 2026).
+  \item \textbf{Solusi pengukuran:} \textit{crowdsourcing} --- diukur otomatis di HP banyak pengguna (Wamser 2021; Wu 2017, 5 juta pengukuran dari 2.351 HP).
+  \item \textbf{Solusi pengelompokan:} K-Means, karena indeks TIPHON adalah rata-rata sehingga ``lambat tapi stabil'' bisa sama nilainya dengan ``cepat tapi sering gagal''.
+  \item \textbf{Tiga celah penelitian} (lihat bagian 3).
+  \item \textbf{Mengapa perlu:} presensi = dasar gaji; perbaikan jaringan butuh biaya sehingga harus tepat sasaran; aplikasi sudah ada di semua lokasi sehingga murah.
+  \item \textbf{Kesimpulan:} tambahkan modul telemetri $\rightarrow$ data 4 minggu $\rightarrow$ TIPHON $\rightarrow$ Kruskal-Wallis $\rightarrow$ K-Means $\rightarrow$ profil lokasi.
+\end{enumerate}
+
+\section*{2. Angka studi pendahuluan (Tabel 1.1)}
+\begin{hafal}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+Periode & 20 April -- 27 Mei 2026 (38 hari) \\
+Jumlah data & 1.911 catatan presensi, 88 pengguna \\
+Lokasi & 14 dari 16 lokasi terdaftar dipakai \\
+Jam padat & 91,2\% presensi masuk pukul 07.00--08.59 \\
+Wi-Fi kantor & hanya 4,3\% $\Rightarrow$ kualitas ditentukan operator seluler \\
+Mode GAMAS & 282 catatan (14,8\%) \\
+Data tidak seimbang & 6 dari 14 lokasi $<$ 30 catatan; 4 lokasi terbesar = 68,9\% \\
+Data jaringan & tidak ada; penanda offline bernilai 0 di semua catatan \\
+\end{tabularx}
+\end{hafal}
+Arti setiap temuan (kolom ``Dampak''):
+\begin{itemize}
+  \item \textbf{Keluhan lambat/gagal} $\rightarrow$ rekap gaji terlambat, HRD cek manual.
+  \item \textbf{Wi-Fi cuma 4,3\%} $\rightarrow$ yang menentukan kualitas adalah \textit{BTS operator}. Ini yang membuat topik ini ``jaringan/infrastruktur fisik''.
+  \item \textbf{91,2\% pagi} $\rightarrow$ gangguan jam itu kena banyak orang sekaligus.
+  \item \textbf{Tidak ada data jaringan} $\rightarrow$ keluhan tidak bisa dibuktikan. \textit{Inilah inti masalah.}
+  \item \textbf{Data tidak seimbang} $\rightarrow$ lokasi kecil perlu perlakuan khusus (aturan minimal 30 sesi).
+  \item \textbf{Ukur manual mahal} $\rightarrow$ ukur sesaat di satu titik tidak mewakili 16 lokasi.
+\end{itemize}
+
+\section*{3. Tiga celah penelitian (\textit{research gap})}
+\begin{enumerate}
+  \item Penelitian QoS mengukur \textbf{manual, di satu titik, pada waktu tertentu} (Rosid 2023; Fiqria \& Purnama 2024).
+  \item Penelitian K-Means kualitas jaringan memakai \textbf{data pihak ketiga} (Ookla) atau \textbf{alat pemantau} (Cacti), bukan data dari aplikasi yang dipakai sehari-hari (Irwansyah 2025; Mubarak 2023).
+  \item Penelitian aplikasi presensi hanya menambah \textbf{mode offline tanpa mengukur jaringannya} (Indah \& Wati 2025; Rokhman 2026).
+\end{enumerate}
+\textbf{Kebaruan} = gabungan ketiganya: aplikasi presensi sebagai instrumen QoS \textit{crowdsourcing}, diuji beda antarlokasi \& antaroperator, lalu dikelompokkan K-Means.
+
+\section*{4. Batasan, rumusan, tujuan, manfaat}
+\textbf{Batasan (6 butir)} --- cara mudah mengingat: \textbf{A-U-J-P-D-A}
+\begin{enumerate}[label=\textbf{\Alph*}]
+  \item[\textbf{A}] \textbf{Aplikasi}: Android versi 2.0.1; iOS tidak.
+  \item[\textbf{U}] \textbf{Unit}: sesi presensi yang lolos \textit{geofence}; sinkronisasi latar (WorkManager) tidak dicatat.
+  \item[\textbf{J}] \textbf{Jalur}: HTTPS HP $\rightarrow$ server perusahaan; \texttt{generate\_204} Google sebagai pembanding.
+  \item[\textbf{P}] \textbf{Parameter}: delay (RTT tingkat aplikasi), jitter, tingkat kegagalan (pengganti packet loss), throughput unggah, lama putus; plus jenis jaringan \& operator. \textit{Sinyal dan lokasi BTS tidak diukur.}
+  \item[\textbf{D}] \textbf{Data}: 4 minggu, pseudonim, tanpa nama/email/GPS/foto; uji beda hanya lokasi $\geq$ 30 sesi.
+  \item[\textbf{A}] \textbf{Analisis}: TIPHON, Kruskal-Wallis, K-Means; validasi di meja (PCAPdroid, Wireshark). Tidak memperbaiki jaringan, hanya rekomendasi.
+\end{enumerate}
+
+\textbf{Rumusan masalah} dan \textbf{tujuan} saling berpasangan:
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}p{0.06\linewidth}XX@{}}
+\toprule
+No. & Rumusan (bertanya) & Tujuan (menjawab) \\
+\midrule
+1 & Bagaimana kualitas jaringan per lokasi \& operator menurut TIPHON, dan apakah berbeda signifikan? & Mendeskripsikan dengan TIPHON + menguji beda dengan Kruskal-Wallis \\
+2 & Pola apa yang terbentuk dengan K-Means, dan lokasi mana didominasi pola buruk? & Mengelompokkan sesi (delay, jitter, gagal) + menyusun profil lokasi \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\textbf{Manfaat:} teoretis (cara ukur QoS \textit{crowdsourcing} dengan aplikasi operasional + penerapan Kruskal-Wallis \& K-Means); praktis untuk \textbf{perusahaan} (penempatan AP/pilih operator), \textbf{HRD} (telusuri keluhan), \textbf{pengembang} (dua alamat membedakan masalah server vs jaringan).
+
+\section*{5. Kemungkinan pertanyaan penguji}
+\setcounter{tanya}{0}
+\begin{tanya}{Ini skripsi jaringan atau skripsi aplikasi?}
+Jaringan. Yang dianalisis adalah \textbf{kinerja jaringan} (QoS), bukan fitur aplikasi. Aplikasi hanya \textbf{alat ukur}, sama seperti Wireshark di penelitian QoS lain. Bidang minat: AI \& Networks, topik \textit{Network Management}.
+\end{tanya}
+\begin{tanya}{Di mana unsur perangkat kerasnya?}
+Yang diukur adalah infrastruktur fisik: \textbf{BTS operator} dan \textbf{access point Wi-Fi kantor}. HP karyawan berperan sebagai sensor. Karena hanya 4,3\% presensi lewat Wi-Fi kantor dan sebagian besar sisanya lewat data seluler, kualitasnya banyak ditentukan BTS di sekitar lokasi.
+\end{tanya}
+\begin{tanya}{Kenapa tidak datang ke tiap lokasi dan pakai Wireshark saja?}
+Ukur manual hanya memotret satu titik pada satu waktu, mahal untuk 16 lokasi, dan tidak menangkap jam padat pagi. \textit{Crowdsourcing} mengukur tiap hari, di semua lokasi, pada saat karyawan benar-benar absen. Wireshark tetap dipakai --- untuk \textbf{memvalidasi} alat ukur.
+\end{tanya}
+\begin{tanya}{Apa bedanya dengan Speedtest/nPerf?}
+Speedtest mengukur ke server miliknya sendiri dan harus dijalankan manual. Penelitian ini mengukur ke \textbf{server perusahaan yang dipakai presensi}, otomatis, dan ada alamat pembanding untuk memisahkan masalah server vs jaringan.
+\end{tanya}
+\begin{tanya}{Apa kebaruannya?}
+Belum ada penelitian yang memakai aplikasi presensi sebagai instrumen QoS \textit{crowdsourcing}, menguji beda antarlokasi \& antaroperator, lalu mengelompokkan dengan K-Means. Sebutkan tiga celah di bagian 3.
+\end{tanya}
+\begin{tanya}{Kenapa tidak cukup TIPHON saja? Kenapa perlu K-Means?}
+Indeks TIPHON adalah rata-rata empat parameter. Koneksi lambat tapi stabil bisa mendapat indeks sama dengan koneksi cepat tapi sering gagal. K-Means memisahkan pola berdasarkan semua parameter sekaligus.
+\end{tanya}
+\begin{tanya}{Kenapa perlu uji Kruskal-Wallis? Bukankah rata-rata sudah kelihatan beda?}
+Selisih angka belum tentu perbedaan nyata. Makarim (2026): ping beda signifikan, tapi unggah tidak (p = 0,975) walaupun angkanya beda. Data jaringan tidak normal, jadi dipakai uji nonparametrik.
+\end{tanya}
+\begin{tanya}{Kenapa kekuatan sinyal dan lokasi BTS tidak diukur?}
+Butuh izin lokasi presisi/latar dan data BTS dari operator; menambah risiko privasi dan baterai. Ini ditulis sebagai keterbatasan. Operator dan jenis jaringan tetap dicatat sebagai konteks.
+\end{tanya}
+\begin{tanya}{Apa tidak melanggar privasi karyawan?}
+Ada izin tertulis perusahaan, pemberitahuan di aplikasi, identitas diganti pseudonim, tanpa nama/email/GPS/foto, hanya admin yang bisa melihat, dan hasil disajikan agregat (UU PDP 27/2022).
+\end{tanya}
+\begin{tanya}{Kenapa hanya 4 minggu?}
+Cukup untuk menangkap pola hari kerja berulang (masuk \& pulang, hari berbeda) dengan perkiraan $\pm$1.400 catatan / maks. $\pm$2.800 sesi. Lokasi kecil dilaporkan deskriptif.
+\end{tanya}
+
+\begin{awas}
+\begin{itemize}
+  \item Jangan bilang ``data \textbf{anonim}'' --- yang benar \textbf{pseudonim}.
+  \item Jangan bilang ``mengukur \textbf{packet loss}'' --- yang benar ``tingkat kegagalan sebagai \textbf{pengganti} packet loss''.
+  \item Jangan bilang ``penelitian R\&D / membuat aplikasi'' --- yang benar \textbf{kuantitatif deskriptif-komparatif}; modul = instrumen.
+  \item Jangan bilang ``ping'' --- yang diukur \textbf{RTT tingkat aplikasi} (HTTP), bukan ICMP.
+  \item Penelitian \textbf{tidak memperbaiki} jaringan, hanya memberi rekomendasi.
+\end{itemize}
+\end{awas}
+
+\section*{6. Latihan mandiri (jawab tanpa melihat)}
+\begin{enumerate}
+  \item Sebutkan inti masalah dalam satu kalimat.
+  \item Sebutkan 3 angka studi pendahuluan yang paling kuat dan artinya.
+  \item Sebutkan 3 celah penelitian beserta 1 sumber masing-masing.
+  \item Jelaskan dengan bahasa sendiri kenapa TIPHON saja tidak cukup.
+  \item Sebutkan 6 batasan dengan singkatan A-U-J-P-D-A.
+\end{enumerate}
+\end{document}

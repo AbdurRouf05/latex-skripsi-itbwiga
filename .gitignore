@@ -1,0 +1,27 @@
+# File pribadi: PDF jurnal dan pedoman kampus (hak cipta pihak lain, tidak disebarkan)
+pribadi/
+
+# Berkas sementara LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.xdv
+
+# Node / Python
+node_modules/
+__pycache__/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+~$*

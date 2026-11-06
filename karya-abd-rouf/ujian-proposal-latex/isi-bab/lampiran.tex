@@ -1,0 +1,60 @@
+\chapter*{LAMPIRAN}
+\phantomsection
+\addcontentsline{toc}{chapter}{LAMPIRAN}
+
+% Lampiran tidak diberi nomor tabel agar Daftar Tabel hanya memuat tabel Bab 1-3.
+\newcommand{\judullampiran}[1]{\par\medskip\phantomsection\addcontentsline{toc}{section}{#1}\noindent\textbf{#1}\par\smallskip}
+
+\judullampiran{Lampiran 1. Pedoman Wawancara HRD}
+Wawancara dilakukan dengan satu orang HRD atau admin presensi, secara langsung atau melalui pesan, setelah izin penelitian dari perusahaan diperoleh. Jawaban dicatat apa adanya dan tidak menyebut nama karyawan.
+
+{\small\singlespacing
+\setlength{\tabcolsep}{5pt}
+\begin{longtable}{>{\centering\arraybackslash}p{0.8cm}>{\raggedright\arraybackslash}p{12.49cm}}
+\toprule
+\textbf{No.} & \textbf{Pertanyaan} \\ \midrule
+1. & Lokasi kerja (kantor, posko, atau gudang) mana saja yang paling sering dikeluhkan karyawan karena presensi lambat atau gagal terkirim? \\ \garis
+2. & Pada jam berapa keluhan tersebut paling sering muncul? \\ \garis
+3. & Di lokasi tersebut, karyawan biasanya memakai Wi-Fi kantor atau data seluler? Jika seluler, operator apa yang umum dipakai? \\ \garis
+4. & Apakah ada lokasi yang menurut HRD sinyalnya baik tetapi tetap ada keluhan presensi? \\ \garis
+5. & Bagaimana HRD menangani presensi yang terlambat masuk ke rekap karena masalah jaringan? \\ \garis
+6. & Apakah perusahaan pernah atau berencana memasang Wi-Fi atau \textit{repeater} di lokasi tertentu? Jika ya, di mana? \\ \bottomrule
+\end{longtable}
+}
+
+\judullampiran{Lampiran 2. Lembar Validasi Instrumen}
+Lembar ini diisi untuk setiap kondisi jaringan pada server uji. Setiap baris adalah satu pasang pengukuran, yaitu RTT \textit{probe} dari telemetri dan RTT TCP pada waktu yang sama dari PCAPdroid.
+
+\noindent Kondisi jaringan: Wi-Fi / seluler 4G / mode pesawat / putus-sambung \quad Perangkat: \dotfill \quad Tanggal: \dotfill
+
+{\small\singlespacing
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{longtable}{>{\centering\arraybackslash}p{0.9cm}>{\centering\arraybackslash}p{2.3cm}>{\centering\arraybackslash}p{3.0cm}>{\centering\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{3.04cm}}
+\toprule
+\textbf{No.} & \textbf{Jam} & \textbf{RTT Telemetri (ms)} & \textbf{RTT PCAPdroid (ms)} & \textbf{Catatan} \\ \midrule
+1 & & & & \\ \garis
+2 & & & & \\ \garis
+3 & & & & \\ \garis
+4 & & & & \\ \garis
+5 & & & & \\ \garis
+6 & & & & \\ \garis
+7 & & & & \\ \garis
+8 & & & & \\ \garis
+9 & & & & \\ \garis
+10 & & & & \\ \midrule
+\multicolumn{2}{l}{Median} & & & \\ \garis
+\multicolumn{2}{l}{Selisih relatif $\delta$} & \multicolumn{3}{l}{\dotfill\ \% (valid jika $\le$ 20\%)} \\ \bottomrule
+\end{longtable}
+}
+
+\noindent Skenario putus-sambung: jadwal putus (detik) \dotfill\ \quad lama putus tercatat (detik) \dotfill\ \quad sesuai ($\pm$ 5 detik): ya / tidak
+
+\noindent Beban telemetri selama 24 jam: data \dotfill\ KB \quad baterai (nyala/mati) \dotfill
+
+\judullampiran{Lampiran 3. Teks Pemberitahuan pada Aplikasi}
+Teks berikut ditampilkan pada menu Profil, bagian Tentang Aplikasi, selama periode pengumpulan data.
+
+\begin{quote}\singlespacing\small
+Aplikasi ini mencatat kualitas koneksi ke server, yaitu waktu respons, keberhasilan pengiriman, kecepatan unggah, dan lama koneksi terputus, untuk penelitian tentang kualitas jaringan di lokasi kerja. Data yang dicatat tidak memuat nama, email, lokasi GPS, maupun foto, dan identitas pengguna diganti dengan kode acak. Pencatatan ini tidak mengubah cara presensi dan dapat dihentikan oleh perusahaan kapan saja. Pengumpulan data telah disetujui oleh PT Semeru Agung Mandiri.
+\end{quote}

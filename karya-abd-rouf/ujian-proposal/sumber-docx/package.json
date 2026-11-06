@@ -1,0 +1,7 @@
+{
+  "name": "ujian-proposal-docx",
+  "private": true,
+  "description": "Membangun Proposal_Skripsi_ABD_ROUF.docx dari build.js",
+  "scripts": { "build": "node build.js && python post.py ../Proposal_Skripsi_ABD_ROUF.docx && powershell -NoProfile -ExecutionPolicy Bypass -File word.ps1" },
+  "dependencies": { "docx": "^9.15.2" }
+}

@@ -1,0 +1,88 @@
+\documentclass{pengaturan/skripsi}
+
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,calc,backgrounds}
+
+%===========================================================
+% Definisi Data Peneliti, Judul, Pembimbing dan Penguji
+%-----------------------------------------------------------
+\titleskripsi{ANALISIS QOS JARINGAN BERBASIS CROWDSOURCING PADA APLIKASI PRESENSI MENGGUNAKAN K-MEANS}
+
+\fullname{ABD. ROUF}
+\idnum{223140118}
+
+\yearsubmit{2026}
+\program{Informatika}
+\dept{Informatika}
+\faculty{Fakultas Teknik dan Informatika}
+\university{Institut Teknologi dan Bisnis Widya Gama}
+\city{Lumajang}
+
+\firstsupervisor{Nama Dosen Pembimbing, S.Kom., M.Kom.}
+\secondsupervisor{-}
+\firstexaminer{Nama Dosen Penguji 1, S.Kom., M.Kom.}
+\secondexaminer{Nama Dosen Penguji 2, S.Kom., M.Kom.}
+%-----------------------------------------------------------
+% End Definisi Data Peneliti, Judul, Pembimbing dan Penguji
+%===========================================================
+
+\hypersetup{
+    pdftitle={Analisis QoS Jaringan Berbasis Crowdsourcing pada Aplikasi Presensi Menggunakan K-Means},
+    pdfauthor={Abd. Rouf},
+    pdfsubject={Proposal Skripsi}
+}
+
+\begin{document}
+    % Sampul proposal untuk ujian proposal skripsi (Pedoman 4.3 no. 1)
+    \coverproposal
+
+    % Halaman Pengesahan Proposal, Pengesahan Ujian Proposal, dan Persetujuan
+    % Pembimbing diunduh dari https://siakadv2.itbwigalumajang.ac.id lalu
+    % disisipkan saat mencetak (Pedoman 2.2 dan 4.3).
+    \input{isi-bab/kata-pengantar.tex}
+    \pagebreak
+
+    %===========================================================
+    % Daftar isi, daftar tabel, daftar gambar
+    % Setiap baris bisa diklik (linktoc=all di pengaturan/skripsi.cls)
+    %-----------------------------------------------------------
+    \tocchapter{DAFTAR ISI}
+    \tableofcontents
+    \pagebreak
+
+    \tocchapter{DAFTAR TABEL}
+    \listoftables
+    \pagebreak
+
+    \tocchapter{DAFTAR GAMBAR}
+    \listoffigures
+    \pagebreak
+
+    \pagenumbering{arabic}
+    %-----------------------------------------------------------
+    % End Daftar isi, daftar tabel, daftar gambar
+    %===========================================================
+
+    %===========================================================
+    % Bab 1-3 (Pedoman 4.1: Bab 1 maks. 5 hlm, Bab 2 dan 3 maks. 15 hlm)
+    %-----------------------------------------------------------
+    \input{isi-bab/bab1.tex}
+    \input{isi-bab/bab2.tex}
+    \input{isi-bab/bab3.tex}
+    %===========================================================
+
+    %===========================================================
+    % Daftar Pustaka (APA)
+    %-----------------------------------------------------------
+    \tocchapter{DAFTAR PUSTAKA}
+    \printbibliography[title={DAFTAR PUSTAKA}]
+    %===========================================================
+
+    % Lampiran (Pedoman 4.1 no. 3: bagian akhir proposal)
+    \pagebreak
+    \input{isi-bab/lampiran.tex}
+
+\end{document}

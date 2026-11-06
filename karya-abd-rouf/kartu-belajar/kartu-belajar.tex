@@ -1,0 +1,239 @@
+% =====================================================================
+%  Kartu Belajar (versi cetak) - Abd. Rouf
+%  Isi kartu diambil dari kartu-belajar.html oleh buat-tex.mjs.
+%  Jangan sunting kartu-belajar.tex langsung; ubah HTML atau templat ini.
+%  Render: node buat-tex.mjs && xelatex kartu-belajar.tex   (xelatex 2x)
+% =====================================================================
+% !TEX program = xelatex
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\setmainfont{Calibri}
+\setmonofont{Consolas}[Scale=0.9]
+\usepackage[margin=2.2cm,top=2.4cm,bottom=2.4cm]{geometry}
+\usepackage[table]{xcolor}
+\usepackage[skins]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{head}{HTML}{1F3A5F}
+\definecolor{accent}{HTML}{0B7A75}
+\definecolor{accentsoft}{HTML}{DCEFED}
+\definecolor{warm}{HTML}{9A5714}
+\definecolor{warmsoft}{HTML}{F6EAD9}
+\definecolor{muted}{HTML}{56666E}
+\definecolor{garis}{HTML}{D2DBDF}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\linespread{1.12}
+% Rata kiri tanpa pemenggalan kata: lebih mudah dibaca untuk teks bahasa Indonesia
+\frenchspacing
+\hyphenpenalty=10000 \exhyphenpenalty=10000
+\AtBeginDocument{\raggedright}
+\newcommand{\kode}[1]{{\ttfamily\color{head}#1}}
+
+% --- Topik: satu topik dimulai di halaman baru ---
+\titleformat{\section}{\LARGE\bfseries\color{head}}{\color{accent}\thesection}{10pt}{}
+\titlespacing*{\section}{0pt}{0pt}{2pt}
+\newcommand{\topik}[2]{%
+  \clearpage
+  \section{#1}
+  {\color{muted}#2 kartu}\par
+  {\color{accent}\rule{\linewidth}{1.2pt}}\par\vspace{6pt}}
+
+% --- Kartu: {nomor}{pertanyaan}{jawaban}{ibaratnya}{rujukan bab} ---
+\newtcolorbox{kotakkartu}{enhanced, colback=white, colframe=garis,
+  boxrule=0.6pt, arc=3pt, left=10pt, right=10pt, top=7pt, bottom=7pt,
+  borderline west={3pt}{0pt}{accent}, halign=flush left,
+  before skip=0pt, after skip=10pt}
+\newtcolorbox{kotakibarat}{enhanced, colback=warmsoft, frame hidden,
+  arc=2pt, left=8pt, right=8pt, top=4pt, bottom=4pt,
+  halign=flush left, before skip=6pt, after skip=2pt}
+\newcommand{\kartu}[5]{%
+  \begin{kotakkartu}
+  {\color{accent}\bfseries\small Q#1}\quad{\large\bfseries\color{head}#2}\par
+  \vspace{3pt}#3\par
+  \if\relax\detokenize{#4}\relax\else
+    \begin{kotakibarat}{\color{warm}\bfseries Ibaratnya:} #4\end{kotakibarat}%
+  \fi
+  \if\relax\detokenize{#5}\relax\else
+    {\raggedleft\small\color{muted}Rujukan proposal: #5\par}%
+  \fi
+  \end{kotakkartu}}
+
+% --- Daftar topik ---
+\renewcommand{\contentsname}{Daftar Topik}
+\renewcommand{\cfttoctitlefont}{\Large\bfseries\color{head}}
+\renewcommand{\cftsecfont}{\bfseries}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\setlength{\cftbeforesecskip}{5pt}
+
+% --- Kepala & kaki halaman ---
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{{\color{garis}\hrule height\headrulewidth}}
+\renewcommand{\sectionmark}[1]{\markright{#1}}
+\fancyhead[L]{\small\color{muted}Kartu Belajar QoS Presensi}
+\fancyhead[R]{\small\color{muted}\rightmark}
+\fancyfoot[C]{\small\color{muted}\thepage}
+
+\begin{document}
+
+\thispagestyle{plain}
+\begin{center}
+{\small\color{accent}\ttfamily PERSIAPAN UJIAN PROPOSAL}\\[6pt]
+{\huge\bfseries\color{head} Kartu Belajar}\\[4pt]
+{\Large\bfseries QoS Jaringan pada Aplikasi Presensi}\\[8pt]
+{\bfseries Analisis QoS Jaringan Berbasis \textit{Crowdsourcing} pada Aplikasi Presensi Menggunakan K-Means}\\[6pt]
+Abd. Rouf \quad|\quad NIM 223140118
+\end{center}
+\vspace{10pt}
+
+\begin{tcolorbox}[enhanced, colback=accentsoft, frame hidden, arc=3pt, left=10pt, right=10pt]
+\textbf{Cara memakai.} Satu kartu satu konsep, dijelaskan dengan bahasa sehari-hari.
+Baca pertanyaannya (judul tebal di tiap kotak), coba jawab dalam hati, lalu baru baca jawabannya.
+Bagian \textbf{yang dicetak tebal} adalah inti jawaban. Kotak \textcolor{warm}{\textbf{Ibaratnya}}
+berisi perumpamaan untuk membantu menjelaskan ke penguji. \emph{Rujukan proposal} menunjuk ke
+subbab di \texttt{ujian-proposal.pdf}.
+\end{tcolorbox}
+
+\vspace{6pt}
+\tableofcontents
+
+\topik{Gambaran besar}{13}
+\kartu{1}{Jelaskan penelitianmu dalam satu kalimat.}{Aplikasi presensi perusahaan dijadikan \textbf{alat ukur kualitas jaringan}: setiap kali HP karyawan menghubungi server, aplikasi mencatat seberapa cepat dan lancar koneksinya. Hasilnya dinilai dengan standar TIPHON, lalu dikelompokkan dengan K-Means per lokasi kerja, jenis jaringan, dan jam.}{Seperti membagikan termometer ke semua karyawan. Setiap termometer melapor sendiri, lalu suhu tiap ruangan dipetakan.}{Bab 1.1}
+\kartu{2}{Ini penelitian jaringan atau penelitian aplikasi?}{\textbf{Jaringan.} Yang diukur dan dianalisis adalah kualitas jaringan (delay, jitter, tingkat gagal, throughput). Aplikasi presensi hanya alat ukurnya, sama seperti Wireshark menjadi alat ukur di penelitian QoS lain.}{}{Bab 1.2}
+\kartu{3}{Masalah apa yang ingin diselesaikan?}{Inti masalahnya: \textbf{perusahaan belum punya data objektif tentang kualitas jaringan di setiap lokasi kerja}, yaitu lokasi mana yang buruk, jam berapa, lewat jaringan apa, dan seberapa buruk. Turunannya ada empat: (1) presensi gagal atau terlambat terkirim; (2) tidak ada data per lokasi dan per jam; (3) keluhan tidak bisa dibuktikan; (4) mengukur manual ke setiap lokasi itu mahal dan hanya sesaat.}{}{Bab 1.1, Tabel 1.1}
+\kartu{4}{Offline-first sudah ada. Kenapa masih ada masalah?}{Offline-first hanya mengatasi \textbf{gejalanya}: presensi tidak hilang karena disimpan dulu di HP. \textbf{Penyebabnya}, yaitu jaringan yang buruk, tetap ada dan tidak pernah diukur. Penelitian ini mengukur penyebab itu.}{Seperti ember di bawah atap bocor. Lantainya aman, tapi kamu tetap perlu tahu di mana bocornya supaya atapnya bisa diperbaiki.}{Bab 1.1}
+\kartu{5}{Apa dampak masalah ini bagi perusahaan?}{Rekap kehadiran untuk penggajian bisa terlambat atau belum lengkap, dan HRD harus memeriksanya manual. Biaya pemasangan Wi-Fi atau repeater bisa salah sasaran. Keluhan presensi sulit dibuktikan karena tidak ada data.}{}{Tabel 1.1}
+\kartu{6}{Kenapa penelitian ini harus dilakukan?}{Tiga alasan. (1) Presensi adalah dasar rekap kehadiran dan \textbf{gaji}, jadi jaringan buruk berdampak langsung ke karyawan dan administrasi. (2) Perbaikan jaringan butuh \textbf{biaya}, jadi harus diarahkan ke lokasi yang terbukti bermasalah. (3) Aplikasi presensi \textbf{sudah ada di semua lokasi}, jadi bisa menjadi alat ukur murah tanpa mengirim petugas. Tanpa penelitian ini, perusahaan baru tahu ada masalah setelah presensi telanjur gagal.}{}{Bab 1.1}
+\kartu{7}{Apa tujuan penelitianmu?}{\textbf{Tujuan umum:} menyediakan data objektif tentang kualitas jaringan di setiap lokasi kerja, dengan aplikasi presensi sebagai alat ukur. \textbf{Tujuan khusus:} (1) membuat dan memvalidasi modul telemetri; (2) mengukur kualitas jaringan tiap lokasi dan menilainya dengan TIPHON; (3) mengelompokkan lokasi, jaringan, dan jam dengan K-Means lalu membandingkannya dengan TIPHON dan keterangan HRD. Hasil akhirnya: peta lokasi dan jam berkualitas baik, sedang, dan buruk.}{}{Bab 1.4}
+\kartu{8}{Apa celah penelitian (gap) yang kamu isi?}{Tiga hal. (1) Penelitian QoS lain mengukur \textbf{manual di satu titik}. (2) Penelitian K-Means jaringan memakai \textbf{data pihak ketiga} (Ookla) atau perangkat jaringan (Cacti). (3) Penelitian aplikasi presensi hanya membuat mode offline \textbf{tanpa mengukur jaringannya}. Belum ditemukan yang memakai aplikasi presensi sebagai alat ukur QoS lalu mengelompokkannya dengan K-Means.}{}{Bab 1.1 dan 2.2}
+\kartu{9}{Apa hubungan aplikasi presensi dengan penelitian jaringan untuk S1?}{Menurut Pedoman TA, penelitian ini masuk Bidang Minat \textbf{01 Artificial Intelligence \& Networks}, topik \textbf{01.08 Network Management}, dengan ruang lingkup \textbf{analisis kinerja jaringan} dan penggunaan kecerdasan buatan dalam pengelolaan jaringan. Yang dianalisis adalah kinerja jaringan (QoS). Aplikasi presensi hanya alat ukurnya, dan K-Means adalah bagian kecerdasan buatannya.}{Penelitian tentang kualitas air sumur tetap penelitian air, walaupun alat ambil sampelnya ember milik warga.}{Bab 3.1}
+\kartu{10}{Apa produk penelitianmu? Bukankah aplikasinya sudah jadi?}{Aplikasinya memang sudah ada. Produk yang dikembangkan adalah \textbf{modul telemetri}, yaitu bagian kecil tambahan di aplikasi yang mengukur kualitas jaringan lalu mengirim hasilnya ke server. Modul ini divalidasi dulu, baru dipakai.}{Mobilnya sudah ada, yang kamu buat adalah speedometer yang dipasang di mobil itu.}{Bab 3.1}
+\kartu{11}{Bagaimana membaca judulmu bagian demi bagian?}{\textbf{Analisis QoS Jaringan} = tujuan. \textbf{Berbasis Crowdsourcing} = cara mengumpulkan data. \textbf{pada Aplikasi Presensi} = objek sekaligus alat ukur. \textbf{Menggunakan K-Means} = cara menganalisis. Metode penelitiannya (R\&D) tidak harus ada di judul, cukup dijelaskan di Bab 3.}{}{Sampul, Bab 3.1}
+\kartu{12}{Apa tiga rumusan masalahmu?}{(1) Bagaimana mengembangkan modul telemetri yang hasilnya valid dan tidak mengganggu presensi? (2) Bagaimana kualitas jaringan di setiap lokasi kerja menurut kategori TIPHON? (3) Bagaimana hasil pengelompokan K-Means per lokasi, jenis jaringan, dan waktu, dan seberapa cocok dengan TIPHON serta keterangan HRD?}{}{Bab 1.3}
+\kartu{13}{Apa manfaat nyata penelitian ini untuk perusahaan?}{Peta kualitas jaringan per lokasi tanpa harus mengirim orang mengukur ke setiap posko. Dasar keputusan memasang Wi-Fi atau repeater di lokasi yang tepat. HRD bisa menelusuri keluhan presensi gagal. Modulnya juga bisa terus dipakai setelah penelitian selesai.}{}{Bab 1.5}
+
+\topik{Jaringan \& QoS}{13}
+\kartu{14}{Apa itu server?}{Komputer pusat yang menerima, menyimpan, dan membalas permintaan dari banyak HP. Server aplikasi presensi memakai program \textbf{PocketBase}.}{Seperti kantor pos pusat: semua surat dari berbagai cabang masuk ke sana.}{Bab 2.1.1}
+\kartu{15}{Apa beda Wi-Fi dan jaringan seluler?}{Wi-Fi memakai router atau access point di lokasi setempat. Seluler (4G/5G) memakai menara operator seperti Telkomsel atau XL. Kualitas keduanya bisa sangat berbeda di lokasi yang sama, jadi setiap sampel mencatat jenis jaringannya.}{}{Bab 3.5.4}
+\kartu{16}{Apa itu QoS (Quality of Service)?}{Ukuran seberapa baik jaringan mengantar data, dinyatakan dengan beberapa angka: \textbf{delay}, \textbf{jitter}, \textbf{packet loss}, dan \textbf{throughput}.}{Seperti menilai jasa kurir dari lama pengiriman, ketepatan jadwal, paket yang hilang, dan berapa banyak barang yang bisa dibawa sekali jalan.}{Bab 2.1.2}
+\kartu{17}{Apa itu delay?}{Waktu tunggu dari data dikirim sampai balasan datang, dalam \textbf{milidetik (ms)}; 1 detik = 1.000 ms. Makin kecil makin bagus. Rumusnya \kode{d = t\_terima − t\_kirim}.}{Lama dari kamu mengirim pesan WhatsApp sampai muncul centang dua.}{Bab 2.1.2, Persamaan 2.1}
+\kartu{18}{Apa itu RTT (round-trip time)?}{Delay \textbf{pulang-pergi}: waktu dari permintaan berangkat sampai balasan kembali. Delay di penelitian ini berupa RTT karena diukur dari HP dengan cara kirim lalu tunggu balasan.}{Melempar bola ke dinding lalu menghitung sampai bola kembali ke tanganmu.}{Bab 2.1.5}
+\kartu{19}{Apa itu jitter?}{Seberapa \textbf{tidak stabil} delay. Kalau delay berturut-turut 100, 300, lalu 120 ms, jitter-nya besar. Rumusnya rata-rata selisih delay yang berurutan.}{Bus yang kadang datang 5 menit, kadang 30 menit. Rata-ratanya mungkin wajar, tapi tidak bisa diandalkan.}{Bab 2.1.2, Persamaan 2.2}
+\kartu{20}{Apa itu packet loss?}{Persentase paket data yang hilang di jalan. Data internet dipecah menjadi paket-paket kecil sebelum dikirim, dan sebagian bisa tidak sampai.}{Surat yang dikirim tapi tidak pernah sampai ke alamat.}{Bab 2.1.2, Persamaan 2.3}
+\kartu{21}{Kenapa packet loss diganti dengan “tingkat gagal”?}{Aplikasi Android biasa \textbf{tidak bisa melihat paket} tanpa akses khusus (root atau VPN). Jadi yang dihitung adalah persentase \textbf{permintaan aplikasi} yang gagal karena jaringan. Ukurannya lebih kasar, dan ini ditulis sebagai keterbatasan penelitian.}{}{Bab 2.1.2}
+\kartu{22}{Apa itu throughput?}{Kecepatan nyata pengiriman data, dalam \textbf{kbps} (kilobit per detik). Rumusnya ukuran data × 8 dibagi lama kirim. Diambil dari unggah foto presensi karena ukurannya cukup besar untuk mengukur kecepatan.}{Lebar pipa air: berapa liter air yang mengalir setiap detik.}{Bab 2.1.2, Persamaan 2.4}
+\kartu{23}{Bit, byte, kbps, Mbps: apa bedanya?}{1 \textbf{byte} = 8 \textbf{bit}, itu sebabnya rumus throughput dikali 8. \textbf{kbps} = ribu bit per detik, \textbf{Mbps} = juta bit per detik, jadi 1 Mbps = 1.000 kbps.}{}{Bab 2.1.2}
+\kartu{24}{Apa itu HTTPS, TCP, dan TLS?}{Aturan bahasa aplikasi saat bicara dengan server. \textbf{HTTP} adalah format permintaannya, \textbf{TLS} mengenkripsi isinya (gembok di browser), dan \textbf{TCP} memastikan data sampai utuh dan berurutan. HTTPS = HTTP + TLS di atas TCP.}{Surat (HTTP) dimasukkan ke amplop tersegel (TLS), lalu dikirim lewat kurir tercatat yang wajib minta tanda terima (TCP).}{Bab 2.1.5}
+\kartu{25}{Kenapa tidak memakai ping seperti penelitian jaringan biasa?}{Ping memakai protokol \textbf{ICMP} yang tidak bisa dikirim aplikasi Android biasa tanpa akses root. Selain itu, yang dirasakan karyawan adalah jalur \textbf{HTTPS ke server presensi}, jadi jalur itulah yang diukur.}{}{Bab 2.1.5}
+\kartu{26}{Apa itu lama putus koneksi (outage)?}{Berapa lama HP terputus dari internet sampai tersambung lagi. Dicatat jika putusnya paling sedikit 5 detik. Angka ini menunjukkan seberapa sering mode offline benar-benar dibutuhkan karyawan.}{}{Bab 3.3, Tabel 3.2}
+
+\topik{Standar TIPHON}{8}
+\kartu{27}{Apa itu TIPHON?}{Dokumen standar dari \textbf{ETSI} (lembaga standar telekomunikasi Eropa) tahun 1999 tentang kualitas layanan jaringan berbasis IP. Penelitian QoS di Indonesia memakai kategorinya: sangat bagus, bagus, sedang, dan jelek.}{}{Bab 2.1.3}
+\kartu{28}{Bagaimana cara kerja indeks TIPHON?}{Setiap metrik diubah menjadi angka \textbf{1 sampai 4} (4 = sangat bagus, 1 = jelek), lalu dirata-rata. Rata-rata 3,80–4,00 sangat memuaskan; 3,00–3,79 memuaskan; 2,00–2,99 kurang memuaskan; 1,00–1,99 tidak memuaskan.}{Seperti rapor: setiap pelajaran diberi nilai, lalu dihitung nilai rata-ratanya.}{Bab 2.1.3, Tabel 2.2}
+\kartu{29}{Berapa batas kategori delay menurut TIPHON?}{Kurang dari 150 ms = sangat bagus (4). 150–300 ms = bagus (3). 300–450 ms = sedang (2). Lebih dari 450 ms = jelek (1).}{}{Tabel 2.1}
+\kartu{30}{Berapa batas kategori jitter dan tingkat gagal?}{\textbf{Jitter:} 0 ms sangat bagus, 0–75 ms bagus, 75–125 ms sedang, 125–225 ms jelek. \textbf{Tingkat gagal:} kurang dari 3\% sangat bagus, 3\% sampai kurang dari 15\% bagus, 15\% sampai kurang dari 25\% sedang, 25\% atau lebih jelek.}{}{Tabel 2.1}
+\kartu{31}{Berapa batas kategori throughput?}{Lebih dari 2,1 Mbps = sangat bagus. 1,2–2,1 Mbps = bagus. 700 kbps–1,2 Mbps = sedang. Kurang dari 700 kbps = jelek.}{}{Tabel 2.1}
+\kartu{32}{Kenapa memakai standar dari tahun 1999?}{Karena ini \textbf{dokumen standar}, bukan artikel jurnal, dan masih menjadi acuan jurnal QoS terbaru (Rosid 2023, Fiqria 2024, Basmar 2026). Pedoman meminta minimal 80\% referensi dari 10 tahun terakhir; di proposalmu hanya TIPHON yang lama, jadi 95\% sudah baru.}{}{Bab 2.1.3, Daftar Pustaka}
+\kartu{33}{TIPHON dibuat untuk telepon internet (VoIP). Cocok untuk presensi?}{Betul, ambangnya ketat karena dibuat untuk layanan real-time. Di sini TIPHON dipakai sebagai \textbf{tolok ukur umum} agar hasilnya bisa dibandingkan dengan penelitian lain, bukan untuk menyatakan presensi butuh kualitas setara VoIP. Karena itu hasilnya juga dikelompokkan dengan K-Means, yang tidak bergantung pada ambang TIPHON.}{}{Bab 2.1.3}
+\kartu{34}{Contoh: delay 320 ms, jitter 95 ms, gagal 9\%, throughput 850 kbps. Kategorinya?}{Delay 320 = indeks 2, jitter 95 = 2, gagal 9\% = 3, throughput 850 = 2. Rata-ratanya (2+2+3+2)/4 = \textbf{2,25}, jadi \textbf{kurang memuaskan}. Ini agregat G3 di contoh Bab 3.}{}{Bab 3.7.3, Tabel 3.7}
+
+\topik{Cara mengukur}{13}
+\kartu{35}{Apa itu crowdsourcing?}{Pengumpulan data dari \textbf{banyak orang sekaligus}. Di penelitian ini “orangnya” adalah HP karyawan. Perannya sebagai \textbf{teknik pengumpulan data}, bukan metode penelitian.}{Google Maps tahu jalan mana yang macet karena mengumpulkan data dari HP banyak pengguna di jalan itu.}{Bab 2.1.4}
+\kartu{36}{Apa beda participatory sensing dan opportunistic sensing?}{\textbf{Participatory:} pengguna sengaja menjalankan tes, misalnya menekan tombol Speedtest. \textbf{Opportunistic:} pengukuran berjalan otomatis setiap ada kesempatan, tanpa tindakan pengguna. Penelitian ini memakai opportunistic sensing.}{}{Bab 2.1.4}
+\kartu{37}{Apa itu telemetri, dan apa bedanya dengan crowdsourcing?}{Telemetri adalah pengukuran otomatis dari jauh yang hasilnya dikirim ke pusat (\textit{tele} = jauh, \textit{metron} = ukur). \textbf{Telemetri = alat ukurnya di satu HP.} \textbf{Crowdsourcing = menjalankan alat itu di banyak HP} lalu menggabungkan datanya.}{Telemetri itu termometer yang melapor sendiri. Crowdsourcing itu membagikan termometer tersebut ke 90 orang.}{Bab 2.1.5}
+\kartu{38}{Apa itu probe?}{Tes kecil: \textbf{3 permintaan ringan} ke alamat \kode{/api/health} di server, paling sering setiap 15 menit, dengan batas waktu 5 detik per permintaan. Hasilnya satu nilai delay (median), satu nilai jitter, dan status berhasil atau gagal.}{}{Bab 3.5.3, Gambar 3.3}
+\kartu{39}{Apa itu /api/health?}{Alamat di server yang hanya menjawab “saya hidup” tanpa membuka basis data. Karena sangat ringan, waktu yang terukur hampir seluruhnya adalah waktu perjalanan di jaringan, bukan waktu kerja server.}{}{Bab 2.1.5}
+\kartu{40}{Pengukurannya pasif atau aktif?}{\textbf{Hibrida.} Pasif: mengamati komunikasi presensi yang memang sudah terjadi (sinkronisasi, unggah foto, putus koneksi). Aktif: probe kecil. Disebut “pasif” karena pengguna tidak perlu melakukan apa pun dan alur presensi tidak diubah.}{}{Bab 2.1.5}
+\kartu{41}{Kenapa tidak memakai Speedtest atau Ookla saja?}{Speedtest mengukur ke server Ookla terdekat, \textbf{bukan ke server perusahaan} yang dipakai presensi. Speedtest juga harus dijalankan manual dan memakai banyak kuota. Telemetri mengukur jalur yang sebenarnya dipakai karyawan, otomatis, dan hemat data.}{}{Bab 1.1}
+\kartu{42}{Jam HP bisa salah. Bagaimana delay tetap akurat?}{Delay diukur dengan \textbf{jam monoton} (Stopwatch) di HP, yaitu stopwatch yang selalu maju dan tidak terpengaruh jika jam HP diubah. Waktu mulai dan selesai sama-sama diambil dari HP, jadi selisih jam HP dengan jam server tidak berpengaruh.}{}{Bab 3.3, Tabel 3.2}
+\kartu{43}{Apa itu median, dan kenapa dipakai?}{Nilai tengah setelah data diurutkan. Dari 80, 95, dan 900 ms, mediannya \textbf{95}, sedangkan rata-ratanya 358. Median dipakai karena tidak terseret satu nilai ekstrem akibat gangguan sesaat.}{}{Bab 3.7.2}
+\kartu{44}{Apa itu PCAPdroid dan Wireshark?}{\textbf{PCAPdroid} merekam lalu lintas jaringan di HP tanpa perlu root. \textbf{Wireshark} membaca rekaman itu secara rinci. Keduanya dipakai sebagai alat ukur pembanding yang sudah diakui untuk memvalidasi telemetri.}{}{Bab 3.6, Tabel 3.6}
+\kartu{45}{Apa itu validasi instrumen?}{Membuktikan alat ukur akurat sebelum dipakai. Pada kondisi Wi-Fi, 4G, mode pesawat, dan putus-sambung, hasil telemetri dibandingkan dengan PCAPdroid, minimal 10 pasang per kondisi. Valid jika selisih median \textbf{paling banyak 20\%}.}{Mencocokkan timbangan baru dengan timbangan standar di pasar sebelum dipakai berjualan.}{Bab 3.7.1, Lampiran 2}
+\kartu{46}{Kenapa batas validasinya 20\%, bukan 0\%?}{Telemetri mengukur di tingkat aplikasi (ikut menghitung waktu proses HTTP), sedangkan PCAPdroid di tingkat TCP, jadi selisih kecil pasti ada. Yang dibuktikan adalah keduanya \textbf{searah dan tidak jauh berbeda}. Angka 20\% adalah kriteria yang kamu tetapkan dan tulis sendiri.}{}{Bab 3.7.1}
+\kartu{47}{Apa itu server uji (staging)?}{Server cadangan yang \textbf{terpisah} dari server yang dipakai karyawan, khusus untuk mencoba-coba. Modul diuji dan divalidasi di sini supaya presensi karyawan tidak terganggu.}{}{Bab 3.2.1}
+
+\topik{Aplikasi presensi}{18}
+\kartu{48}{Apa itu Flutter?}{\textbf{Framework} (kerangka kerja) buatan Google untuk membuat aplikasi HP. Aplikasi presensi PT Semeru Agung Mandiri dibuat dengan Flutter.}{}{Bab 3.2.2}
+\kartu{49}{Apa itu Isar?}{Basis data kecil \textbf{di dalam HP}. Data presensi disimpan di sini dulu sebelum dikirim ke server. Sampel telemetri juga disimpan di sini, paling banyak 2.000 sampel.}{Buku catatan saku yang selalu dibawa karyawan.}{Bab 2.1.1}
+\kartu{50}{Apa itu PocketBase?}{Program server sekaligus basis data yang menerima data dari aplikasi. Di dalamnya ada \textbf{koleksi} (seperti tabel): \kode{attendances} untuk presensi, \kode{net\_samples} untuk telemetri, dan \kode{app\_config} untuk saklar.}{}{Bab 3.5.2}
+\kartu{51}{Apa itu arsitektur offline-first?}{Data disimpan di HP dulu, lalu dikirim ke server saat ada sinyal, sehingga presensi tetap tercatat walau sinyal hilang. Hubungannya dengan penelitian: offline-first adalah \textbf{alasan} aplikasi dibuat begitu, dan penelitian ini \textbf{mengukur seberapa buruk} jaringannya.}{Menulis di buku catatan dulu, lalu menyalin ke buku besar kantor saat sempat.}{Bab 2.1.1}
+\kartu{52}{Apa itu antrean sinkronisasi?}{Daftar data presensi yang menunggu dikirim ke server dan akan dicoba ulang jika gagal. Setiap percobaan kirim dicatat telemetri sebagai sampel \kode{sync\_attempt}.}{}{Bab 2.1.1, Gambar 3.2}
+\kartu{53}{Bagaimana telemetri bisa dimatikan dari jauh?}{Telemetri hanya hidup jika \textbf{dua saklar} menyala: saklar di aplikasi dan saklar \kode{app\_config} di server. Jika ada masalah, admin mematikan saklar server dan semua HP berhenti merekam tanpa perlu update aplikasi.}{}{Bab 3.5.2}
+\kartu{54}{Apa isi tabel net\_samples?}{Kode anonim, jenis sampel (probe, sync\_attempt, outage), kode lokasi, jenis jaringan, RTT, jitter, berhasil/gagal, jenis galat, ukuran data, lama putus, waktu, versi aplikasi, versi Android, dan model HP. \textbf{Tidak ada} nama, email, GPS, atau foto. Karyawan hanya bisa menambah data; hanya admin yang bisa melihat.}{}{Bab 3.5.4, Tabel 3.5}
+\kartu{55}{Apa itu geofence, dan apa saja pengecualiannya?}{Geofence = presensi hanya bisa dilakukan jika HP berada di dalam \textbf{radius posko} yang dipilih. Pengecualiannya: (1) \textbf{GAMAS / tugas luar}, boleh presensi dari mana saja dengan menulis keterangan tugas; (2) karyawan dengan izin \textbf{lokasi fleksibel}, radiusnya tidak dicek sama sekali; (3) \textbf{titik sementara admin}, punya radius sendiri.}{Seperti mesin absen yang hanya bisa ditekan di dalam pagar kantor, kecuali bagi petugas lapangan yang punya surat tugas.}{Bab 2.1.1}
+\kartu{56}{Kalau HP offline sejak awal, apakah presensi di posko tetap bisa dan tetap dicek radiusnya?}{\textbf{Bisa, dan radius tetap dicek.} GPS membaca satelit tanpa internet, posisinya terus diperbarui setiap pindah 10 meter, dan daftar posko tersimpan di HP sejak terakhir online. Presensi disimpan di HP dan terkirim otomatis saat online. Syaratnya, HP pernah online minimal sekali setelah login supaya daftar posko sudah tersimpan.}{Seperti kompas: tetap menunjuk arah walaupun tidak ada sinyal HP.}{Bab 2.1.1}
+\kartu{57}{Apakah GAMAS dan lokasi fleksibel jadi masalah bagi penelitian?}{Bisa, jika tidak ditangani. Pada mode itu, kode lokasi yang tercatat tidak menunjukkan tempat orangnya berada; pada lokasi fleksibel, kodenya hanya posko pertama di daftar. Solusinya: setiap sampel diberi kolom \kode{mode}. Sampel GAMAS dan fleksibel \textbf{tidak masuk analisis per posko}, tetapi dianalisis terpisah sebagai kelompok “di luar lokasi kerja”.}{}{Bab 3.7.2}
+\kartu{58}{Apa itu loc\_valid?}{Tanda bahwa lokasi sampel bisa dipercaya: bernilai benar jika sampel diambil \textbf{paling lama 15 menit} dari presensi yang \textbf{lolos geofence}. Hanya sampel ini yang dipakai untuk analisis per posko. Sampel lain tetap dipakai untuk analisis per jenis jaringan dan jam.}{}{Tabel 3.5, Bab 3.7.2}
+\kartu{59}{Presensi offline dikirim jam 3 sore dari rumah. Sampelnya dianggap dari posko?}{\textbf{Tidak.} Percobaan pengiriman dinilai menurut \textbf{waktu pengirimannya}, bukan waktu presensinya. Karena pengirimannya jauh lebih dari 15 menit setelah presensi, \kode{loc\_valid}-nya salah, jadi sampel itu tidak dihitung sebagai jaringan posko.}{}{Bab 3.7.2}
+\kartu{60}{Presensi sekarang tidak wajib Wi-Fi. Apakah itu masalah?}{Justru menguntungkan. Di posko yang sama ada sampel \textbf{Wi-Fi dan data seluler}, jadi keduanya bisa dibandingkan. Jenis jaringan dicatat per sampel, dan kolom \kode{office\_wifi} membedakan Wi-Fi kantor dari Wi-Fi lain. Catatannya: karyawan bebas memilih jaringan, jadi jumlah sampel tiap jenis jaringan di tiap posko harus dilaporkan.}{}{Bab 3.7.2}
+\kartu{61}{Apa itu office\_id?}{Kode lokasi kerja (kantor, posko, atau gudang) yang sudah ada di basis data aplikasi. Dipakai untuk mewakili lokasi \textbf{tanpa mencatat koordinat GPS}, demi privasi.}{}{Bab 3.2.1}
+\kartu{62}{Kalau modul telemetri error, apakah presensi ikut rusak?}{Tidak. Modul (1) hanya mengamati, tidak mengubah alur presensi; (2) setiap fungsinya dibungkus penangkap error (try/catch); (3) hanya mengunggah setelah semua data presensi terkirim; (4) bisa dimatikan dari server; dan (5) diuji dulu di server uji.}{}{Bab 3.5.1}
+\kartu{63}{Apakah telemetri boros kuota dan baterai?}{Sangat kecil: probe paling sering setiap 15 menit, satu sampel kurang dari 300 byte, dan diunggah berkelompok. Targetnya kurang dari \textbf{1 MB per hari per HP}. Beban kuota dan baterai diukur saat validasi.}{}{Bab 3.5.1}
+\kartu{64}{Apa itu rilis bertahap dan pilot?}{Aplikasi baru dirilis dengan telemetri dalam keadaan \textbf{mati}. Lalu telemetri dinyalakan dulu untuk beberapa karyawan (pilot) selama 2 hari. Jika aman, baru dinyalakan untuk semua karyawan.}{}{Bab 3.4}
+\kartu{65}{Apa itu WorkManager, dan kenapa tidak disadap?}{Fitur Android untuk menjalankan tugas di latar belakang saat aplikasi tertutup. Tidak disadap untuk mengurangi risiko, sehingga sampel hanya terkumpul \textbf{saat aplikasi berjalan}. Ini ditulis sebagai batasan penelitian.}{}{Bab 1.2}
+
+\topik{K-Means}{18}
+\kartu{66}{Apa itu clustering?}{Mengelompokkan data yang mirip \textbf{tanpa diberi label} lebih dulu. Termasuk unsupervised learning.}{Memilah tumpukan cucian menurut warna tanpa ada yang memberi tahu kelompoknya apa saja.}{Bab 2.1.6}
+\kartu{67}{Bagaimana cara kerja K-Means?}{(1) Tentukan jumlah kelompok k. (2) Pilih k titik pusat awal. (3) Masukkan setiap data ke pusat \textbf{terdekat}. (4) Hitung ulang setiap pusat sebagai \textbf{rata-rata} anggotanya. (5) Ulangi langkah 3–4 sampai pusat tidak berubah lagi.}{}{Bab 2.1.6}
+\kartu{68}{Apa itu centroid (pusat klaster)?}{Titik pusat kelompok, yaitu rata-rata semua anggotanya. Bisa dibaca langsung, misalnya “delay sekitar 450 ms, gagal 20\%” berarti kelompok itu berkualitas buruk.}{}{Bab 2.1.6, Persamaan 2.6}
+\kartu{69}{Apa itu jarak Euclidean?}{Jarak garis lurus antara dua titik data: kuadratkan selisih setiap metrik, jumlahkan, lalu akarkan. Contoh: dari titik (0, 0) ke (3, 4) jaraknya √(9 + 16) = \textbf{5}.}{}{Bab 2.1.6, Persamaan 2.5}
+\kartu{70}{Kenapa data harus dinormalisasi dulu?}{Satuannya berbeda: delay ratusan ms, gagal 0–100\%, throughput ribuan kbps. Tanpa normalisasi, angka terbesar (throughput) \textbf{menguasai} perhitungan jarak dan metrik lain seolah tidak dianggap.}{Membandingkan dua orang dari tinggi dalam sentimeter dan berat dalam ton: tingginya jadi satu-satunya yang terasa.}{Bab 2.1.6}
+\kartu{71}{Apa itu RobustScaler?}{Cara normalisasi: \kode{(nilai − median) / (Q3 − Q1)}. Memakai median dan rentang bagian tengah data sehingga tahan terhadap nilai ekstrem. Contoh di Bab 3: delay 85 ms menjadi (85 − 250) / 275 = −0,6.}{}{Bab 2.1.6, Persamaan 2.7}
+\kartu{72}{Apa itu kuartil Q1, Q2, dan Q3?}{Titik-titik yang membagi data urut menjadi empat bagian sama banyak. \textbf{Q2 adalah median.} Q3 − Q1 disebut rentang antarkuartil (IQR), tempat 50\% data bagian tengah berada.}{}{Bab 3.7.4}
+\kartu{73}{Yang dikelompokkan itu setiap sampel atau apa?}{Bukan sampel satu per satu, tetapi \textbf{agregat}: gabungan lokasi × jenis jaringan × slot jam, misalnya “Posko A, seluler, pagi”, dengan median setiap metrik. Agregat dengan kurang dari 10 sampel probe tidak ikut K-Means.}{}{Bab 3.7.2}
+\kartu{74}{Apa saja slot waktunya?}{Pagi 05.00–09.00, siang 09.00–15.00, sore 15.00–19.00, malam 19.00–05.00. Tujuannya agar terlihat jam berapa kualitas jaringan paling buruk.}{}{Bab 3.7.2}
+\kartu{75}{Berapa nilai k, dan bagaimana menentukannya?}{Tidak ditebak. Diuji k = 2 sampai 6, lalu dipilih dengan \textbf{metode elbow} dan \textbf{nilai silhouette} tertinggi. Dugaan awal k = 3 (baik, sedang, buruk), tetapi data yang menentukan.}{}{Bab 3.7.4}
+\kartu{76}{Apa itu metode elbow?}{Hitung SSE (total kuadrat jarak setiap data ke pusatnya) untuk setiap k. SSE selalu turun saat k bertambah. Pilih k di titik \textbf{“siku”}, yaitu titik setelah itu penurunannya sudah tidak berarti.}{Menambah kasir di toko: dari 1 ke 3 kasir antrean berkurang drastis, dari 5 ke 6 hampir tidak terasa. Titik “cukup” itulah sikunya.}{Bab 2.1.7, Persamaan 2.8}
+\kartu{77}{Apa itu nilai silhouette?}{Skor dari −1 sampai 1 yang menunjukkan seberapa dekat data dengan kelompoknya sendiri dibanding kelompok lain. Patokan umum: di atas 0,5 baik, 0,25–0,5 cukup, di bawah 0,25 lemah. Sebagai pembanding, Irwansyah dkk. (2025) memperoleh 0,351.}{}{Bab 2.1.7, Persamaan 2.9}
+\kartu{78}{Apa itu k-means++?}{Cara memilih titik pusat awal yang \textbf{saling berjauhan} agar hasil lebih stabil. Di penelitian ini K-Means dijalankan 10 kali untuk setiap k, lalu diambil hasil dengan SSE terkecil.}{}{Bab 3.7.4}
+\kartu{79}{Kenapa K-Means, bukan DBSCAN, Hierarchical, atau GMM?}{Data QoS berupa angka, tidak ada label, dan hasil K-Means mudah dijelaskan karena pusat klasternya bisa langsung dibaca. DBSCAN parameternya sulit ditentukan dan tidak menghasilkan kategori yang jelas; Hierarchical berat untuk ribuan data; GMM lebih rumit dijelaskan. Perbandingan metode bisa jadi saran penelitian lanjutan.}{}{}
+\kartu{80}{Kenapa tidak memakai klasifikasi seperti Naive Bayes atau SVM?}{Klasifikasi butuh \textbf{data berlabel} (contoh lokasi yang sudah diketahui baik atau buruk) untuk belajar. Data seperti itu belum ada. Clustering justru dipakai untuk \textbf{menemukan} kelompok tanpa label.}{}{}
+\kartu{81}{Untuk apa K-Means kalau sudah ada TIPHON?}{TIPHON menilai \textbf{satu metrik satu per satu}, jadi satu lokasi bisa bagus di delay tetapi buruk di tingkat gagal. K-Means melihat \textbf{semua metrik sekaligus} dan menemukan pola gabungan. Hasil keduanya dibandingkan untuk saling menguatkan.}{}{Bab 3.7.5}
+\kartu{82}{Apa itu tingkat kesesuaian?}{Persentase agregat yang label klasternya cocok dengan kategori TIPHON. Lokasi yang masuk klaster buruk juga dicocokkan dengan keterangan HRD. Jika tidak cocok, itu tetap hasil penelitian dan penyebabnya dibahas.}{}{Bab 3.7.5, Persamaan 3.2}
+\kartu{83}{Apa pelajaran dari agregat G3 di contoh Bab 3?}{G3 (Posko A, seluler, pagi) kategori TIPHON-nya kurang memuaskan, tetapi dengan k = 2 masuk klaster “baik”, dan jaraknya ke kedua pusat hampir sama (1,09 dan 1,18). Artinya dengan k = 2 kualitas “sedang” belum terpisah, jadi k harus diuji lebih dari satu nilai.}{}{Bab 3.7.4, Tabel 3.8}
+
+\topik{Metode penelitian}{11}
+\kartu{84}{Apa itu metode R\&D?}{Research and Development: membuat \textbf{produk} lalu menguji keefektifannya. Produk di penelitian ini adalah modul telemetri.}{}{Bab 3.1}
+\kartu{85}{Apa itu model Borg and Gall, dan kenapa hanya 5 tahap?}{Model R\&D dengan 10 tahap. Diringkas menjadi 5 sesuai skala skripsi: (1) analisis kebutuhan, (2) perancangan modul, (3) implementasi, (4) validasi instrumen, (5) rilis, pengumpulan data, dan analisis. Peringkasan seperti ini lazim di penelitian R\&D.}{}{Bab 3.4, Tabel 3.3}
+\kartu{86}{Kenapa pendekatannya kuantitatif?}{Data utamanya berupa \textbf{angka} (ms, \%, kbps) yang diolah dengan rumus, standar TIPHON, dan K-Means. Wawancara HRD hanya dipakai sebagai pembanding.}{}{Bab 3.1}
+\kartu{87}{Apa populasi dan sampel penelitianmu?}{\textbf{Populasi:} seluruh komunikasi aplikasi presensi dengan server dari HP karyawan. \textbf{Sampel:} semua pengukuran yang tercatat selama 4 minggu hari kerja, tidak dipilih acak. Target minimal 3.000 sampel probe, 2.000 sampel sinkronisasi, dan 30 sampel probe per lokasi.}{}{Bab 3.2.3}
+\kartu{88}{Dari mana angka target sampel itu?}{Perkiraan sekitar 90 karyawan × 2 presensi × 20 hari kerja ≈ 3.600 presensi. Minimal 30 per lokasi supaya rata-ratanya cukup stabil. Wamser dkk. (2021) menegaskan jumlah pengukuran menentukan validitas data crowdsourcing.}{}{Bab 3.2.3}
+\kartu{89}{Kenapa pengumpulan datanya 4 minggu?}{Supaya mencakup semua hari kerja dan variasi jam, termasuk hari sibuk, dan setiap lokasi mendapat sampel cukup. Kualitas jaringan berubah menurut waktu; Basmar \& Yusuf (2026) menemukan jaringan memburuk pada jam sibuk.}{}{Bab 1.1, Bab 3.2.1}
+\kartu{90}{Apa beda data primer dan sekunder di penelitianmu?}{\textbf{Primer} = dikumpulkan sendiri: sampel telemetri, data validasi, dan wawancara HRD. \textbf{Sekunder} = sudah tersedia: daftar lokasi kerja dari basis data aplikasi, serta jurnal dan dokumen standar.}{}{Bab 3.2.4, Tabel 3.1}
+\kartu{91}{Data apa yang dibuang saat pembersihan?}{Hanya sampel dengan RTT ≤ 0 atau lebih dari 60.000 ms (60 detik) dan sampel ganda. Sampel \textbf{tanpa jaringan} justru \textbf{tidak dibuang}, karena posko tanpa sinyal adalah kondisi terburuk. Sampel itu dihitung sebagai persentase waktu tanpa jaringan per posko.}{}{Bab 3.7.2}
+\kartu{92}{Kenapa sampel “tanpa jaringan” tidak boleh dibuang?}{Kalau dibuang, posko yang sama sekali tidak ada sinyal akan tampak punya sedikit data buruk, sehingga hasilnya terlihat lebih baik dari kenyataan. Karena itu dibuat metrik tambahan: \textbf{persentase waktu tanpa jaringan} = probe tanpa jaringan ÷ seluruh probe × 100\%.}{Menilai kelancaran jalan tapi melewatkan hari-hari jalannya ditutup total. Hasilnya pasti terlalu bagus.}{Tabel 3.2, Bab 3.7.2}
+\kartu{93}{Bagaimana urutan jadwal penelitianmu?}{Okt 2026 proposal. Nov ujian proposal, izin perusahaan, perancangan. Nov–Des implementasi. Des validasi. Jan rilis dan pilot. Jan–Feb pengumpulan data 4 minggu dan wawancara HRD. Feb analisis. Feb–Mar penulisan laporan.}{}{Bab 3.8, Tabel 3.9}
+\kartu{94}{Apa saja keterbatasan penelitianmu?}{(1) Hanya mengukur ke server perusahaan. (2) Tingkat gagal adalah pengganti packet loss. (3) Sampel terkumpul saat aplikasi dibuka, terutama di jam presensi. (4) Merek HP tidak dikendalikan. (5) TIPHON dirancang untuk layanan real-time. (6) Hanya Android.}{}{Bab 1.2}
+
+\topik{Privasi \& etika}{6}
+\kartu{95}{Data apa saja yang tidak dicatat?}{Nama, email, ID pengguna asli, koordinat GPS, dan foto. Yang dicatat \textbf{hanya data teknis jaringan}.}{}{Bab 3.5.4}
+\kartu{96}{Apa itu hash SHA-256?}{Rumus yang mengubah ID karyawan menjadi kode acak \textbf{satu arah} yang tidak bisa dikembalikan ke ID aslinya. Gunanya hanya membedakan HP satu dengan lainnya tanpa tahu siapa pemiliknya.}{Seperti blender: buah bisa jadi jus, tapi jus tidak bisa dikembalikan jadi buah utuh.}{Bab 2.1.9, Tabel 3.5}
+\kartu{97}{Apa itu salt pada hash?}{Teks rahasia yang ditambahkan ke ID sebelum di-hash, supaya orang lain tidak bisa menebak kode anonim dengan mencoba-coba ID karyawan satu per satu.}{}{Tabel 3.5}
+\kartu{98}{Apa hubungan penelitian ini dengan UU PDP?}{UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi meminta pengumpulan data dilakukan secara terbatas, spesifik, sah, dan transparan. Diterapkan lewat: izin tertulis perusahaan, pemberitahuan di aplikasi, hanya data teknis, dan kode hash.}{}{Bab 2.1.9}
+\kartu{99}{Izin apa yang harus diurus sebelum mengambil data?}{Menurut pedoman 5.4: surat pengantar dari kampus → izin dari perusahaan → verifikasi LPPM dan Dekan, baru penelitian boleh dimulai. Surat izin dan data mentah wajib dilampirkan di skripsi.}{}{Pedoman 5.4}
+\kartu{100}{Bagaimana karyawan tahu datanya dicatat?}{Ada teks pemberitahuan di menu Profil, bagian Tentang Aplikasi, yang menjelaskan apa yang dicatat, apa yang tidak, dan bahwa perusahaan sudah menyetujui.}{}{Lampiran 3}
+
+\topik{Latihan penguji}{15}
+\kartu{101}{“Ini kan cuma menambah log ke aplikasi, apa susahnya?”}{Bagian sulitnya: membuat alat ukur yang \textbf{valid} (dibuktikan dengan PCAPdroid), \textbf{aman untuk produksi} (tidak mengganggu presensi, bisa dimatikan), \textbf{menjaga privasi} (anonim), lalu \textbf{menganalisis} ribuan sampel dengan TIPHON dan K-Means. Log biasa tidak memenuhi syarat-syarat itu.}{}{}
+\kartu{102}{“Yakin belum ada yang meneliti ini?”}{Jawab hati-hati: “Sepanjang penelusuran saya, belum ditemukan penelitian yang memakai aplikasi presensi sebagai alat ukur QoS berbasis crowdsourcing lalu mengelompokkannya dengan K-Means.” Jangan bilang “pasti belum ada”.}{}{}
+\kartu{103}{“Kenapa disebut crowdsourcing kalau karyawan tidak sadar?”}{Istilah yang tepat adalah \textbf{crowdsourced network measurement} dengan pendekatan \textbf{opportunistic sensing}: data diambil otomatis tanpa tindakan pengguna. Karyawan tetap diberi tahu lewat izin perusahaan dan pemberitahuan di aplikasi; mereka hanya tidak perlu melakukan apa pun.}{}{Bab 2.1.4}
+\kartu{104}{“Judulnya Analisis, metodenya R\&D. Bukankah tidak nyambung?”}{Produk R\&D-nya ada, yaitu modul telemetri. Modul itu dikembangkan, divalidasi, lalu dipakai sebagai instrumen. Kata “Analisis” merujuk pada tahap akhir, yaitu menganalisis data hasil pemakaian produk.}{}{}
+\kartu{105}{“Delay yang kamu ukur itu delay jaringan atau delay server?”}{RTT tingkat aplikasi = waktu jaringan pulang-pergi + waktu proses server. Karena \kode{/api/health} sangat ringan dan tidak membuka basis data, angkanya didominasi jaringan. Itulah sebabnya ada validasi dengan PCAPdroid yang mengukur di tingkat TCP.}{}{Bab 2.1.5, 3.7.1}
+\kartu{106}{“Bagaimana kamu tahu sampel itu benar-benar dari Posko A?”}{Presensi normal hanya berhasil jika HP ada di dalam \textbf{radius Posko A} (geofence). Sampel yang diambil paling lama 15 menit dari presensi itu diberi tanda \kode{loc\_valid}, dan hanya sampel inilah yang dipakai untuk analisis per posko. Sampel GAMAS, lokasi fleksibel, dan presensi offline yang terkirim belakangan tidak dihitung sebagai data posko.}{}{Bab 3.7.2}
+\kartu{107}{“Ini kan skripsi aplikasi, kenapa dibilang penelitian jaringan?”}{Yang diukur dan dianalisis adalah \textbf{kinerja jaringan}: delay, jitter, tingkat gagal, throughput. Aplikasi hanya instrumen, sama seperti Wireshark pada penelitian QoS lain. Pedoman TA menempatkannya di topik Network Management, ruang lingkup analisis kinerja jaringan.}{}{Bab 3.1}
+\kartu{108}{“Kalau datanya ternyata sedikit, bagaimana?”}{Periode pengumpulan diperpanjang. Target minimal 30 sampel per lokasi dipantau setiap minggu supaya kekurangan cepat ketahuan. Data validasi di meja menjadi pendukung.}{}{}
+\kartu{109}{“Kalau hasil K-Means tidak sesuai TIPHON atau keterangan HRD?”}{Itu tetap hasil penelitian dan dibahas penyebabnya, misalnya ambang TIPHON terlalu ketat untuk aplikasi yang tidak real-time, atau persepsi HRD berbeda dengan data. Penelitian tidak harus membuktikan hipotesis benar, tetapi harus menjelaskan hasilnya dengan jujur.}{}{Bab 3.7.5}
+\kartu{110}{“K = 3 itu kan karanganmu.”}{K = 3 hanya \textbf{dugaan awal}. Nilai akhirnya ditentukan dari metode elbow dan nilai silhouette pada data nyata, dengan k = 2 sampai 6 diuji. Kalau data menunjukkan k = 4, yang dipakai k = 4.}{}{Bab 3.7.4}
+\kartu{111}{“Merek HP kan bisa memengaruhi hasil?”}{Benar. Karena itu model HP dan versi Android ikut dicatat di setiap sampel sehingga bisa dicek saat analisis. Sebarannya tidak dikendalikan, dan ini ditulis sebagai keterbatasan.}{}{Tabel 3.5}
+\kartu{112}{“Data hanya ada saat orang presensi. Bukankah itu bias?”}{Benar, sampel terkumpul terutama di jam presensi pagi dan sore, dan ini dicatat sebagai keterbatasan. Namun jam itulah yang paling penting bagi perusahaan karena presensi terjadi di jam tersebut. Probe juga berjalan selama aplikasi terbuka, jadi sebagian jam lain ikut terekam.}{}{}
+\kartu{113}{“Apa saran untuk penelitian selanjutnya?”}{(1) Membandingkan K-Means dengan DBSCAN atau GMM. (2) Memprediksi kualitas jaringan dengan machine learning memakai label hasil K-Means. (3) Mengukur di iOS dan lebih banyak operator. (4) Memakai hasil pengukuran untuk mengatur sinkronisasi aplikasi secara otomatis.}{}{}
+\kartu{114}{“Apa kelemahan terbesar penelitianmu?”}{Jawab jujur, tunjukkan kamu sadar: pengukuran hanya ke server perusahaan, tingkat gagal adalah pengganti packet loss, sampel terkumpul terutama di jam presensi, merek HP tidak dikendalikan, dan TIPHON dibuat untuk layanan real-time. \textbf{Setiap kelemahan sudah ada penanganannya atau ditulis sebagai keterbatasan.}}{}{Bab 1.2}
+\kartu{115}{Kalau kamu tidak tahu jawabannya, apa yang sebaiknya dikatakan?}{Jawab jujur: “Itu belum saya kaji. Akan saya tambahkan di Bab 2 atau Bab 3.” Itu jauh lebih baik daripada mengarang. Pahami inti jawaban di kartu-kartu ini, lalu jelaskan dengan bahasamu sendiri, jangan dihafal kata per kata.}{}{}
+
+\end{document}

@@ -1,0 +1,615 @@
+<title>Kartu Belajar Skripsi QoS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: satu kartu besar di tengah, topik sebagai baris chip bersinyal di atasnya, kontrol di bawah; mode "Baca semua" mengganti kartu dengan daftar. */
+:root {
+  --bg: #edf1f3;
+  --surface: #ffffff;
+  --ink: #14232b;
+  --muted: #56666e;
+  --line: #d2dbdf;
+  --accent: #0b7a75;
+  --accent-soft: #dcefed;
+  --warm: #9a5714;
+  --warm-soft: #f6ead9;
+  --ok: #2f7d32;
+  --again: #a13f2b;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1519; --surface: #16222a; --ink: #e3ecef; --muted: #96a7ae; --line: #283a43;
+    --accent: #45c2b8; --accent-soft: #173a3a; --warm: #e6a557; --warm-soft: #3a2c1b;
+    --ok: #6cc070; --again: #ee8a73; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1519; --surface: #16222a; --ink: #e3ecef; --muted: #96a7ae; --line: #283a43;
+  --accent: #45c2b8; --accent-soft: #173a3a; --warm: #e6a557; --warm-soft: #3a2c1b;
+  --ok: #6cc070; --again: #ee8a73; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 20px; }
+header { display: grid; gap: 6px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--display); font-size: clamp(26px, 5vw, 36px); line-height: 1.15; margin: 0; text-wrap: balance; }
+.lead { margin: 0; color: var(--muted); max-width: 62ch; }
+
+/* Topik */
+.decks { display: flex; flex-wrap: wrap; gap: 8px; }
+.deck {
+  display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font: 600 14px/1.2 var(--body); cursor: pointer;
+}
+.deck[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.deck:focus-visible, button:focus-visible, .card:focus-visible, summary:focus-visible { outline: 3px solid var(--warm); outline-offset: 2px; }
+.bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.bars i { width: 3px; background: currentColor; opacity: .25; border-radius: 1px; }
+.bars i:nth-child(1) { height: 4px; } .bars i:nth-child(2) { height: 7px; } .bars i:nth-child(3) { height: 10px; } .bars i:nth-child(4) { height: 12px; }
+.bars i.on { opacity: 1; }
+
+/* Status */
+.status { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+.count { font-family: var(--mono); font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.progress { flex: 1 1 200px; height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; min-width: 0; }
+.progress span { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+.toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+.chk { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); cursor: pointer; }
+.chk input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+/* Kartu */
+.stage { perspective: 1600px; }
+.card { display: grid; cursor: pointer; transition: transform .45s cubic-bezier(.2,.7,.2,1); transform-style: preserve-3d; border-radius: var(--radius); }
+.card.flipped { transform: rotateY(180deg); }
+.face {
+  grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 26px 24px; min-height: 300px; display: grid; align-content: space-between; gap: 18px; min-width: 0;
+}
+.back { transform: rotateY(180deg); }
+.face-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.tag { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.known-badge { font-family: var(--mono); font-size: 12px; color: var(--ok); }
+.q { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 4.4vw, 30px); line-height: 1.22; margin: 0; text-wrap: balance; }
+.hint { font-size: 14px; color: var(--muted); }
+.a { margin: 0; font-size: 17px; }
+.a b { color: var(--ink); }
+code { font-family: var(--mono); font-size: .86em; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.ibarat { background: var(--warm-soft); border-radius: 10px; padding: 12px 14px; font-size: 16px; }
+.ibarat strong { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--warm); margin-bottom: 2px; font-weight: 500; }
+.bab { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.back-body { display: grid; gap: 14px; }
+
+/* Kontrol */
+.controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.judge { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+button.btn {
+  font: 600 15px/1.2 var(--body); padding: 12px 10px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); cursor: pointer; min-width: 0;
+}
+button.btn:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+button.again { color: var(--again); }
+button.got { color: var(--ok); }
+.keys { font-size: 13px; color: var(--muted); text-align: center; margin: 0; }
+kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--surface); }
+
+/* Mode baca */
+.list { display: grid; gap: 8px; }
+.list details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+.list summary { cursor: pointer; font-weight: 600; display: flex; gap: 10px; align-items: baseline; }
+.list summary .tick { font-family: var(--mono); font-size: 12px; color: var(--ok); margin-left: auto; white-space: nowrap; }
+.list .back-body { padding-top: 10px; }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 28px 24px; text-align: center; color: var(--muted); }
+.empty button { margin-top: 12px; }
+footer { font-size: 14px; color: var(--muted); display: grid; gap: 6px; }
+
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .face { padding: 20px 18px; min-height: 260px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .progress span { transition: none; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Persiapan ujian proposal · Abdur Rouf</div>
+    <h1>Kartu Belajar: QoS Jaringan pada Aplikasi Presensi</h1>
+    <p class="lead">Satu kartu satu konsep, dijelaskan dengan bahasa sehari-hari. Baca pertanyaannya, coba jawab dalam hati, lalu balik kartunya. Tandai yang sudah paham supaya latihan berikutnya fokus ke yang belum.</p>
+  </header>
+
+  <nav class="decks" id="decks" aria-label="Pilih topik"></nav>
+
+  <div class="status">
+    <span class="count" id="count"></span>
+    <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+    <div class="toggles">
+      <label class="chk"><input type="checkbox" id="optShuffle"> Acak</label>
+      <label class="chk"><input type="checkbox" id="optUnknown"> Hanya yang belum paham</label>
+      <label class="chk"><input type="checkbox" id="optList"> Baca semua</label>
+    </div>
+  </div>
+
+  <section id="drill">
+    <div class="stage">
+      <div class="card" id="card" tabindex="0" role="button" aria-label="Balik kartu">
+        <div class="face front">
+          <div class="face-top"><span class="tag" id="fTag"></span><span class="known-badge" id="fKnown"></span></div>
+          <p class="q" id="fQ"></p>
+          <span class="hint">Ketuk kartu atau tekan <kbd>Spasi</kbd> untuk melihat jawaban</span>
+        </div>
+        <div class="face back" aria-live="polite">
+          <div class="face-top"><span class="tag" id="bTag"></span><span class="bab" id="bBab"></span></div>
+          <div class="back-body" id="bBody"></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid; gap:8px; margin-top:14px;">
+      <div class="judge">
+        <button class="btn again" id="btnAgain" type="button">Ulang lagi</button>
+        <button class="btn got" id="btnGot" type="button">Sudah paham</button>
+      </div>
+      <div class="controls">
+        <button class="btn" id="btnPrev" type="button">← Sebelumnya</button>
+        <button class="btn primary" id="btnFlip" type="button">Balik</button>
+        <button class="btn" id="btnNext" type="button">Berikutnya →</button>
+      </div>
+      <p class="keys">Papan ketik: <kbd>←</kbd> <kbd>→</kbd> pindah, <kbd>Spasi</kbd> balik, <kbd>1</kbd> ulang lagi, <kbd>2</kbd> sudah paham</p>
+    </div>
+  </section>
+
+  <section class="list" id="list" hidden></section>
+
+  <div class="empty" id="empty" hidden>
+    Semua kartu di topik ini sudah kamu tandai paham.
+    <div><button class="btn" id="btnResetDeck" type="button">Ulangi topik ini dari awal</button></div>
+  </div>
+
+  <footer>
+    <span>Bar sinyal di setiap topik menunjukkan berapa banyak kartu yang sudah kamu tandai paham, dibaca seperti indeks TIPHON: 1 bar = baru mulai, 4 bar = hampir semua paham.</span>
+    <span>Rujukan "Bab" mengarah ke subbab di ujian-proposal.pdf. Tanda paham hanya tersimpan di peramban ini.</span>
+  </footer>
+</div>
+
+<script>
+const DECKS = [
+  { id: "besar", name: "Gambaran besar" },
+  { id: "jaringan", name: "Jaringan & QoS" },
+  { id: "tiphon", name: "Standar TIPHON" },
+  { id: "ukur", name: "Cara mengukur" },
+  { id: "aplikasi", name: "Aplikasi presensi" },
+  { id: "kmeans", name: "K-Means" },
+  { id: "metode", name: "Metode penelitian" },
+  { id: "privasi", name: "Privasi & etika" },
+  { id: "penguji", name: "Latihan penguji" }
+];
+
+// q = depan kartu, a = jawaban, i = perumpamaan (opsional), b = rujukan di proposal
+const CARDS = [
+  // ---------------- Gambaran besar
+  { d: "besar", q: "Jelaskan penelitianmu dalam satu kalimat.",
+    a: "Aplikasi presensi perusahaan dijadikan <b>alat ukur kualitas jaringan</b>: setiap kali HP karyawan menghubungi server, aplikasi mencatat seberapa cepat dan lancar koneksinya. Hasilnya dinilai dengan standar TIPHON, lalu dikelompokkan dengan K-Means per lokasi kerja, jenis jaringan, dan jam.",
+    i: "Seperti membagikan termometer ke semua karyawan. Setiap termometer melapor sendiri, lalu suhu tiap ruangan dipetakan.", b: "Bab 1.1" },
+  { d: "besar", q: "Ini penelitian jaringan atau penelitian aplikasi?",
+    a: "<b>Jaringan.</b> Yang diukur dan dianalisis adalah kualitas jaringan (delay, jitter, tingkat gagal, throughput). Aplikasi presensi hanya alat ukurnya, sama seperti Wireshark menjadi alat ukur di penelitian QoS lain.", b: "Bab 1.2" },
+  { d: "besar", q: "Masalah apa yang ingin diselesaikan?",
+    a: "Inti masalahnya: <b>perusahaan belum punya data objektif tentang kualitas jaringan di setiap lokasi kerja</b>, yaitu lokasi mana yang buruk, jam berapa, lewat jaringan apa, dan seberapa buruk. Turunannya ada empat: (1) presensi gagal atau terlambat terkirim; (2) tidak ada data per lokasi dan per jam; (3) keluhan tidak bisa dibuktikan; (4) mengukur manual ke setiap lokasi itu mahal dan hanya sesaat.", b: "Bab 1.1, Tabel 1.1" },
+  { d: "besar", q: "Offline-first sudah ada. Kenapa masih ada masalah?",
+    a: "Offline-first hanya mengatasi <b>gejalanya</b>: presensi tidak hilang karena disimpan dulu di HP. <b>Penyebabnya</b>, yaitu jaringan yang buruk, tetap ada dan tidak pernah diukur. Penelitian ini mengukur penyebab itu.",
+    i: "Seperti ember di bawah atap bocor. Lantainya aman, tapi kamu tetap perlu tahu di mana bocornya supaya atapnya bisa diperbaiki.", b: "Bab 1.1" },
+  { d: "besar", q: "Apa dampak masalah ini bagi perusahaan?",
+    a: "Rekap kehadiran untuk penggajian bisa terlambat atau belum lengkap, dan HRD harus memeriksanya manual. Biaya pemasangan Wi-Fi atau repeater bisa salah sasaran. Keluhan presensi sulit dibuktikan karena tidak ada data.", b: "Tabel 1.1" },
+  { d: "besar", q: "Kenapa penelitian ini harus dilakukan?",
+    a: "Tiga alasan. (1) Presensi adalah dasar rekap kehadiran dan <b>gaji</b>, jadi jaringan buruk berdampak langsung ke karyawan dan administrasi. (2) Perbaikan jaringan butuh <b>biaya</b>, jadi harus diarahkan ke lokasi yang terbukti bermasalah. (3) Aplikasi presensi <b>sudah ada di semua lokasi</b>, jadi bisa menjadi alat ukur murah tanpa mengirim petugas. Tanpa penelitian ini, perusahaan baru tahu ada masalah setelah presensi telanjur gagal.", b: "Bab 1.1" },
+  { d: "besar", q: "Apa tujuan penelitianmu?",
+    a: "<b>Tujuan umum:</b> menyediakan data objektif tentang kualitas jaringan di setiap lokasi kerja, dengan aplikasi presensi sebagai alat ukur. <b>Tujuan khusus:</b> (1) membuat dan memvalidasi modul telemetri; (2) mengukur kualitas jaringan tiap lokasi dan menilainya dengan TIPHON; (3) mengelompokkan lokasi, jaringan, dan jam dengan K-Means lalu membandingkannya dengan TIPHON dan keterangan HRD. Hasil akhirnya: peta lokasi dan jam berkualitas baik, sedang, dan buruk.", b: "Bab 1.4" },
+  { d: "besar", q: "Apa celah penelitian (gap) yang kamu isi?",
+    a: "Tiga hal. (1) Penelitian QoS lain mengukur <b>manual di satu titik</b>. (2) Penelitian K-Means jaringan memakai <b>data pihak ketiga</b> (Ookla) atau perangkat jaringan (Cacti). (3) Penelitian aplikasi presensi hanya membuat mode offline <b>tanpa mengukur jaringannya</b>. Belum ditemukan yang memakai aplikasi presensi sebagai alat ukur QoS lalu mengelompokkannya dengan K-Means.", b: "Bab 1.1 dan 2.2" },
+  { d: "besar", q: "Apa hubungan aplikasi presensi dengan penelitian jaringan untuk S1?",
+    a: "Menurut Pedoman TA, penelitian ini masuk Bidang Minat <b>01 Artificial Intelligence &amp; Networks</b>, topik <b>01.08 Network Management</b>, dengan ruang lingkup <b>analisis kinerja jaringan</b> dan penggunaan kecerdasan buatan dalam pengelolaan jaringan. Yang dianalisis adalah kinerja jaringan (QoS). Aplikasi presensi hanya alat ukurnya, dan K-Means adalah bagian kecerdasan buatannya.",
+    i: "Penelitian tentang kualitas air sumur tetap penelitian air, walaupun alat ambil sampelnya ember milik warga.", b: "Bab 3.1" },
+  { d: "besar", q: "Apa produk penelitianmu? Bukankah aplikasinya sudah jadi?",
+    a: "Aplikasinya memang sudah ada. Produk yang dikembangkan adalah <b>modul telemetri</b>, yaitu bagian kecil tambahan di aplikasi yang mengukur kualitas jaringan lalu mengirim hasilnya ke server. Modul ini divalidasi dulu, baru dipakai.",
+    i: "Mobilnya sudah ada, yang kamu buat adalah speedometer yang dipasang di mobil itu.", b: "Bab 3.1" },
+  { d: "besar", q: "Bagaimana membaca judulmu bagian demi bagian?",
+    a: "<b>Analisis QoS Jaringan</b> = tujuan. <b>Berbasis Crowdsourcing</b> = cara mengumpulkan data. <b>pada Aplikasi Presensi</b> = objek sekaligus alat ukur. <b>Menggunakan K-Means</b> = cara menganalisis. Metode penelitiannya (R&amp;D) tidak harus ada di judul, cukup dijelaskan di Bab 3.", b: "Sampul, Bab 3.1" },
+  { d: "besar", q: "Apa tiga rumusan masalahmu?",
+    a: "(1) Bagaimana mengembangkan modul telemetri yang hasilnya valid dan tidak mengganggu presensi? (2) Bagaimana kualitas jaringan di setiap lokasi kerja menurut kategori TIPHON? (3) Bagaimana hasil pengelompokan K-Means per lokasi, jenis jaringan, dan waktu, dan seberapa cocok dengan TIPHON serta keterangan HRD?", b: "Bab 1.3" },
+  { d: "besar", q: "Apa manfaat nyata penelitian ini untuk perusahaan?",
+    a: "Peta kualitas jaringan per lokasi tanpa harus mengirim orang mengukur ke setiap posko. Dasar keputusan memasang Wi-Fi atau repeater di lokasi yang tepat. HRD bisa menelusuri keluhan presensi gagal. Modulnya juga bisa terus dipakai setelah penelitian selesai.", b: "Bab 1.5" },
+
+  // ---------------- Jaringan & QoS
+  { d: "jaringan", q: "Apa itu server?",
+    a: "Komputer pusat yang menerima, menyimpan, dan membalas permintaan dari banyak HP. Server aplikasi presensi memakai program <b>PocketBase</b>.",
+    i: "Seperti kantor pos pusat: semua surat dari berbagai cabang masuk ke sana.", b: "Bab 2.1.1" },
+  { d: "jaringan", q: "Apa beda Wi-Fi dan jaringan seluler?",
+    a: "Wi-Fi memakai router atau access point di lokasi setempat. Seluler (4G/5G) memakai menara operator seperti Telkomsel atau XL. Kualitas keduanya bisa sangat berbeda di lokasi yang sama, jadi setiap sampel mencatat jenis jaringannya.", b: "Bab 3.5.4" },
+  { d: "jaringan", q: "Apa itu QoS (Quality of Service)?",
+    a: "Ukuran seberapa baik jaringan mengantar data, dinyatakan dengan beberapa angka: <b>delay</b>, <b>jitter</b>, <b>packet loss</b>, dan <b>throughput</b>.",
+    i: "Seperti menilai jasa kurir dari lama pengiriman, ketepatan jadwal, paket yang hilang, dan berapa banyak barang yang bisa dibawa sekali jalan.", b: "Bab 2.1.2" },
+  { d: "jaringan", q: "Apa itu delay?",
+    a: "Waktu tunggu dari data dikirim sampai balasan datang, dalam <b>milidetik (ms)</b>; 1 detik = 1.000 ms. Makin kecil makin bagus. Rumusnya <code>d = t_terima − t_kirim</code>.",
+    i: "Lama dari kamu mengirim pesan WhatsApp sampai muncul centang dua.", b: "Bab 2.1.2, Persamaan 2.1" },
+  { d: "jaringan", q: "Apa itu RTT (round-trip time)?",
+    a: "Delay <b>pulang-pergi</b>: waktu dari permintaan berangkat sampai balasan kembali. Delay di penelitian ini berupa RTT karena diukur dari HP dengan cara kirim lalu tunggu balasan.",
+    i: "Melempar bola ke dinding lalu menghitung sampai bola kembali ke tanganmu.", b: "Bab 2.1.5" },
+  { d: "jaringan", q: "Apa itu jitter?",
+    a: "Seberapa <b>tidak stabil</b> delay. Kalau delay berturut-turut 100, 300, lalu 120 ms, jitter-nya besar. Rumusnya rata-rata selisih delay yang berurutan.",
+    i: "Bus yang kadang datang 5 menit, kadang 30 menit. Rata-ratanya mungkin wajar, tapi tidak bisa diandalkan.", b: "Bab 2.1.2, Persamaan 2.2" },
+  { d: "jaringan", q: "Apa itu packet loss?",
+    a: "Persentase paket data yang hilang di jalan. Data internet dipecah menjadi paket-paket kecil sebelum dikirim, dan sebagian bisa tidak sampai.",
+    i: "Surat yang dikirim tapi tidak pernah sampai ke alamat.", b: "Bab 2.1.2, Persamaan 2.3" },
+  { d: "jaringan", q: "Kenapa packet loss diganti dengan \"tingkat gagal\"?",
+    a: "Aplikasi Android biasa <b>tidak bisa melihat paket</b> tanpa akses khusus (root atau VPN). Jadi yang dihitung adalah persentase <b>permintaan aplikasi</b> yang gagal karena jaringan. Ukurannya lebih kasar, dan ini ditulis sebagai keterbatasan penelitian.", b: "Bab 2.1.2" },
+  { d: "jaringan", q: "Apa itu throughput?",
+    a: "Kecepatan nyata pengiriman data, dalam <b>kbps</b> (kilobit per detik). Rumusnya ukuran data × 8 dibagi lama kirim. Diambil dari unggah foto presensi karena ukurannya cukup besar untuk mengukur kecepatan.",
+    i: "Lebar pipa air: berapa liter air yang mengalir setiap detik.", b: "Bab 2.1.2, Persamaan 2.4" },
+  { d: "jaringan", q: "Bit, byte, kbps, Mbps: apa bedanya?",
+    a: "1 <b>byte</b> = 8 <b>bit</b>, itu sebabnya rumus throughput dikali 8. <b>kbps</b> = ribu bit per detik, <b>Mbps</b> = juta bit per detik, jadi 1 Mbps = 1.000 kbps.", b: "Bab 2.1.2" },
+  { d: "jaringan", q: "Apa itu HTTPS, TCP, dan TLS?",
+    a: "Aturan bahasa aplikasi saat bicara dengan server. <b>HTTP</b> adalah format permintaannya, <b>TLS</b> mengenkripsi isinya (gembok di browser), dan <b>TCP</b> memastikan data sampai utuh dan berurutan. HTTPS = HTTP + TLS di atas TCP.",
+    i: "Surat (HTTP) dimasukkan ke amplop tersegel (TLS), lalu dikirim lewat kurir tercatat yang wajib minta tanda terima (TCP).", b: "Bab 2.1.5" },
+  { d: "jaringan", q: "Kenapa tidak memakai ping seperti penelitian jaringan biasa?",
+    a: "Ping memakai protokol <b>ICMP</b> yang tidak bisa dikirim aplikasi Android biasa tanpa akses root. Selain itu, yang dirasakan karyawan adalah jalur <b>HTTPS ke server presensi</b>, jadi jalur itulah yang diukur.", b: "Bab 2.1.5" },
+  { d: "jaringan", q: "Apa itu lama putus koneksi (outage)?",
+    a: "Berapa lama HP terputus dari internet sampai tersambung lagi. Dicatat jika putusnya paling sedikit 5 detik. Angka ini menunjukkan seberapa sering mode offline benar-benar dibutuhkan karyawan.", b: "Bab 3.3, Tabel 3.2" },
+
+  // ---------------- TIPHON
+  { d: "tiphon", q: "Apa itu TIPHON?",
+    a: "Dokumen standar dari <b>ETSI</b> (lembaga standar telekomunikasi Eropa) tahun 1999 tentang kualitas layanan jaringan berbasis IP. Penelitian QoS di Indonesia memakai kategorinya: sangat bagus, bagus, sedang, dan jelek.", b: "Bab 2.1.3" },
+  { d: "tiphon", q: "Bagaimana cara kerja indeks TIPHON?",
+    a: "Setiap metrik diubah menjadi angka <b>1 sampai 4</b> (4 = sangat bagus, 1 = jelek), lalu dirata-rata. Rata-rata 3,80–4,00 sangat memuaskan; 3,00–3,79 memuaskan; 2,00–2,99 kurang memuaskan; 1,00–1,99 tidak memuaskan.",
+    i: "Seperti rapor: setiap pelajaran diberi nilai, lalu dihitung nilai rata-ratanya.", b: "Bab 2.1.3, Tabel 2.2" },
+  { d: "tiphon", q: "Berapa batas kategori delay menurut TIPHON?",
+    a: "Kurang dari 150 ms = sangat bagus (4). 150–300 ms = bagus (3). 300–450 ms = sedang (2). Lebih dari 450 ms = jelek (1).", b: "Tabel 2.1" },
+  { d: "tiphon", q: "Berapa batas kategori jitter dan tingkat gagal?",
+    a: "<b>Jitter:</b> 0 ms sangat bagus, 0–75 ms bagus, 75–125 ms sedang, 125–225 ms jelek. <b>Tingkat gagal:</b> kurang dari 3% sangat bagus, 3% sampai kurang dari 15% bagus, 15% sampai kurang dari 25% sedang, 25% atau lebih jelek.", b: "Tabel 2.1" },
+  { d: "tiphon", q: "Berapa batas kategori throughput?",
+    a: "Lebih dari 2,1 Mbps = sangat bagus. 1,2–2,1 Mbps = bagus. 700 kbps–1,2 Mbps = sedang. Kurang dari 700 kbps = jelek.", b: "Tabel 2.1" },
+  { d: "tiphon", q: "Kenapa memakai standar dari tahun 1999?",
+    a: "Karena ini <b>dokumen standar</b>, bukan artikel jurnal, dan masih menjadi acuan jurnal QoS terbaru (Rosid 2023, Fiqria 2024, Basmar 2026). Pedoman meminta minimal 80% referensi dari 10 tahun terakhir; di proposalmu hanya TIPHON yang lama, jadi 95% sudah baru.", b: "Bab 2.1.3, Daftar Pustaka" },
+  { d: "tiphon", q: "TIPHON dibuat untuk telepon internet (VoIP). Cocok untuk presensi?",
+    a: "Betul, ambangnya ketat karena dibuat untuk layanan real-time. Di sini TIPHON dipakai sebagai <b>tolok ukur umum</b> agar hasilnya bisa dibandingkan dengan penelitian lain, bukan untuk menyatakan presensi butuh kualitas setara VoIP. Karena itu hasilnya juga dikelompokkan dengan K-Means, yang tidak bergantung pada ambang TIPHON.", b: "Bab 2.1.3" },
+  { d: "tiphon", q: "Contoh: delay 320 ms, jitter 95 ms, gagal 9%, throughput 850 kbps. Kategorinya?",
+    a: "Delay 320 = indeks 2, jitter 95 = 2, gagal 9% = 3, throughput 850 = 2. Rata-ratanya (2+2+3+2)/4 = <b>2,25</b>, jadi <b>kurang memuaskan</b>. Ini agregat G3 di contoh Bab 3.", b: "Bab 3.7.3, Tabel 3.7" },
+
+  // ---------------- Cara mengukur
+  { d: "ukur", q: "Apa itu crowdsourcing?",
+    a: "Pengumpulan data dari <b>banyak orang sekaligus</b>. Di penelitian ini \"orangnya\" adalah HP karyawan. Perannya sebagai <b>teknik pengumpulan data</b>, bukan metode penelitian.",
+    i: "Google Maps tahu jalan mana yang macet karena mengumpulkan data dari HP banyak pengguna di jalan itu.", b: "Bab 2.1.4" },
+  { d: "ukur", q: "Apa beda participatory sensing dan opportunistic sensing?",
+    a: "<b>Participatory:</b> pengguna sengaja menjalankan tes, misalnya menekan tombol Speedtest. <b>Opportunistic:</b> pengukuran berjalan otomatis setiap ada kesempatan, tanpa tindakan pengguna. Penelitian ini memakai opportunistic sensing.", b: "Bab 2.1.4" },
+  { d: "ukur", q: "Apa itu telemetri, dan apa bedanya dengan crowdsourcing?",
+    a: "Telemetri adalah pengukuran otomatis dari jauh yang hasilnya dikirim ke pusat (<i>tele</i> = jauh, <i>metron</i> = ukur). <b>Telemetri = alat ukurnya di satu HP.</b> <b>Crowdsourcing = menjalankan alat itu di banyak HP</b> lalu menggabungkan datanya.",
+    i: "Telemetri itu termometer yang melapor sendiri. Crowdsourcing itu membagikan termometer tersebut ke 90 orang.", b: "Bab 2.1.5" },
+  { d: "ukur", q: "Apa itu probe?",
+    a: "Tes kecil: <b>3 permintaan ringan</b> ke alamat <code>/api/health</code> di server, paling sering setiap 15 menit, dengan batas waktu 5 detik per permintaan. Hasilnya satu nilai delay (median), satu nilai jitter, dan status berhasil atau gagal.", b: "Bab 3.5.3, Gambar 3.3" },
+  { d: "ukur", q: "Apa itu /api/health?",
+    a: "Alamat di server yang hanya menjawab \"saya hidup\" tanpa membuka basis data. Karena sangat ringan, waktu yang terukur hampir seluruhnya adalah waktu perjalanan di jaringan, bukan waktu kerja server.", b: "Bab 2.1.5" },
+  { d: "ukur", q: "Pengukurannya pasif atau aktif?",
+    a: "<b>Hibrida.</b> Pasif: mengamati komunikasi presensi yang memang sudah terjadi (sinkronisasi, unggah foto, putus koneksi). Aktif: probe kecil. Disebut \"pasif\" karena pengguna tidak perlu melakukan apa pun dan alur presensi tidak diubah.", b: "Bab 2.1.5" },
+  { d: "ukur", q: "Kenapa tidak memakai Speedtest atau Ookla saja?",
+    a: "Speedtest mengukur ke server Ookla terdekat, <b>bukan ke server perusahaan</b> yang dipakai presensi. Speedtest juga harus dijalankan manual dan memakai banyak kuota. Telemetri mengukur jalur yang sebenarnya dipakai karyawan, otomatis, dan hemat data.", b: "Bab 1.1" },
+  { d: "ukur", q: "Jam HP bisa salah. Bagaimana delay tetap akurat?",
+    a: "Delay diukur dengan <b>jam monoton</b> (Stopwatch) di HP, yaitu stopwatch yang selalu maju dan tidak terpengaruh jika jam HP diubah. Waktu mulai dan selesai sama-sama diambil dari HP, jadi selisih jam HP dengan jam server tidak berpengaruh.", b: "Bab 3.3, Tabel 3.2" },
+  { d: "ukur", q: "Apa itu median, dan kenapa dipakai?",
+    a: "Nilai tengah setelah data diurutkan. Dari 80, 95, dan 900 ms, mediannya <b>95</b>, sedangkan rata-ratanya 358. Median dipakai karena tidak terseret satu nilai ekstrem akibat gangguan sesaat.", b: "Bab 3.7.2" },
+  { d: "ukur", q: "Apa itu PCAPdroid dan Wireshark?",
+    a: "<b>PCAPdroid</b> merekam lalu lintas jaringan di HP tanpa perlu root. <b>Wireshark</b> membaca rekaman itu secara rinci. Keduanya dipakai sebagai alat ukur pembanding yang sudah diakui untuk memvalidasi telemetri.", b: "Bab 3.6, Tabel 3.6" },
+  { d: "ukur", q: "Apa itu validasi instrumen?",
+    a: "Membuktikan alat ukur akurat sebelum dipakai. Pada kondisi Wi-Fi, 4G, mode pesawat, dan putus-sambung, hasil telemetri dibandingkan dengan PCAPdroid, minimal 10 pasang per kondisi. Valid jika selisih median <b>paling banyak 20%</b>.",
+    i: "Mencocokkan timbangan baru dengan timbangan standar di pasar sebelum dipakai berjualan.", b: "Bab 3.7.1, Lampiran 2" },
+  { d: "ukur", q: "Kenapa batas validasinya 20%, bukan 0%?",
+    a: "Telemetri mengukur di tingkat aplikasi (ikut menghitung waktu proses HTTP), sedangkan PCAPdroid di tingkat TCP, jadi selisih kecil pasti ada. Yang dibuktikan adalah keduanya <b>searah dan tidak jauh berbeda</b>. Angka 20% adalah kriteria yang kamu tetapkan dan tulis sendiri.", b: "Bab 3.7.1" },
+  { d: "ukur", q: "Apa itu server uji (staging)?",
+    a: "Server cadangan yang <b>terpisah</b> dari server yang dipakai karyawan, khusus untuk mencoba-coba. Modul diuji dan divalidasi di sini supaya presensi karyawan tidak terganggu.", b: "Bab 3.2.1" },
+
+  // ---------------- Aplikasi presensi
+  { d: "aplikasi", q: "Apa itu Flutter?",
+    a: "<b>Framework</b> (kerangka kerja) buatan Google untuk membuat aplikasi HP. Aplikasi presensi PT Semeru Agung Mandiri dibuat dengan Flutter.", b: "Bab 3.2.2" },
+  { d: "aplikasi", q: "Apa itu Isar?",
+    a: "Basis data kecil <b>di dalam HP</b>. Data presensi disimpan di sini dulu sebelum dikirim ke server. Sampel telemetri juga disimpan di sini, paling banyak 2.000 sampel.",
+    i: "Buku catatan saku yang selalu dibawa karyawan.", b: "Bab 2.1.1" },
+  { d: "aplikasi", q: "Apa itu PocketBase?",
+    a: "Program server sekaligus basis data yang menerima data dari aplikasi. Di dalamnya ada <b>koleksi</b> (seperti tabel): <code>attendances</code> untuk presensi, <code>net_samples</code> untuk telemetri, dan <code>app_config</code> untuk saklar.", b: "Bab 3.5.2" },
+  { d: "aplikasi", q: "Apa itu arsitektur offline-first?",
+    a: "Data disimpan di HP dulu, lalu dikirim ke server saat ada sinyal, sehingga presensi tetap tercatat walau sinyal hilang. Hubungannya dengan penelitian: offline-first adalah <b>alasan</b> aplikasi dibuat begitu, dan penelitian ini <b>mengukur seberapa buruk</b> jaringannya.",
+    i: "Menulis di buku catatan dulu, lalu menyalin ke buku besar kantor saat sempat.", b: "Bab 2.1.1" },
+  { d: "aplikasi", q: "Apa itu antrean sinkronisasi?",
+    a: "Daftar data presensi yang menunggu dikirim ke server dan akan dicoba ulang jika gagal. Setiap percobaan kirim dicatat telemetri sebagai sampel <code>sync_attempt</code>.", b: "Bab 2.1.1, Gambar 3.2" },
+  { d: "aplikasi", q: "Bagaimana telemetri bisa dimatikan dari jauh?",
+    a: "Telemetri hanya hidup jika <b>dua saklar</b> menyala: saklar di aplikasi dan saklar <code>app_config</code> di server. Jika ada masalah, admin mematikan saklar server dan semua HP berhenti merekam tanpa perlu update aplikasi.", b: "Bab 3.5.2" },
+  { d: "aplikasi", q: "Apa isi tabel net_samples?",
+    a: "Kode anonim, jenis sampel (probe, sync_attempt, outage), kode lokasi, jenis jaringan, RTT, jitter, berhasil/gagal, jenis galat, ukuran data, lama putus, waktu, versi aplikasi, versi Android, dan model HP. <b>Tidak ada</b> nama, email, GPS, atau foto. Karyawan hanya bisa menambah data; hanya admin yang bisa melihat.", b: "Bab 3.5.4, Tabel 3.5" },
+  { d: "aplikasi", q: "Apa itu geofence, dan apa saja pengecualiannya?",
+    a: "Geofence = presensi hanya bisa dilakukan jika HP berada di dalam <b>radius posko</b> yang dipilih. Pengecualiannya: (1) <b>GAMAS / tugas luar</b>, boleh presensi dari mana saja dengan menulis keterangan tugas; (2) karyawan dengan izin <b>lokasi fleksibel</b>, radiusnya tidak dicek sama sekali; (3) <b>titik sementara admin</b>, punya radius sendiri.",
+    i: "Seperti mesin absen yang hanya bisa ditekan di dalam pagar kantor, kecuali bagi petugas lapangan yang punya surat tugas.", b: "Bab 2.1.1" },
+  { d: "aplikasi", q: "Kalau HP offline sejak awal, apakah presensi di posko tetap bisa dan tetap dicek radiusnya?",
+    a: "<b>Bisa, dan radius tetap dicek.</b> GPS membaca satelit tanpa internet, posisinya terus diperbarui setiap pindah 10 meter, dan daftar posko tersimpan di HP sejak terakhir online. Presensi disimpan di HP dan terkirim otomatis saat online. Syaratnya, HP pernah online minimal sekali setelah login supaya daftar posko sudah tersimpan.",
+    i: "Seperti kompas: tetap menunjuk arah walaupun tidak ada sinyal HP.", b: "Bab 2.1.1" },
+  { d: "aplikasi", q: "Apakah GAMAS dan lokasi fleksibel jadi masalah bagi penelitian?",
+    a: "Bisa, jika tidak ditangani. Pada mode itu, kode lokasi yang tercatat tidak menunjukkan tempat orangnya berada; pada lokasi fleksibel, kodenya hanya posko pertama di daftar. Solusinya: setiap sampel diberi kolom <code>mode</code>. Sampel GAMAS dan fleksibel <b>tidak masuk analisis per posko</b>, tetapi dianalisis terpisah sebagai kelompok \"di luar lokasi kerja\".", b: "Bab 3.7.2" },
+  { d: "aplikasi", q: "Apa itu loc_valid?",
+    a: "Tanda bahwa lokasi sampel bisa dipercaya: bernilai benar jika sampel diambil <b>paling lama 15 menit</b> dari presensi yang <b>lolos geofence</b>. Hanya sampel ini yang dipakai untuk analisis per posko. Sampel lain tetap dipakai untuk analisis per jenis jaringan dan jam.", b: "Tabel 3.5, Bab 3.7.2" },
+  { d: "aplikasi", q: "Presensi offline dikirim jam 3 sore dari rumah. Sampelnya dianggap dari posko?",
+    a: "<b>Tidak.</b> Percobaan pengiriman dinilai menurut <b>waktu pengirimannya</b>, bukan waktu presensinya. Karena pengirimannya jauh lebih dari 15 menit setelah presensi, <code>loc_valid</code>-nya salah, jadi sampel itu tidak dihitung sebagai jaringan posko.", b: "Bab 3.7.2" },
+  { d: "aplikasi", q: "Presensi sekarang tidak wajib Wi-Fi. Apakah itu masalah?",
+    a: "Justru menguntungkan. Di posko yang sama ada sampel <b>Wi-Fi dan data seluler</b>, jadi keduanya bisa dibandingkan. Jenis jaringan dicatat per sampel, dan kolom <code>office_wifi</code> membedakan Wi-Fi kantor dari Wi-Fi lain. Catatannya: karyawan bebas memilih jaringan, jadi jumlah sampel tiap jenis jaringan di tiap posko harus dilaporkan.", b: "Bab 3.7.2" },
+  { d: "aplikasi", q: "Apa itu office_id?",
+    a: "Kode lokasi kerja (kantor, posko, atau gudang) yang sudah ada di basis data aplikasi. Dipakai untuk mewakili lokasi <b>tanpa mencatat koordinat GPS</b>, demi privasi.", b: "Bab 3.2.1" },
+  { d: "aplikasi", q: "Kalau modul telemetri error, apakah presensi ikut rusak?",
+    a: "Tidak. Modul (1) hanya mengamati, tidak mengubah alur presensi; (2) setiap fungsinya dibungkus penangkap error (try/catch); (3) hanya mengunggah setelah semua data presensi terkirim; (4) bisa dimatikan dari server; dan (5) diuji dulu di server uji.", b: "Bab 3.5.1" },
+  { d: "aplikasi", q: "Apakah telemetri boros kuota dan baterai?",
+    a: "Sangat kecil: probe paling sering setiap 15 menit, satu sampel kurang dari 300 byte, dan diunggah berkelompok. Targetnya kurang dari <b>1 MB per hari per HP</b>. Beban kuota dan baterai diukur saat validasi.", b: "Bab 3.5.1" },
+  { d: "aplikasi", q: "Apa itu rilis bertahap dan pilot?",
+    a: "Aplikasi baru dirilis dengan telemetri dalam keadaan <b>mati</b>. Lalu telemetri dinyalakan dulu untuk beberapa karyawan (pilot) selama 2 hari. Jika aman, baru dinyalakan untuk semua karyawan.", b: "Bab 3.4" },
+  { d: "aplikasi", q: "Apa itu WorkManager, dan kenapa tidak disadap?",
+    a: "Fitur Android untuk menjalankan tugas di latar belakang saat aplikasi tertutup. Tidak disadap untuk mengurangi risiko, sehingga sampel hanya terkumpul <b>saat aplikasi berjalan</b>. Ini ditulis sebagai batasan penelitian.", b: "Bab 1.2" },
+
+  // ---------------- K-Means
+  { d: "kmeans", q: "Apa itu clustering?",
+    a: "Mengelompokkan data yang mirip <b>tanpa diberi label</b> lebih dulu. Termasuk unsupervised learning.",
+    i: "Memilah tumpukan cucian menurut warna tanpa ada yang memberi tahu kelompoknya apa saja.", b: "Bab 2.1.6" },
+  { d: "kmeans", q: "Bagaimana cara kerja K-Means?",
+    a: "(1) Tentukan jumlah kelompok k. (2) Pilih k titik pusat awal. (3) Masukkan setiap data ke pusat <b>terdekat</b>. (4) Hitung ulang setiap pusat sebagai <b>rata-rata</b> anggotanya. (5) Ulangi langkah 3–4 sampai pusat tidak berubah lagi.", b: "Bab 2.1.6" },
+  { d: "kmeans", q: "Apa itu centroid (pusat klaster)?",
+    a: "Titik pusat kelompok, yaitu rata-rata semua anggotanya. Bisa dibaca langsung, misalnya \"delay sekitar 450 ms, gagal 20%\" berarti kelompok itu berkualitas buruk.", b: "Bab 2.1.6, Persamaan 2.6" },
+  { d: "kmeans", q: "Apa itu jarak Euclidean?",
+    a: "Jarak garis lurus antara dua titik data: kuadratkan selisih setiap metrik, jumlahkan, lalu akarkan. Contoh: dari titik (0, 0) ke (3, 4) jaraknya √(9 + 16) = <b>5</b>.", b: "Bab 2.1.6, Persamaan 2.5" },
+  { d: "kmeans", q: "Kenapa data harus dinormalisasi dulu?",
+    a: "Satuannya berbeda: delay ratusan ms, gagal 0–100%, throughput ribuan kbps. Tanpa normalisasi, angka terbesar (throughput) <b>menguasai</b> perhitungan jarak dan metrik lain seolah tidak dianggap.",
+    i: "Membandingkan dua orang dari tinggi dalam sentimeter dan berat dalam ton: tingginya jadi satu-satunya yang terasa.", b: "Bab 2.1.6" },
+  { d: "kmeans", q: "Apa itu RobustScaler?",
+    a: "Cara normalisasi: <code>(nilai − median) / (Q3 − Q1)</code>. Memakai median dan rentang bagian tengah data sehingga tahan terhadap nilai ekstrem. Contoh di Bab 3: delay 85 ms menjadi (85 − 250) / 275 = −0,6.", b: "Bab 2.1.6, Persamaan 2.7" },
+  { d: "kmeans", q: "Apa itu kuartil Q1, Q2, dan Q3?",
+    a: "Titik-titik yang membagi data urut menjadi empat bagian sama banyak. <b>Q2 adalah median.</b> Q3 − Q1 disebut rentang antarkuartil (IQR), tempat 50% data bagian tengah berada.", b: "Bab 3.7.4" },
+  { d: "kmeans", q: "Yang dikelompokkan itu setiap sampel atau apa?",
+    a: "Bukan sampel satu per satu, tetapi <b>agregat</b>: gabungan lokasi × jenis jaringan × slot jam, misalnya \"Posko A, seluler, pagi\", dengan median setiap metrik. Agregat dengan kurang dari 10 sampel probe tidak ikut K-Means.", b: "Bab 3.7.2" },
+  { d: "kmeans", q: "Apa saja slot waktunya?",
+    a: "Pagi 05.00–09.00, siang 09.00–15.00, sore 15.00–19.00, malam 19.00–05.00. Tujuannya agar terlihat jam berapa kualitas jaringan paling buruk.", b: "Bab 3.7.2" },
+  { d: "kmeans", q: "Berapa nilai k, dan bagaimana menentukannya?",
+    a: "Tidak ditebak. Diuji k = 2 sampai 6, lalu dipilih dengan <b>metode elbow</b> dan <b>nilai silhouette</b> tertinggi. Dugaan awal k = 3 (baik, sedang, buruk), tetapi data yang menentukan.", b: "Bab 3.7.4" },
+  { d: "kmeans", q: "Apa itu metode elbow?",
+    a: "Hitung SSE (total kuadrat jarak setiap data ke pusatnya) untuk setiap k. SSE selalu turun saat k bertambah. Pilih k di titik <b>\"siku\"</b>, yaitu titik setelah itu penurunannya sudah tidak berarti.",
+    i: "Menambah kasir di toko: dari 1 ke 3 kasir antrean berkurang drastis, dari 5 ke 6 hampir tidak terasa. Titik \"cukup\" itulah sikunya.", b: "Bab 2.1.7, Persamaan 2.8" },
+  { d: "kmeans", q: "Apa itu nilai silhouette?",
+    a: "Skor dari −1 sampai 1 yang menunjukkan seberapa dekat data dengan kelompoknya sendiri dibanding kelompok lain. Patokan umum: di atas 0,5 baik, 0,25–0,5 cukup, di bawah 0,25 lemah. Sebagai pembanding, Irwansyah dkk. (2025) memperoleh 0,351.", b: "Bab 2.1.7, Persamaan 2.9" },
+  { d: "kmeans", q: "Apa itu k-means++?",
+    a: "Cara memilih titik pusat awal yang <b>saling berjauhan</b> agar hasil lebih stabil. Di penelitian ini K-Means dijalankan 10 kali untuk setiap k, lalu diambil hasil dengan SSE terkecil.", b: "Bab 3.7.4" },
+  { d: "kmeans", q: "Kenapa K-Means, bukan DBSCAN, Hierarchical, atau GMM?",
+    a: "Data QoS berupa angka, tidak ada label, dan hasil K-Means mudah dijelaskan karena pusat klasternya bisa langsung dibaca. DBSCAN parameternya sulit ditentukan dan tidak menghasilkan kategori yang jelas; Hierarchical berat untuk ribuan data; GMM lebih rumit dijelaskan. Perbandingan metode bisa jadi saran penelitian lanjutan." },
+  { d: "kmeans", q: "Kenapa tidak memakai klasifikasi seperti Naive Bayes atau SVM?",
+    a: "Klasifikasi butuh <b>data berlabel</b> (contoh lokasi yang sudah diketahui baik atau buruk) untuk belajar. Data seperti itu belum ada. Clustering justru dipakai untuk <b>menemukan</b> kelompok tanpa label." },
+  { d: "kmeans", q: "Untuk apa K-Means kalau sudah ada TIPHON?",
+    a: "TIPHON menilai <b>satu metrik satu per satu</b>, jadi satu lokasi bisa bagus di delay tetapi buruk di tingkat gagal. K-Means melihat <b>semua metrik sekaligus</b> dan menemukan pola gabungan. Hasil keduanya dibandingkan untuk saling menguatkan.", b: "Bab 3.7.5" },
+  { d: "kmeans", q: "Apa itu tingkat kesesuaian?",
+    a: "Persentase agregat yang label klasternya cocok dengan kategori TIPHON. Lokasi yang masuk klaster buruk juga dicocokkan dengan keterangan HRD. Jika tidak cocok, itu tetap hasil penelitian dan penyebabnya dibahas.", b: "Bab 3.7.5, Persamaan 3.2" },
+  { d: "kmeans", q: "Apa pelajaran dari agregat G3 di contoh Bab 3?",
+    a: "G3 (Posko A, seluler, pagi) kategori TIPHON-nya kurang memuaskan, tetapi dengan k = 2 masuk klaster \"baik\", dan jaraknya ke kedua pusat hampir sama (1,09 dan 1,18). Artinya dengan k = 2 kualitas \"sedang\" belum terpisah, jadi k harus diuji lebih dari satu nilai.", b: "Bab 3.7.4, Tabel 3.8" },
+
+  // ---------------- Metode penelitian
+  { d: "metode", q: "Apa itu metode R&D?",
+    a: "Research and Development: membuat <b>produk</b> lalu menguji keefektifannya. Produk di penelitian ini adalah modul telemetri.", b: "Bab 3.1" },
+  { d: "metode", q: "Apa itu model Borg and Gall, dan kenapa hanya 5 tahap?",
+    a: "Model R&D dengan 10 tahap. Diringkas menjadi 5 sesuai skala skripsi: (1) analisis kebutuhan, (2) perancangan modul, (3) implementasi, (4) validasi instrumen, (5) rilis, pengumpulan data, dan analisis. Peringkasan seperti ini lazim di penelitian R&D.", b: "Bab 3.4, Tabel 3.3" },
+  { d: "metode", q: "Kenapa pendekatannya kuantitatif?",
+    a: "Data utamanya berupa <b>angka</b> (ms, %, kbps) yang diolah dengan rumus, standar TIPHON, dan K-Means. Wawancara HRD hanya dipakai sebagai pembanding.", b: "Bab 3.1" },
+  { d: "metode", q: "Apa populasi dan sampel penelitianmu?",
+    a: "<b>Populasi:</b> seluruh komunikasi aplikasi presensi dengan server dari HP karyawan. <b>Sampel:</b> semua pengukuran yang tercatat selama 4 minggu hari kerja, tidak dipilih acak. Target minimal 3.000 sampel probe, 2.000 sampel sinkronisasi, dan 30 sampel probe per lokasi.", b: "Bab 3.2.3" },
+  { d: "metode", q: "Dari mana angka target sampel itu?",
+    a: "Perkiraan sekitar 90 karyawan × 2 presensi × 20 hari kerja ≈ 3.600 presensi. Minimal 30 per lokasi supaya rata-ratanya cukup stabil. Wamser dkk. (2021) menegaskan jumlah pengukuran menentukan validitas data crowdsourcing.", b: "Bab 3.2.3" },
+  { d: "metode", q: "Kenapa pengumpulan datanya 4 minggu?",
+    a: "Supaya mencakup semua hari kerja dan variasi jam, termasuk hari sibuk, dan setiap lokasi mendapat sampel cukup. Kualitas jaringan berubah menurut waktu; Basmar &amp; Yusuf (2026) menemukan jaringan memburuk pada jam sibuk.", b: "Bab 1.1, Bab 3.2.1" },
+  { d: "metode", q: "Apa beda data primer dan sekunder di penelitianmu?",
+    a: "<b>Primer</b> = dikumpulkan sendiri: sampel telemetri, data validasi, dan wawancara HRD. <b>Sekunder</b> = sudah tersedia: daftar lokasi kerja dari basis data aplikasi, serta jurnal dan dokumen standar.", b: "Bab 3.2.4, Tabel 3.1" },
+  { d: "metode", q: "Data apa yang dibuang saat pembersihan?",
+    a: "Hanya sampel dengan RTT ≤ 0 atau lebih dari 60.000 ms (60 detik) dan sampel ganda. Sampel <b>tanpa jaringan</b> justru <b>tidak dibuang</b>, karena posko tanpa sinyal adalah kondisi terburuk. Sampel itu dihitung sebagai persentase waktu tanpa jaringan per posko.", b: "Bab 3.7.2" },
+  { d: "metode", q: "Kenapa sampel \"tanpa jaringan\" tidak boleh dibuang?",
+    a: "Kalau dibuang, posko yang sama sekali tidak ada sinyal akan tampak punya sedikit data buruk, sehingga hasilnya terlihat lebih baik dari kenyataan. Karena itu dibuat metrik tambahan: <b>persentase waktu tanpa jaringan</b> = probe tanpa jaringan ÷ seluruh probe × 100%.",
+    i: "Menilai kelancaran jalan tapi melewatkan hari-hari jalannya ditutup total. Hasilnya pasti terlalu bagus.", b: "Tabel 3.2, Bab 3.7.2" },
+  { d: "metode", q: "Bagaimana urutan jadwal penelitianmu?",
+    a: "Okt 2026 proposal. Nov ujian proposal, izin perusahaan, perancangan. Nov–Des implementasi. Des validasi. Jan rilis dan pilot. Jan–Feb pengumpulan data 4 minggu dan wawancara HRD. Feb analisis. Feb–Mar penulisan laporan.", b: "Bab 3.8, Tabel 3.9" },
+  { d: "metode", q: "Apa saja keterbatasan penelitianmu?",
+    a: "(1) Hanya mengukur ke server perusahaan. (2) Tingkat gagal adalah pengganti packet loss. (3) Sampel terkumpul saat aplikasi dibuka, terutama di jam presensi. (4) Merek HP tidak dikendalikan. (5) TIPHON dirancang untuk layanan real-time. (6) Hanya Android.", b: "Bab 1.2" },
+
+  // ---------------- Privasi & etika
+  { d: "privasi", q: "Data apa saja yang tidak dicatat?",
+    a: "Nama, email, ID pengguna asli, koordinat GPS, dan foto. Yang dicatat <b>hanya data teknis jaringan</b>.", b: "Bab 3.5.4" },
+  { d: "privasi", q: "Apa itu hash SHA-256?",
+    a: "Rumus yang mengubah ID karyawan menjadi kode acak <b>satu arah</b> yang tidak bisa dikembalikan ke ID aslinya. Gunanya hanya membedakan HP satu dengan lainnya tanpa tahu siapa pemiliknya.",
+    i: "Seperti blender: buah bisa jadi jus, tapi jus tidak bisa dikembalikan jadi buah utuh.", b: "Bab 2.1.9, Tabel 3.5" },
+  { d: "privasi", q: "Apa itu salt pada hash?",
+    a: "Teks rahasia yang ditambahkan ke ID sebelum di-hash, supaya orang lain tidak bisa menebak kode anonim dengan mencoba-coba ID karyawan satu per satu.", b: "Tabel 3.5" },
+  { d: "privasi", q: "Apa hubungan penelitian ini dengan UU PDP?",
+    a: "UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi meminta pengumpulan data dilakukan secara terbatas, spesifik, sah, dan transparan. Diterapkan lewat: izin tertulis perusahaan, pemberitahuan di aplikasi, hanya data teknis, dan kode hash.", b: "Bab 2.1.9" },
+  { d: "privasi", q: "Izin apa yang harus diurus sebelum mengambil data?",
+    a: "Menurut pedoman 5.4: surat pengantar dari kampus → izin dari perusahaan → verifikasi LPPM dan Dekan, baru penelitian boleh dimulai. Surat izin dan data mentah wajib dilampirkan di skripsi.", b: "Pedoman 5.4" },
+  { d: "privasi", q: "Bagaimana karyawan tahu datanya dicatat?",
+    a: "Ada teks pemberitahuan di menu Profil, bagian Tentang Aplikasi, yang menjelaskan apa yang dicatat, apa yang tidak, dan bahwa perusahaan sudah menyetujui.", b: "Lampiran 3" },
+
+  // ---------------- Latihan penguji
+  { d: "penguji", q: "\"Ini kan cuma menambah log ke aplikasi, apa susahnya?\"",
+    a: "Bagian sulitnya: membuat alat ukur yang <b>valid</b> (dibuktikan dengan PCAPdroid), <b>aman untuk produksi</b> (tidak mengganggu presensi, bisa dimatikan), <b>menjaga privasi</b> (anonim), lalu <b>menganalisis</b> ribuan sampel dengan TIPHON dan K-Means. Log biasa tidak memenuhi syarat-syarat itu." },
+  { d: "penguji", q: "\"Yakin belum ada yang meneliti ini?\"",
+    a: "Jawab hati-hati: \"Sepanjang penelusuran saya, belum ditemukan penelitian yang memakai aplikasi presensi sebagai alat ukur QoS berbasis crowdsourcing lalu mengelompokkannya dengan K-Means.\" Jangan bilang \"pasti belum ada\"." },
+  { d: "penguji", q: "\"Kenapa disebut crowdsourcing kalau karyawan tidak sadar?\"",
+    a: "Istilah yang tepat adalah <b>crowdsourced network measurement</b> dengan pendekatan <b>opportunistic sensing</b>: data diambil otomatis tanpa tindakan pengguna. Karyawan tetap diberi tahu lewat izin perusahaan dan pemberitahuan di aplikasi; mereka hanya tidak perlu melakukan apa pun.", b: "Bab 2.1.4" },
+  { d: "penguji", q: "\"Judulnya Analisis, metodenya R&D. Bukankah tidak nyambung?\"",
+    a: "Produk R&D-nya ada, yaitu modul telemetri. Modul itu dikembangkan, divalidasi, lalu dipakai sebagai instrumen. Kata \"Analisis\" merujuk pada tahap akhir, yaitu menganalisis data hasil pemakaian produk." },
+  { d: "penguji", q: "\"Delay yang kamu ukur itu delay jaringan atau delay server?\"",
+    a: "RTT tingkat aplikasi = waktu jaringan pulang-pergi + waktu proses server. Karena <code>/api/health</code> sangat ringan dan tidak membuka basis data, angkanya didominasi jaringan. Itulah sebabnya ada validasi dengan PCAPdroid yang mengukur di tingkat TCP.", b: "Bab 2.1.5, 3.7.1" },
+  { d: "penguji", q: "\"Bagaimana kamu tahu sampel itu benar-benar dari Posko A?\"",
+    a: "Presensi normal hanya berhasil jika HP ada di dalam <b>radius Posko A</b> (geofence). Sampel yang diambil paling lama 15 menit dari presensi itu diberi tanda <code>loc_valid</code>, dan hanya sampel inilah yang dipakai untuk analisis per posko. Sampel GAMAS, lokasi fleksibel, dan presensi offline yang terkirim belakangan tidak dihitung sebagai data posko.", b: "Bab 3.7.2" },
+  { d: "penguji", q: "\"Ini kan skripsi aplikasi, kenapa dibilang penelitian jaringan?\"",
+    a: "Yang diukur dan dianalisis adalah <b>kinerja jaringan</b>: delay, jitter, tingkat gagal, throughput. Aplikasi hanya instrumen, sama seperti Wireshark pada penelitian QoS lain. Pedoman TA menempatkannya di topik Network Management, ruang lingkup analisis kinerja jaringan.", b: "Bab 3.1" },
+  { d: "penguji", q: "\"Kalau datanya ternyata sedikit, bagaimana?\"",
+    a: "Periode pengumpulan diperpanjang. Target minimal 30 sampel per lokasi dipantau setiap minggu supaya kekurangan cepat ketahuan. Data validasi di meja menjadi pendukung." },
+  { d: "penguji", q: "\"Kalau hasil K-Means tidak sesuai TIPHON atau keterangan HRD?\"",
+    a: "Itu tetap hasil penelitian dan dibahas penyebabnya, misalnya ambang TIPHON terlalu ketat untuk aplikasi yang tidak real-time, atau persepsi HRD berbeda dengan data. Penelitian tidak harus membuktikan hipotesis benar, tetapi harus menjelaskan hasilnya dengan jujur.", b: "Bab 3.7.5" },
+  { d: "penguji", q: "\"K = 3 itu kan karanganmu.\"",
+    a: "K = 3 hanya <b>dugaan awal</b>. Nilai akhirnya ditentukan dari metode elbow dan nilai silhouette pada data nyata, dengan k = 2 sampai 6 diuji. Kalau data menunjukkan k = 4, yang dipakai k = 4.", b: "Bab 3.7.4" },
+  { d: "penguji", q: "\"Merek HP kan bisa memengaruhi hasil?\"",
+    a: "Benar. Karena itu model HP dan versi Android ikut dicatat di setiap sampel sehingga bisa dicek saat analisis. Sebarannya tidak dikendalikan, dan ini ditulis sebagai keterbatasan.", b: "Tabel 3.5" },
+  { d: "penguji", q: "\"Data hanya ada saat orang presensi. Bukankah itu bias?\"",
+    a: "Benar, sampel terkumpul terutama di jam presensi pagi dan sore, dan ini dicatat sebagai keterbatasan. Namun jam itulah yang paling penting bagi perusahaan karena presensi terjadi di jam tersebut. Probe juga berjalan selama aplikasi terbuka, jadi sebagian jam lain ikut terekam." },
+  { d: "penguji", q: "\"Apa saran untuk penelitian selanjutnya?\"",
+    a: "(1) Membandingkan K-Means dengan DBSCAN atau GMM. (2) Memprediksi kualitas jaringan dengan machine learning memakai label hasil K-Means. (3) Mengukur di iOS dan lebih banyak operator. (4) Memakai hasil pengukuran untuk mengatur sinkronisasi aplikasi secara otomatis." },
+  { d: "penguji", q: "\"Apa kelemahan terbesar penelitianmu?\"",
+    a: "Jawab jujur, tunjukkan kamu sadar: pengukuran hanya ke server perusahaan, tingkat gagal adalah pengganti packet loss, sampel terkumpul terutama di jam presensi, merek HP tidak dikendalikan, dan TIPHON dibuat untuk layanan real-time. <b>Setiap kelemahan sudah ada penanganannya atau ditulis sebagai keterbatasan.</b>", b: "Bab 1.2" },
+  { d: "penguji", q: "Kalau kamu tidak tahu jawabannya, apa yang sebaiknya dikatakan?",
+    a: "Jawab jujur: \"Itu belum saya kaji. Akan saya tambahkan di Bab 2 atau Bab 3.\" Itu jauh lebih baik daripada mengarang. Pahami inti jawaban di kartu-kartu ini, lalu jelaskan dengan bahasamu sendiri, jangan dihafal kata per kata." }
+];
+CARDS.forEach((c, n) => { c.id = c.d + "-" + n; });
+
+const STORE_KEY = "kartu-qos-presensi-v1";
+let known = new Set();
+try { const raw = localStorage.getItem(STORE_KEY); if (raw) known = new Set(JSON.parse(raw)); } catch (e) {}
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify([...known])); } catch (e) {} }
+
+const state = { deck: "semua", order: [], pos: 0, flipped: false };
+const $ = id => document.getElementById(id);
+const els = {
+  decks: $("decks"), count: $("count"), bar: $("bar"), card: $("card"),
+  fTag: $("fTag"), fKnown: $("fKnown"), fQ: $("fQ"), bTag: $("bTag"), bBab: $("bBab"), bBody: $("bBody"),
+  drill: $("drill"), list: $("list"), empty: $("empty"),
+  optShuffle: $("optShuffle"), optUnknown: $("optUnknown"), optList: $("optList")
+};
+const deckName = id => (DECKS.find(d => d.id === id) || { name: "Semua topik" }).name;
+
+function barsHtml(ratio) {
+  // 1-4 bar seperti indeks TIPHON; 0 kartu paham tetap 1 bar redup
+  const level = ratio >= 1 ? 4 : ratio >= 0.66 ? 3 : ratio >= 0.33 ? 2 : ratio > 0 ? 1 : 0;
+  return '<span class="bars" aria-hidden="true">' + [1, 2, 3, 4].map(n => '<i class="' + (n <= level ? "on" : "") + '"></i>').join("") + "</span>";
+}
+
+function renderDecks() {
+  const all = [{ id: "semua", name: "Semua topik" }, ...DECKS];
+  els.decks.innerHTML = all.map(d => {
+    const cards = d.id === "semua" ? CARDS : CARDS.filter(c => c.d === d.id);
+    const k = cards.filter(c => known.has(c.id)).length;
+    return '<button type="button" class="deck" data-deck="' + d.id + '" aria-pressed="' + (state.deck === d.id) + '" title="' + k + " dari " + cards.length + ' kartu sudah paham">' +
+      barsHtml(k / cards.length) + d.name + "</button>";
+  }).join("");
+}
+
+function pool() {
+  let cards = state.deck === "semua" ? CARDS.slice() : CARDS.filter(c => c.d === state.deck);
+  if (els.optUnknown.checked) cards = cards.filter(c => !known.has(c.id));
+  return cards;
+}
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+function rebuild(keepId) {
+  const cards = pool();
+  state.order = els.optShuffle.checked ? shuffle(cards) : cards;
+  const idx = keepId ? state.order.findIndex(c => c.id === keepId) : -1;
+  state.pos = idx >= 0 ? idx : 0;
+  state.flipped = false;
+  render();
+}
+
+function backHtml(c) {
+  let h = '<p class="a">' + c.a + "</p>";
+  if (c.i) h += '<div class="ibarat"><strong>Ibaratnya</strong>' + c.i + "</div>";
+  return h;
+}
+
+function render() {
+  renderDecks();
+  const total = state.deck === "semua" ? CARDS : CARDS.filter(c => c.d === state.deck);
+  const k = total.filter(c => known.has(c.id)).length;
+  els.bar.style.width = (total.length ? (k / total.length) * 100 : 0) + "%";
+
+  const listMode = els.optList.checked;
+  const n = state.order.length;
+  els.empty.hidden = n > 0;
+  els.drill.hidden = listMode || n === 0;
+  els.list.hidden = !listMode || n === 0;
+
+  if (listMode) {
+    els.count.textContent = n + " kartu · " + k + "/" + total.length + " paham";
+    els.list.innerHTML = state.order.map(c =>
+      "<details><summary>" + c.q + (known.has(c.id) ? '<span class="tick">✓ paham</span>' : "") + '</summary><div class="back-body">' +
+      backHtml(c) + (c.b ? '<span class="bab">Di proposal: ' + c.b + "</span>" : "") + "</div></details>").join("");
+    return;
+  }
+  if (n === 0) { els.count.textContent = k + "/" + total.length + " paham"; return; }
+
+  const c = state.order[state.pos];
+  els.count.textContent = "Kartu " + (state.pos + 1) + " / " + n + " · " + k + "/" + total.length + " paham";
+  els.fTag.textContent = deckName(c.d);
+  els.bTag.textContent = deckName(c.d);
+  els.fKnown.textContent = known.has(c.id) ? "✓ sudah paham" : "";
+  els.fQ.innerHTML = c.q;
+  els.bBab.textContent = c.b ? "Di proposal: " + c.b : "";
+  els.bBody.innerHTML = backHtml(c);
+  els.card.classList.toggle("flipped", state.flipped);
+  els.card.setAttribute("aria-label", state.flipped ? "Kartu terbalik, tampilkan pertanyaan" : "Balik kartu untuk melihat jawaban");
+}
+
+function flip() { if (!state.order.length) return; state.flipped = !state.flipped; render(); }
+function go(step) {
+  const n = state.order.length; if (!n) return;
+  state.pos = (state.pos + step + n) % n; state.flipped = false; render();
+}
+function judge(isKnown) {
+  const c = state.order[state.pos]; if (!c) return;
+  if (isKnown) known.add(c.id); else known.delete(c.id);
+  save();
+  if (els.optUnknown.checked && isKnown) {
+    // kartu yang baru dipahami keluar dari daftar; tetap di posisi yang sama
+    state.order.splice(state.pos, 1);
+    if (state.pos >= state.order.length) state.pos = 0;
+    state.flipped = false; render();
+  } else { go(1); }
+}
+
+els.decks.addEventListener("click", e => {
+  const b = e.target.closest(".deck"); if (!b) return;
+  state.deck = b.dataset.deck; rebuild();
+});
+els.card.addEventListener("click", flip);
+els.card.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); flip(); } });
+$("btnFlip").addEventListener("click", flip);
+$("btnPrev").addEventListener("click", () => go(-1));
+$("btnNext").addEventListener("click", () => go(1));
+$("btnAgain").addEventListener("click", () => judge(false));
+$("btnGot").addEventListener("click", () => judge(true));
+$("btnResetDeck").addEventListener("click", () => {
+  const ids = (state.deck === "semua" ? CARDS : CARDS.filter(c => c.d === state.deck)).map(c => c.id);
+  ids.forEach(id => known.delete(id)); save(); rebuild();
+});
+els.optShuffle.addEventListener("change", () => rebuild(state.order[state.pos] && state.order[state.pos].id));
+els.optUnknown.addEventListener("change", () => rebuild());
+els.optList.addEventListener("change", () => render());
+document.addEventListener("keydown", e => {
+  if (e.target.closest("input, summary, button") || els.optList.checked) return;
+  if (e.key === "ArrowRight") go(1);
+  else if (e.key === "ArrowLeft") go(-1);
+  else if (e.key === " ") { e.preventDefault(); flip(); }
+  else if (e.key === "1") judge(false);
+  else if (e.key === "2") judge(true);
+});
+
+rebuild();
+</script>
